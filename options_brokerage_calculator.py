@@ -7,7 +7,7 @@ Execution Slippages, and Dynamic Next Trade Capital Carryover.
 Supports optional Next Trade Buy Fee inclusion (Default: True).
 
 Author: Antigravity AI Pair Programmer
-Version: 3.7 (Clean Scratch Rewrite & Production Audit)
+Version: 4.0 (Full Ground-Up Scratch Rewrite)
 """
 
 import sys
@@ -188,7 +188,7 @@ def print_trade_report(calc: OptionTradeCalculation):
     pnl_sign = "+" if calc.net_pnl_realized > 0 else ""
 
     print("\n" + "=" * 65)
-    print(f"{BOLD}{CYAN}  UPSTOX OPTIONS TARGET CALCULATOR (2026 ENGINE AUDIT){RESET}")
+    print(f"{BOLD}{CYAN}  UPSTOX OPTIONS TARGET CALCULATOR (FULL REWRITE AUDIT){RESET}")
     print("=" * 65)
 
     print(f"\n{BOLD}1. INPUT OVERVIEW{RESET}")

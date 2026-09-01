@@ -3,7 +3,7 @@
  * Includes Official Upstox Tariff Modal & Zero-Scroll Dashboard Logic
  *
  * Author: Antigravity AI Pair Programmer
- * Version: 3.6
+ * Version: 4.0 (Full Ground-Up Scratch Rewrite)
  */
 
 document.addEventListener('DOMContentLoaded', () => {

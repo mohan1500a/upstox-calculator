@@ -1,6 +1,9 @@
 /*
  * Lumos Solar Design System - Upstox Options Target Calculator (2026 Engine)
- * Tailored for Vivo V2030 (360px - 412px Viewport Width) & All Mobile Smartphones
+ * Production Scratch Rewrite - Laptop Zero-Scroll & Vivo V2030 (360px) Smartphone Responsive
+ *
+ * Author: Antigravity AI Pair Programmer
+ * Version: 4.0
  */
 
 :root {
@@ -168,6 +171,7 @@ input[type="number"] {
     box-shadow: var(--shadow-soft);
     transition: all 0.2s ease;
     white-space: nowrap;
+    cursor: pointer;
 }
 
 .header-badge:hover {
