@@ -1,6 +1,6 @@
 /*
  * Lumos Solar Design System - Upstox Options Target Calculator (2026 Engine)
- * Ultra-Polished Responsive Engine: Perfect Laptop Zero-Scroll & Mobile Touch Precision
+ * Tailored for Vivo V2030 (360px - 412px Viewport Width) & All Mobile Smartphones
  */
 
 :root {
@@ -759,7 +759,7 @@ input:checked + .slider:before {
 .text-red { color: var(--color-red); }
 
 /* ==========================================================================
-   MOBILE & TABLET RESPONSIVE MEDIA QUERIES (DYNAMIC SCREEN DETECTION)
+   MOBILE & TABLET RESPONSIVE MEDIA QUERIES (TUNED FOR VIVO V2030 & SMARTPHONES)
    ========================================================================== */
 
 /* Tablet & Mobile Screens (<= 880px) */
@@ -817,7 +817,7 @@ input:checked + .slider:before {
     }
 }
 
-/* Smartphone Screens (<= 520px) */
+/* Smartphone Screens (Vivo V2030 360px viewport & all mobile <= 520px) */
 @media (max-width: 520px) {
     .brand {
         justify-content: flex-start;
@@ -836,11 +836,11 @@ input:checked + .slider:before {
         padding: 0.4rem 0.8rem;
     }
 
-    /* Index Chips: Perfect 3-column equal grid on all smartphones */
+    /* Index Chips: Perfect 3-column equal grid on Vivo V2030 (360px width) */
     .preset-chips {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 0.4rem;
+        gap: 0.35rem;
         width: 100%;
     }
 
@@ -848,14 +848,14 @@ input:checked + .slider:before {
     .preset-chips.mt-chip {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 0.4rem;
+        gap: 0.35rem;
         width: 100%;
     }
 
     .chip, .pct-chip {
         width: 100%;
-        padding: 0.5rem 0.25rem;
-        font-size: 0.8rem;
+        padding: 0.5rem 0.15rem;
+        font-size: 0.78rem;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -877,7 +877,7 @@ input:checked + .slider:before {
     }
 
     .card-val {
-        font-size: 1.45rem; /* Readable metric values on small phones */
+        font-size: 1.45rem; /* Readable metric values on Vivo V2030 */
     }
 
     .trend-pill {
