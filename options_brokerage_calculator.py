@@ -7,7 +7,7 @@ Execution Slippages, and Dynamic Next Trade Capital Carryover.
 Supports optional Next Trade Buy Fee inclusion (Default: True).
 
 Author: Antigravity AI Pair Programmer
-Version: 3.5 (Clean Scratch Rewrite & Logic Audit)
+Version: 3.7 (Clean Scratch Rewrite & Production Audit)
 """
 
 import sys
@@ -100,7 +100,8 @@ def calculate_option_target(
     if include_next_trade_fee:
         target_net_pnl += dynamic_next_entry_fee
 
-    c_sell = 0.001 + (1.18 * 0.000496)
+    # Upstox Linear Tax Coefficients (Options)
+    c_sell = 0.001 + (1.18 * 0.000496) # 0.00158528
     fixed_k_buy = (40.0 * 1.18) + (0.00003 * buy_turnover) + (1.18 * 0.000496 * buy_turnover)
 
     denominator = qty * (1.0 - c_sell)
@@ -110,12 +111,12 @@ def calculate_option_target(
     sell_turnover = r_sell * qty
     total_turnover = buy_turnover + sell_turnover
 
-    brokerage = 40.0
-    stt = 0.001 * sell_turnover
-    exchange_charges = 0.000495 * total_turnover
-    sebi_charges = 0.000001 * total_turnover
-    stamp_duty = 0.00003 * buy_turnover
-    gst = 0.18 * (brokerage + exchange_charges + sebi_charges)
+    brokerage = 40.0 # ₹20 buy + ₹20 sell
+    stt = 0.001 * sell_turnover # 0.1% on sell premium
+    exchange_charges = 0.000495 * total_turnover # 0.0495%
+    sebi_charges = 0.000001 * total_turnover # 0.0001%
+    stamp_duty = 0.00003 * buy_turnover # 0.003% buy side
+    gst = 0.18 * (brokerage + exchange_charges + sebi_charges) # 18% GST
 
     total_taxes = brokerage + stt + exchange_charges + sebi_charges + stamp_duty + gst
     total_slippage_pts = s_slip * 2
@@ -187,7 +188,7 @@ def print_trade_report(calc: OptionTradeCalculation):
     pnl_sign = "+" if calc.net_pnl_realized > 0 else ""
 
     print("\n" + "=" * 65)
-    print(f"{BOLD}{CYAN}  UPSTOX OPTIONS TARGET CALCULATOR (2026 LOGIC AUDIT){RESET}")
+    print(f"{BOLD}{CYAN}  UPSTOX OPTIONS TARGET CALCULATOR (2026 ENGINE AUDIT){RESET}")
     print("=" * 65)
 
     print(f"\n{BOLD}1. INPUT OVERVIEW{RESET}")
