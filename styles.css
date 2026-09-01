@@ -1,6 +1,6 @@
 /*
  * Lumos Solar Design System - Upstox Options Target Calculator (2026 Engine)
- * Fully Responsive Engine: Laptop Zero-Scroll Viewport + Mobile Touch Optimizations
+ * Ultra-Polished Responsive Engine: Perfect Laptop Zero-Scroll & Mobile Touch Precision
  */
 
 :root {
@@ -167,6 +167,7 @@ input[type="number"] {
     font-weight: 700;
     box-shadow: var(--shadow-soft);
     transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
 .header-badge:hover {
@@ -178,6 +179,7 @@ input[type="number"] {
     height: 7px;
     background-color: var(--accent-orange);
     border-radius: 50%;
+    flex-shrink: 0;
 }
 
 .icon-btn {
@@ -340,6 +342,8 @@ input[type="number"]:focus {
     cursor: pointer;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     touch-action: manipulation;
+    white-space: nowrap;
+    text-align: center;
 }
 
 .chip:hover, .pct-chip:hover {
@@ -607,6 +611,7 @@ input:checked + .slider:before {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 0.5rem;
 }
 
 .c-title {
@@ -622,12 +627,14 @@ input:checked + .slider:before {
     font-size: 0.82rem;
     color: var(--text-muted);
     font-weight: 700;
+    white-space: nowrap;
 }
 
 .capital-display {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 0.5rem;
 }
 
 .c-amount {
@@ -641,6 +648,7 @@ input:checked + .slider:before {
     font-size: 0.78rem;
     color: var(--text-muted);
     font-weight: 600;
+    white-space: nowrap;
 }
 
 /* MODAL OVERLAY STYLING */
@@ -771,15 +779,27 @@ input:checked + .slider:before {
     }
 
     .app-header {
-        flex-wrap: wrap;
-        gap: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.6rem;
+    }
+
+    .header-right {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .header-badge {
+        flex: 1;
+        justify-content: center;
+        text-align: center;
     }
 
     .nav-pills {
-        order: 3;
-        width: 100%;
-        justify-content: center;
-        margin-top: 0.2rem;
+        display: none; /* Hide redundant Nav Pills on mobile to free up space */
     }
 
     .dashboard-grid {
@@ -799,28 +819,70 @@ input:checked + .slider:before {
 
 /* Smartphone Screens (<= 520px) */
 @media (max-width: 520px) {
+    .brand {
+        justify-content: flex-start;
+    }
+
     .brand-text h1 {
-        font-size: 1.1rem;
+        font-size: 1.15rem;
+    }
+
+    .brand-sub {
+        font-size: 0.72rem;
     }
 
     .header-badge {
-        font-size: 0.72rem;
-        padding: 0.35rem 0.75rem;
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+    }
+
+    /* Index Chips: Perfect 3-column equal grid on all smartphones */
+    .preset-chips {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.4rem;
+        width: 100%;
+    }
+
+    /* Target Profit Chips: Perfect 3-column x 2-row aligned grid */
+    .preset-chips.mt-chip {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.4rem;
+        width: 100%;
+    }
+
+    .chip, .pct-chip {
+        width: 100%;
+        padding: 0.5rem 0.25rem;
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     .grid-2 {
-        grid-template-columns: 1fr; /* Stack Lots & Quantity inputs vertically on small phones */
-        gap: 0.65rem;
+        grid-template-columns: 1fr 1fr; /* Keep 2 side-by-side columns for Lots & Qty on smartphones */
+        gap: 0.5rem;
     }
 
     .metrics-grid {
-        grid-template-columns: 1fr; /* Stack 4 metric cards vertically for clean touch readability */
-        gap: 0.75rem;
+        grid-template-columns: 1fr 1fr; /* Keep 2-column grid for sub metric cards */
+        gap: 0.65rem;
     }
 
     .lumos-metric-card {
         min-height: auto;
-        padding: 1rem 1.15rem;
+        padding: 0.85rem 0.95rem;
+    }
+
+    .card-val {
+        font-size: 1.45rem; /* Readable metric values on small phones */
+    }
+
+    .trend-pill {
+        font-size: 0.72rem;
+        padding: 0.25rem 0.5rem;
     }
 
     .hero-price {
@@ -828,24 +890,28 @@ input:checked + .slider:before {
     }
 
     .hero-badge {
-        font-size: 0.76rem;
-        padding: 0.35rem 0.7rem;
+        font-size: 0.75rem;
+        padding: 0.35rem 0.75rem;
     }
 
-    .chip, .pct-chip {
-        flex: 1; /* Stretch chips evenly on small mobile screens */
-        text-align: center;
-        padding: 0.5rem 0.6rem;
+    /* Bottom Capital Re-entry Card mobile formatting */
+    .carryover-card {
+        padding: 0.95rem 1.15rem;
+    }
+
+    .c-title {
         font-size: 0.8rem;
     }
 
-    .preset-chips {
-        justify-content: space-between;
+    .c-sub {
+        font-size: 0.75rem;
     }
 
-    .capital-display {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.25rem;
+    .c-amount {
+        font-size: 1.45rem;
+    }
+
+    .c-status {
+        font-size: 0.72rem;
     }
 }
