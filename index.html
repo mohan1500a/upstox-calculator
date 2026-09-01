@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upstox Options Target Calculator (Official 2026 Upstox Rules)</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="viewport-app">
+        <!-- Lumos Top Navigation Bar -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-icon"><i class="fa-solid fa-bolt-lightning"></i></div>
+                <div class="brand-text">
+                    <h1>Upstox Options</h1>
+                    <span class="brand-sub">Target Sell Price & Re-entry Calculator</span>
+                </div>
+            </div>
+            
+            <nav class="nav-pills">
+                <button class="nav-pill active"><i class="fa-solid fa-calculator"></i> Options Engine</button>
+            </nav>
+
+            <div class="header-right">
+                <div class="header-badge" id="tariff-info-trigger" style="cursor: pointer;" title="Click for Upstox 2026 Options Tariff Breakdown">
+                    <span class="pulse-dot"></span> Official Upstox 2026 Rules <i class="fa-solid fa-circle-info" style="margin-left: 4px; color: var(--accent-orange);"></i>
+                </div>
+                <button id="reset-btn" class="icon-btn" title="Reset to defaults"><i class="fa-solid fa-rotate-left"></i></button>
+            </div>
+        </header>
+
+        <!-- Lumos Dashboard Grid Layout -->
+        <main class="dashboard-grid">
+            <!-- Left Panel: Trade Inputs -->
+            <section class="card input-panel">
+                <div class="panel-header">
+                    <h2>Trade Inputs</h2>
+                    <span class="sub-date">Real-time Engine</span>
+                </div>
+
+                <!-- Index Select Chips -->
+                <div class="input-group">
+                    <label class="input-label">Index & Lot Size</label>
+                    <div class="preset-chips">
+                        <button type="button" class="chip active" data-index="NIFTY" data-lot="65" data-maxlot="27">NIFTY (65)</button>
+                        <button type="button" class="chip" data-index="BANKNIFTY" data-lot="30" data-maxlot="20">BANKNIFTY (30)</button>
+                        <button type="button" class="chip" data-index="SENSEX" data-lot="20" data-maxlot="50">SENSEX (20)</button>
+                    </div>
+                </div>
+
+                <!-- Lots & Quantity with Lumos Styling -->
+                <div class="input-group">
+                    <div class="grid-2">
+                        <div>
+                            <label for="num-lots" class="input-label">No. of Lots</label>
+                            <div class="input-field">
+                                <input type="number" id="num-lots" value="1" min="1" max="27" step="1">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="buy-qty" class="input-label">Total Quantity</label>
+                            <div class="input-field">
+                                <input type="number" id="buy-qty" value="65" min="65" max="1755" step="65">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lot-status"><strong id="lbl-lot-multiple">1 Lot = 65 units (Max: 27 Lots / 1,755)</strong></div>
+                </div>
+
+                <!-- Buy Price -->
+                <div class="input-group">
+                    <label for="buy-price" class="input-label">Buy Price (₹)</label>
+                    <div class="input-field">
+                        <span class="symbol">₹</span>
+                        <input type="number" id="buy-price" value="100.00" min="0.05" step="0.05">
+                    </div>
+                </div>
+
+                <!-- Slippage -->
+                <div class="input-group">
+                    <label for="slippage" class="input-label">Execution Slippage (Pts / leg)</label>
+                    <div class="input-field">
+                        <span class="symbol">±₹</span>
+                        <input type="number" id="slippage" value="0.50" min="0" step="0.05">
+                    </div>
+                    <div class="sub-info">Realized Buy Price: <strong id="lbl-realized-buy">₹100.50</strong></div>
+                </div>
+
+                <!-- Target Profit % (Default 0%) -->
+                <div class="input-group">
+                    <label for="target-profit-pct" class="input-label">Target Profit (%)</label>
+                    <div class="input-field">
+                        <input type="number" id="target-profit-pct" value="0.0" min="0" max="1000" step="0.5">
+                        <span class="suffix">%</span>
+                    </div>
+                    <div class="preset-chips mt-chip">
+                        <button type="button" class="pct-chip active" data-pct="0">0%</button>
+                        <button type="button" class="pct-chip" data-pct="1">+1%</button>
+                        <button type="button" class="pct-chip" data-pct="2">+2%</button>
+                        <button type="button" class="pct-chip" data-pct="3">+3%</button>
+                        <button type="button" class="pct-chip" data-pct="5">+5%</button>
+                        <button type="button" class="pct-chip" data-pct="10">+10%</button>
+                    </div>
+                </div>
+
+                <!-- Next Trade Fee Include Toggle Switch (DEFAULT ON) -->
+                <div class="input-group toggle-group mb-0">
+                    <div class="toggle-container">
+                        <div class="toggle-text">
+                            <span class="toggle-title" id="lbl-toggle-title">Include Next Trade Fee (+₹24.03)</span>
+                            <span class="toggle-sub">Dynamic buy fee based on input params</span>
+                        </div>
+                        <label class="switch">
+                            <input type="checkbox" id="include-next-fee-toggle" checked>
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Results Dashboard -->
+            <section class="results-panel">
+                <!-- Hero Required Sell Price Banner -->
+                <div class="hero-target-card">
+                    <div class="hero-header">
+                        <span class="hero-tag">REQUIRED TARGET SELL PRICE</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                    </div>
+                    <div class="hero-price" id="req-sell-val">₹102.32</div>
+                    <div class="hero-badge" id="req-sell-sub"><i class="fa-solid fa-arrow-trend-up"></i> +2.32 pts move needed (+2.32% price move) (includes +₹24.03 next trade fee)</div>
+                </div>
+
+                <!-- 4 Lumos Metric Cards Grid -->
+                <div class="metrics-grid">
+                    <div class="lumos-metric-card">
+                        <div class="card-head">
+                            <span class="card-tag">Real Move Needed</span>
+                            <i class="fa-solid fa-arrow-trend-up text-green icon-corner"></i>
+                        </div>
+                        <div class="card-val text-orange" id="real-move-val">+2.32 pts</div>
+                        <span class="trend-pill positive" id="real-move-sub">▲ +2.32% premium move</span>
+                    </div>
+
+                    <div class="lumos-metric-card" id="net-pnl-card">
+                        <div class="card-head">
+                            <span class="card-tag">Actual Net Profit</span>
+                            <i class="fa-solid fa-wallet text-green icon-corner"></i>
+                        </div>
+                        <div class="card-val text-green" id="net-pnl-val">+₹24.03</div>
+                        <span class="trend-pill positive" id="net-roi-val">▲ +0.37% Net ROI</span>
+                    </div>
+
+                    <div class="lumos-metric-card">
+                        <div class="card-head">
+                            <span class="card-tag">Breakeven Sell Price</span>
+                            <i class="fa-solid fa-shield-halved text-muted icon-corner"></i>
+                        </div>
+                        <div class="card-val text-dark" id="breakeven-sell-val">₹101.95</div>
+                        <span class="trend-pill neutral" id="breakeven-sub">+1.95 pts breakeven</span>
+                    </div>
+
+                    <div class="lumos-metric-card">
+                        <div class="card-head">
+                            <span class="card-tag">Taxes & Slippage</span>
+                            <i class="fa-solid fa-receipt text-amber icon-corner"></i>
+                        </div>
+                        <div class="card-val text-amber" id="total-deductions-val">₹126.57</div>
+                        <span class="trend-pill warning" id="deductions-sub">Taxes: ₹61.57 + Slip: ₹65.00</span>
+                    </div>
+                </div>
+
+                <!-- Lumos Clean Capital Carryover Banner -->
+                <div class="carryover-card">
+                    <div class="c-header">
+                        <span class="c-title"><i class="fa-solid fa-wallet text-orange"></i> Next Trade Re-entry Capital</span>
+                        <span class="c-sub" id="next-trade-cost-val">Next Entry Fee: ₹24.03</span>
+                    </div>
+                    <div class="capital-display">
+                        <span class="c-amount" id="next-capital-val">₹6,493.78</span>
+                        <span class="c-status">Net Capital Ready</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Official Upstox Option Tariff Rules Modal -->
+    <div class="modal-overlay" id="tariff-modal" style="display: none;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-shield-halved text-orange"></i> Upstox Options Brokerage Rules (2026)</h3>
+                <button class="modal-close" id="modal-close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <table class="tariff-table">
+                    <thead>
+                        <tr>
+                            <th>Charge Type</th>
+                            <th>Official Rate (Options Segment)</th>
+                            <th>Calculation Logic</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Brokerage</strong></td>
+                            <td><span class="badge-tag">₹20 / order</span></td>
+                            <td>₹20 on Buy + ₹20 on Sell (₹40 roundtrip flat)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>STT / CTT</strong></td>
+                            <td><span class="badge-tag">0.1% on Sell</span></td>
+                            <td>0.1% on sell-side premium value</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Exchange Txn Charge</strong></td>
+                            <td><span class="badge-tag">0.0495% (NSE)</span></td>
+                            <td>0.0495% on total buy + sell turnover</td>
+                        </tr>
+                        <tr>
+                            <td><strong>SEBI Turnover Fee</strong></td>
+                            <td><span class="badge-tag">0.0001%</span></td>
+                            <td>₹10 per crore (0.0001%) on total turnover</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Stamp Duty</strong></td>
+                            <td><span class="badge-tag">0.003% (Buy)</span></td>
+                            <td>0.003% on buy-side premium value only</td>
+                        </tr>
+                        <tr>
+                            <td><strong>GST</strong></td>
+                            <td><span class="badge-tag">18%</span></td>
+                            <td>18% on (Brokerage + Exchange + SEBI fees)</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p class="modal-disclaimer">
+                    <strong>Disclaimer:</strong> This calculator is designed for indicative options trading analysis based on official Upstox statutory rates. Upstox charges ₹20 per executed order. Brokerage and statutory fees directly affect break-even prices and net profitability.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
