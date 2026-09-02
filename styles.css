@@ -1,9 +1,9 @@
 /*
  * Lumos Solar Design System - Upstox Options Target Calculator (2026 Engine)
- * Production Scratch Rewrite - Laptop Zero-Scroll & Vivo V2030 (360px) Smartphone Responsive
+ * Production Scratch Rewrite - Laptop Zero-Scroll & Mobile Touch Precision Layout
  *
  * Author: Antigravity AI Pair Programmer
- * Version: 4.0
+ * Version: 4.1
  */
 
 :root {
@@ -164,9 +164,9 @@ input[type="number"] {
     background: #ffffff;
     border: 1px solid var(--border-color);
     color: var(--text-main);
-    padding: 0.4rem 0.95rem;
+    padding: 0.45rem 0.95rem;
     border-radius: 20px;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 700;
     box-shadow: var(--shadow-soft);
     transition: all 0.2s ease;
@@ -325,10 +325,20 @@ input[type="number"]:focus {
     gap: 0.75rem;
 }
 
-.preset-chips {
-    display: flex;
+/* Index Chips Grid: 3 equal columns */
+.index-chips {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.45rem;
-    flex-wrap: wrap;
+    width: 100%;
+}
+
+/* Profit Chips Grid: 6 equal columns on desktop */
+.profit-chips {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.4rem;
+    width: 100%;
 }
 
 .mt-chip {
@@ -339,7 +349,7 @@ input[type="number"]:focus {
     background: var(--bg-input);
     border: 1px solid transparent;
     color: var(--text-muted);
-    padding: 0.45rem 0.85rem;
+    padding: 0.45rem 0.35rem;
     border-radius: 20px;
     font-size: 0.82rem;
     font-weight: 700;
@@ -348,6 +358,10 @@ input[type="number"]:focus {
     touch-action: manipulation;
     white-space: nowrap;
     text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
 }
 
 .chip:hover, .pct-chip:hover {
@@ -821,8 +835,8 @@ input:checked + .slider:before {
     }
 }
 
-/* Smartphone Screens (Vivo V2030 360px viewport & all mobile <= 520px) */
-@media (max-width: 520px) {
+/* Smartphone Screens (Vivo V2030 360px viewport & all mobile <= 640px) */
+@media (max-width: 640px) {
     .brand {
         justify-content: flex-start;
     }
@@ -841,7 +855,7 @@ input:checked + .slider:before {
     }
 
     /* Index Chips: Perfect 3-column equal grid on Vivo V2030 (360px width) */
-    .preset-chips {
+    .index-chips {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 0.35rem;
@@ -849,7 +863,7 @@ input:checked + .slider:before {
     }
 
     /* Target Profit Chips: Perfect 3-column x 2-row aligned grid */
-    .preset-chips.mt-chip {
+    .profit-chips {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
         gap: 0.35rem;

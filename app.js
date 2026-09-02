@@ -3,7 +3,7 @@
  * Includes Official Upstox Tariff Modal & Zero-Scroll Dashboard Logic
  *
  * Author: Antigravity AI Pair Programmer
- * Version: 4.0 (Full Ground-Up Scratch Rewrite)
+ * Version: 4.2 (Full Scratch Rewrite & Fluid Input Handling)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -70,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- MATHEMATICAL CLOSED-FORM SOLVER (STRICT UPSTOX 2026 RULES) ---
     function computeTargetTrade(params) {
         const qty = Math.max(1, params.numLots * params.lotSize);
-        const pBuy = Math.max(0.01, params.buyPrice);
+        const pBuy = Math.max(0.0, params.buyPrice);
         const slip = Math.max(0.0, params.slippage);
         const targetPct = Math.max(0.0, params.targetProfitPct);
 
@@ -209,36 +209,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- SYNCHRONIZER & INPUT PARSER ---
-    function syncStateFromDOM() {
+    function syncStateFromDOM(e) {
         if (state.isInternalUpdating) return;
 
-        let lots = parseInt(DOM.numLotsInput.value);
+        const targetId = e && e.target ? e.target.id : null;
+
+        // Parse Lots
+        let rawLots = DOM.numLotsInput.value.trim();
+        let lots = parseInt(rawLots);
         if (isNaN(lots) || lots < 1) lots = 1;
         if (lots > state.maxLot) lots = state.maxLot;
         state.numLots = lots;
 
-        let buyPrice = parseFloat(DOM.buyPriceInput.value);
-        if (isNaN(buyPrice) || buyPrice <= 0) buyPrice = 0.01;
+        // Parse Buy Price
+        let rawBuyPrice = DOM.buyPriceInput.value.trim();
+        let buyPrice = parseFloat(rawBuyPrice);
+        if (isNaN(buyPrice) || buyPrice < 0) buyPrice = 0.0;
         state.buyPrice = buyPrice;
 
-        let slip = parseFloat(DOM.slippageInput.value);
-        if (isNaN(slip) || slip < 0) slip = 0.0;
-        state.slippage = slip;
+        // Parse Slippage
+        let rawSlippage = DOM.slippageInput.value.trim();
+        let slippage = parseFloat(rawSlippage);
+        if (isNaN(slippage) || slippage < 0) slippage = 0.0;
+        state.slippage = slippage;
 
-        let targetPct = parseFloat(DOM.targetProfitPctInput.value);
+        // Parse Target Profit %
+        let rawTargetPct = DOM.targetProfitPctInput.value.trim();
+        let targetPct = parseFloat(rawTargetPct);
         if (isNaN(targetPct) || targetPct < 0) targetPct = 0.0;
         state.targetProfitPct = targetPct;
 
         state.includeNextFee = DOM.includeNextFeeToggle ? DOM.includeNextFeeToggle.checked : true;
 
         state.isInternalUpdating = true;
-        DOM.numLotsInput.value = state.numLots;
         DOM.numLotsInput.max = state.maxLot;
 
-        const currentQty = state.numLots * state.lotSize;
-        const maxQty = state.maxLot * state.lotSize;
-        DOM.buyQtyInput.value = currentQty;
-        DOM.buyQtyInput.max = maxQty;
+        if (targetId !== 'num-lots' && targetId !== 'buy-qty') {
+            DOM.numLotsInput.value = state.numLots;
+            DOM.buyQtyInput.value = state.numLots * state.lotSize;
+        } else if (targetId === 'num-lots') {
+            DOM.buyQtyInput.value = state.numLots * state.lotSize;
+        }
+
+        DOM.buyQtyInput.max = state.maxLot * state.lotSize;
         DOM.buyQtyInput.step = state.lotSize;
         state.isInternalUpdating = false;
 
@@ -266,22 +279,54 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- EVENT LISTENERS ---
     DOM.numLotsInput.addEventListener('input', syncStateFromDOM);
     DOM.numLotsInput.addEventListener('change', syncStateFromDOM);
+    DOM.numLotsInput.addEventListener('blur', () => {
+        let val = DOM.numLotsInput.value.trim();
+        if (val === '' || isNaN(parseInt(val))) {
+            DOM.numLotsInput.value = '1';
+        } else {
+            let lots = parseInt(val);
+            if (lots < 1) lots = 1;
+            if (lots > state.maxLot) lots = state.maxLot;
+            DOM.numLotsInput.value = lots;
+        }
+        syncStateFromDOM();
+    });
 
     DOM.buyQtyInput.addEventListener('input', syncStateFromDOM);
     DOM.buyQtyInput.addEventListener('change', syncStateFromQtyInput);
 
     DOM.buyPriceInput.addEventListener('input', syncStateFromDOM);
     DOM.buyPriceInput.addEventListener('change', syncStateFromDOM);
+    DOM.buyPriceInput.addEventListener('blur', () => {
+        let val = DOM.buyPriceInput.value.trim();
+        if (val === '' || isNaN(parseFloat(val))) {
+            DOM.buyPriceInput.value = '0.00';
+        } else {
+            DOM.buyPriceInput.value = Math.max(0, parseFloat(val)).toFixed(2);
+        }
+        syncStateFromDOM();
+    });
 
     DOM.slippageInput.addEventListener('input', syncStateFromDOM);
     DOM.slippageInput.addEventListener('change', syncStateFromDOM);
+    DOM.slippageInput.addEventListener('blur', () => {
+        let val = DOM.slippageInput.value.trim();
+        if (val === '' || isNaN(parseFloat(val))) {
+            DOM.slippageInput.value = '0.00';
+        } else {
+            DOM.slippageInput.value = Math.max(0, parseFloat(val)).toFixed(2);
+        }
+        syncStateFromDOM();
+    });
 
     DOM.targetProfitPctInput.addEventListener('input', syncStateFromDOM);
     DOM.targetProfitPctInput.addEventListener('change', syncStateFromDOM);
     DOM.targetProfitPctInput.addEventListener('blur', () => {
-        let val = parseFloat(DOM.targetProfitPctInput.value);
-        if (isNaN(val) || val < 0) {
+        let val = DOM.targetProfitPctInput.value.trim();
+        if (val === '' || isNaN(parseFloat(val))) {
             DOM.targetProfitPctInput.value = "0.0";
+        } else {
+            DOM.targetProfitPctInput.value = Math.max(0, parseFloat(val)).toFixed(1);
         }
         syncStateFromDOM();
     });
@@ -316,6 +361,9 @@ document.addEventListener('DOMContentLoaded', () => {
             state.maxLot = parseInt(chip.getAttribute('data-maxlot')) || 27;
 
             if (state.numLots > state.maxLot) state.numLots = state.maxLot;
+
+            DOM.numLotsInput.value = state.numLots;
+            DOM.buyQtyInput.value = state.numLots * state.lotSize;
 
             syncStateFromDOM();
         });

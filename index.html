@@ -45,10 +45,10 @@
                     <span class="sub-date">Real-time Engine</span>
                 </div>
 
-                <!-- Index Select Chips -->
+                <!-- Index Select Chips (3-column Grid) -->
                 <div class="input-group">
                     <label class="input-label">Index & Lot Size</label>
-                    <div class="preset-chips">
+                    <div class="index-chips">
                         <button type="button" class="chip active" data-index="NIFTY" data-lot="65" data-maxlot="27">NIFTY (65)</button>
                         <button type="button" class="chip" data-index="BANKNIFTY" data-lot="30" data-maxlot="20">BANKNIFTY (30)</button>
                         <button type="button" class="chip" data-index="SENSEX" data-lot="20" data-maxlot="50">SENSEX (20)</button>
@@ -61,13 +61,13 @@
                         <div>
                             <label for="num-lots" class="input-label">No. of Lots</label>
                             <div class="input-field">
-                                <input type="number" id="num-lots" value="1" min="1" max="27" step="1">
+                                <input type="number" id="num-lots" value="1" min="1" max="27" step="1" inputmode="numeric">
                             </div>
                         </div>
                         <div>
                             <label for="buy-qty" class="input-label">Total Quantity</label>
                             <div class="input-field">
-                                <input type="number" id="buy-qty" value="65" min="65" max="1755" step="65">
+                                <input type="number" id="buy-qty" value="65" min="65" max="1755" step="65" inputmode="numeric">
                             </div>
                         </div>
                     </div>
@@ -79,7 +79,7 @@
                     <label for="buy-price" class="input-label">Buy Price (₹)</label>
                     <div class="input-field">
                         <span class="symbol">₹</span>
-                        <input type="number" id="buy-price" value="100.00" min="0.05" step="0.05">
+                        <input type="number" id="buy-price" value="100.00" min="0" step="0.05" inputmode="decimal">
                     </div>
                 </div>
 
@@ -88,7 +88,7 @@
                     <label for="slippage" class="input-label">Execution Slippage (Pts / leg)</label>
                     <div class="input-field">
                         <span class="symbol">±₹</span>
-                        <input type="number" id="slippage" value="0.50" min="0" step="0.05">
+                        <input type="number" id="slippage" value="0.50" min="0" step="0.05" inputmode="decimal">
                     </div>
                     <div class="sub-info">Realized Buy Price: <strong id="lbl-realized-buy">₹100.50</strong></div>
                 </div>
@@ -97,10 +97,10 @@
                 <div class="input-group">
                     <label for="target-profit-pct" class="input-label">Target Profit (%)</label>
                     <div class="input-field">
-                        <input type="number" id="target-profit-pct" value="0.0" min="0" max="1000" step="0.5">
+                        <input type="number" id="target-profit-pct" value="0.0" min="0" max="1000" step="0.5" inputmode="decimal">
                         <span class="suffix">%</span>
                     </div>
-                    <div class="preset-chips mt-chip">
+                    <div class="profit-chips mt-chip">
                         <button type="button" class="pct-chip active" data-pct="0">0%</button>
                         <button type="button" class="pct-chip" data-pct="1">+1%</button>
                         <button type="button" class="pct-chip" data-pct="2">+2%</button>
