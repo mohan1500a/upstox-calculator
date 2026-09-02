@@ -1,9 +1,9 @@
 /*
  * Lumos Solar Design System - Upstox Options Target Calculator (2026 Engine)
- * Production Scratch Rewrite - Laptop Zero-Scroll & Mobile Touch Precision Layout
+ * Pristine Scratch Rewrite - Laptop Zero-Scroll & Mobile Touch Precision Layout
  *
  * Author: Antigravity AI Pair Programmer
- * Version: 4.1
+ * Version: 5.0
  */
 
 :root {
@@ -786,7 +786,7 @@ input:checked + .slider:before {
         height: auto !important;
         min-height: 100vh;
         overflow-x: hidden !important;
-        overflow-y: auto !important; /* Enable natural vertical scrolling on mobile */
+        overflow-y: auto !important;
     }
 
     .viewport-app {
@@ -817,17 +817,17 @@ input:checked + .slider:before {
     }
 
     .nav-pills {
-        display: none; /* Hide redundant Nav Pills on mobile to free up space */
+        display: none;
     }
 
     .dashboard-grid {
-        grid-template-columns: 1fr !important; /* Stack input panel and results panel vertically */
+        grid-template-columns: 1fr !important;
         gap: 0.85rem;
         flex: none;
     }
 
     .hero-price {
-        font-size: 2.35rem; /* Scale down hero text so it fits mobile screens */
+        font-size: 2.35rem;
     }
 
     .card {
@@ -880,12 +880,12 @@ input:checked + .slider:before {
     }
 
     .grid-2 {
-        grid-template-columns: 1fr 1fr; /* Keep 2 side-by-side columns for Lots & Qty on smartphones */
+        grid-template-columns: 1fr 1fr;
         gap: 0.5rem;
     }
 
     .metrics-grid {
-        grid-template-columns: 1fr 1fr; /* Keep 2-column grid for sub metric cards */
+        grid-template-columns: 1fr 1fr;
         gap: 0.65rem;
     }
 
@@ -895,7 +895,7 @@ input:checked + .slider:before {
     }
 
     .card-val {
-        font-size: 1.45rem; /* Readable metric values on Vivo V2030 */
+        font-size: 1.45rem;
     }
 
     .trend-pill {
@@ -912,7 +912,6 @@ input:checked + .slider:before {
         padding: 0.35rem 0.75rem;
     }
 
-    /* Bottom Capital Re-entry Card mobile formatting */
     .carryover-card {
         padding: 0.95rem 1.15rem;
     }

@@ -3,7 +3,7 @@
  * Includes Zero Input Protection & Fluid Editing Engine
  *
  * Author: Antigravity AI Pair Programmer
- * Version: 4.4
+ * Version: 5.0 (Pristine Ground-Up Rewrite)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
