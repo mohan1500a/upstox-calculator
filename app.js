@@ -1,9 +1,9 @@
 /**
  * Upstox Options Target Calculator Engine (Official 2026 Rules)
- * Includes Official Upstox Tariff Modal & Zero-Scroll Dashboard Logic
+ * Includes Zero Input Protection & Fluid Editing Engine
  *
  * Author: Antigravity AI Pair Programmer
- * Version: 4.2 (Full Scratch Rewrite & Fluid Input Handling)
+ * Version: 4.4
  */
 
 document.addEventListener('DOMContentLoaded', () => {

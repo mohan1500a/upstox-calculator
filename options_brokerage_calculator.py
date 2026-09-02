@@ -4,10 +4,10 @@ Upstox Option Trading Target Sell Price & Brokerage Calculator (2026 Engine)
 Calculates exact Target Limit Sell Price, Real Price Move, Statutory Taxes,
 Execution Slippages, and Dynamic Next Trade Capital Carryover.
 
-Supports optional Next Trade Buy Fee inclusion (Default: True).
+Handles zero buy price cleanly without division by zero errors.
 
 Author: Antigravity AI Pair Programmer
-Version: 4.0 (Full Ground-Up Scratch Rewrite)
+Version: 4.3 (Zero Input Protection Audit)
 """
 
 import sys
@@ -81,7 +81,7 @@ def calculate_option_target(
     clamped_lots = min(max_lots, max(1, int(num_lots)))
     qty = clamped_lots * lot_size
 
-    p_buy = max(0.01, float(buy_price))
+    p_buy = max(0.0, float(buy_price))
     s_slip = max(0.0, float(slippage))
     t_pct = max(0.0, float(target_profit_pct))
 
@@ -188,7 +188,7 @@ def print_trade_report(calc: OptionTradeCalculation):
     pnl_sign = "+" if calc.net_pnl_realized > 0 else ""
 
     print("\n" + "=" * 65)
-    print(f"{BOLD}{CYAN}  UPSTOX OPTIONS TARGET CALCULATOR (FULL REWRITE AUDIT){RESET}")
+    print(f"{BOLD}{CYAN}  UPSTOX OPTIONS TARGET CALCULATOR (ZERO PROTECTION AUDIT){RESET}")
     print("=" * 65)
 
     print(f"\n{BOLD}1. INPUT OVERVIEW{RESET}")
@@ -223,5 +223,5 @@ if __name__ == "__main__":
             print(f"CLI Error: {e}")
             sys.exit(1)
     else:
-        demo = calculate_option_target(quantity=65, buy_price=100.0, target_profit_pct=0.0, slippage=0.50, include_next_trade_fee=True)
+        demo = calculate_option_target(quantity=65, buy_price=0.0, target_profit_pct=0.0, slippage=0.0, include_next_trade_fee=True)
         print_trade_report(demo)
