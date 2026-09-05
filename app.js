@@ -3,7 +3,7 @@
  * Includes Options Target Engine + Compounding Velocity Trade Counter
  *
  * Author: Antigravity AI Pair Programmer
- * Version: 6.1 (Fluid Input & Zero-Clamp Fix)
+ * Version: 6.2 (Capital Deployment Sensitivity Matrix)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         targetProfitPctInput: document.getElementById('target-profit-pct'),
         includeNextFeeToggle: document.getElementById('include-next-fee-toggle'),
         lblToggleTitle: document.getElementById('lbl-toggle-title'),
-        lotChips: document.querySelectorAll('.chip:not(.comp-preset-chip)'),
+        lotChips: document.querySelectorAll('.chip:not(.comp-deploy-chip)'),
         pctChips: document.querySelectorAll('.pct-chip'),
 
         // Options Engine Outputs
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         compYearsInput: document.getElementById('comp-years'),
         compEffectiveRate: document.getElementById('comp-effective-rate'),
         compTotalDays: document.getElementById('comp-total-days'),
-        compPresetChips: document.querySelectorAll('.comp-preset-chip'),
+        compDeployChips: document.querySelectorAll('.comp-deploy-chip'),
 
         // Compounding Engine Outputs
         compHeroTrades: document.getElementById('comp-hero-trades'),
@@ -67,8 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
         compSubMultiplier: document.getElementById('comp-sub-multiplier'),
         compValNetProfit: document.getElementById('comp-val-net-profit'),
         compSubNetProfit: document.getElementById('comp-sub-net-profit'),
-        compRoadmapSummary: document.getElementById('comp-roadmap-summary'),
-        compRoadmapContainer: document.getElementById('comp-roadmap-container'),
+        compSensitivitySummary: document.getElementById('comp-sensitivity-summary'),
+        compSensitivityContainer: document.getElementById('comp-sensitivity-container'),
 
         // Modal Elements
         tariffTrigger: document.getElementById('tariff-info-trigger'),
@@ -221,28 +221,31 @@ document.addEventListener('DOMContentLoaded', () => {
         const netProfit = Math.max(0.0, cFinal - cInit);
         const multiplier = cInit > 0 ? cFinal / cInit : 1.0;
 
-        // Generate 4 Growth Roadmap Milestones
-        const milestones = [];
-        if (isGoalValid && multiplier > 1.0) {
-            const steps = [0.25, 0.50, 0.75, 1.0];
-            steps.forEach(fraction => {
-                const milestoneTarget = cInit * Math.pow(multiplier, fraction);
-                let milestoneTrades = 0;
-                if (effectiveRate > 0 && milestoneTarget > cInit) {
-                    milestoneTrades = Math.ceil(Math.log(milestoneTarget / cInit) / Math.log(1.0 + effectiveRate));
-                }
-                milestones.push({
-                    fractionLabel: `${Math.round(fraction * 100)}% Goal`,
-                    targetCap: milestoneTarget,
-                    tradesNeeded: milestoneTrades
-                });
+        // Generate Sensitivity Matrix for 10%, 25%, 50%, 75%, 100% capital deployed
+        const sensitivities = [];
+        const deploySteps = [10, 25, 50, 75, 100];
+
+        deploySteps.forEach(deployVal => {
+            const effRate = (deployVal / 100.0) * (rPct / 100.0);
+            let trades = 0;
+            let perDay = 0.0;
+            if (isGoalValid && effRate > 0) {
+                const exact = Math.log(cFinal / cInit) / Math.log(1.0 + effRate);
+                trades = Math.ceil(exact);
+                perDay = totalDays > 0 ? exact / totalDays : 0.0;
+            }
+            sensitivities.push({
+                deployPct: deployVal,
+                tradesNeeded: trades,
+                tradesPerDay: perDay,
+                isSelected: Math.abs(deployVal - dPct) < 0.1
             });
-        }
+        });
 
         return {
             cInit, cFinal, rPct, dPct, daysYear, yrs, effectiveRate,
             exactTrades, totalTrades, totalDays, tradesPerDay, tradesPerWeek,
-            tradesPerMonth, netProfit, multiplier, milestones, isGoalValid
+            tradesPerMonth, netProfit, multiplier, sensitivities, isGoalValid
         };
     }
 
@@ -322,27 +325,40 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM.compValNetProfit.textContent = `+${formatShortINR(calc.netProfit)}`;
         DOM.compSubNetProfit.textContent = `From ${formatShortINR(calc.cInit)} capital`;
 
-        DOM.compRoadmapSummary.textContent = calc.milestones.length > 0 ? `${calc.milestones.length} Compounding Phases` : `Roadmap Standby`;
+        DOM.compSensitivitySummary.textContent = `5 Allocations (10% to 100%)`;
 
+        // Render Dynamic Capital Deployment Sensitivity Grid (10%, 25%, 50%, 75%, 100%)
         let html = '';
-        if (calc.milestones.length > 0) {
-            calc.milestones.forEach(m => {
+        if (calc.isGoalValid) {
+            calc.sensitivities.forEach(s => {
+                const activeClass = s.isSelected ? 'active' : '';
                 html += `
-                    <div class="roadmap-card">
-                        <span class="roadmap-target">${m.fractionLabel}</span>
-                        <span class="roadmap-val">${formatShortINR(m.targetCap)}</span>
-                        <span class="roadmap-trades">${m.tradesNeeded} trades</span>
+                    <div class="sensitivity-card ${activeClass}" data-deploy="${s.deployPct}">
+                        <span class="sens-tag">${s.deployPct}% Deployed</span>
+                        <span class="sens-trades">${s.tradesNeeded.toLocaleString('en-IN')} Trades</span>
+                        <span class="sens-rate">${s.tradesPerDay.toFixed(1)} / day</span>
                     </div>
                 `;
             });
         } else {
-            html = `<div style="grid-column: 1 / -1; font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 0.5rem 0;">Enter Target Capital > Initial Capital to generate growth roadmap</div>`;
+            html = `<div style="grid-column: 1 / -1; font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 0.5rem 0;">Enter Target Capital > Initial Capital to generate deployment matrix</div>`;
         }
-        DOM.compRoadmapContainer.innerHTML = html;
+        DOM.compSensitivityContainer.innerHTML = html;
 
-        DOM.compPresetChips.forEach(chip => {
-            const targetVal = parseFloat(chip.getAttribute('data-target'));
-            if (!isNaN(targetVal) && Math.abs(targetVal - compoundingState.finalCap) < 0.01) {
+        // Attach click listeners to sensitivity cards so tapping any card updates Capital Deployed %
+        const sensCards = DOM.compSensitivityContainer.querySelectorAll('.sensitivity-card');
+        sensCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const depVal = parseFloat(card.getAttribute('data-deploy'));
+                DOM.compDeployPctInput.value = depVal;
+                syncCompoundingFromDOM();
+            });
+        });
+
+        // Sync preset chips
+        DOM.compDeployChips.forEach(chip => {
+            const depVal = parseFloat(chip.getAttribute('data-deploy'));
+            if (!isNaN(depVal) && Math.abs(depVal - compoundingState.deployPct) < 0.1) {
                 chip.classList.add('active');
             } else {
                 chip.classList.remove('active');
@@ -491,7 +507,7 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM.includeNextFeeToggle.addEventListener('change', syncOptionsFromDOM);
     }
 
-    // Compounding Engine Inputs - Input, Change, and Blur Handlers
+    // Compounding Engine Inputs
     DOM.compInitialCapInput.addEventListener('input', syncCompoundingFromDOM);
     DOM.compInitialCapInput.addEventListener('change', syncCompoundingFromDOM);
     DOM.compInitialCapInput.addEventListener('blur', () => {
@@ -540,10 +556,10 @@ document.addEventListener('DOMContentLoaded', () => {
         syncCompoundingFromDOM();
     });
 
-    DOM.compPresetChips.forEach(chip => {
+    DOM.compDeployChips.forEach(chip => {
         chip.addEventListener('click', () => {
-            const targetVal = parseFloat(chip.getAttribute('data-target'));
-            DOM.compFinalCapInput.value = targetVal;
+            const depVal = parseFloat(chip.getAttribute('data-deploy'));
+            DOM.compDeployPctInput.value = depVal;
             syncCompoundingFromDOM();
         });
     });

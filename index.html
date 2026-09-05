@@ -241,8 +241,20 @@
                     <div class="sub-info">Effective compound rate per trade: <strong id="comp-effective-rate">1.000%</strong></div>
                 </div>
 
-                <!-- Trading Days & Number of Years -->
+                <!-- Capital Deployed Preset Chips (10%, 25%, 50%, 75%, 100%) -->
                 <div class="input-group">
+                    <label class="input-label">Capital Deployed Presets</label>
+                    <div class="deploy-chips">
+                        <button type="button" class="chip comp-deploy-chip" data-deploy="10">10%</button>
+                        <button type="button" class="chip comp-deploy-chip" data-deploy="25">25%</button>
+                        <button type="button" class="chip comp-deploy-chip" data-deploy="50">50%</button>
+                        <button type="button" class="chip comp-deploy-chip" data-deploy="75">75%</button>
+                        <button type="button" class="chip comp-deploy-chip active" data-deploy="100">100%</button>
+                    </div>
+                </div>
+
+                <!-- Trading Days & Number of Years -->
+                <div class="input-group mb-0">
                     <div class="grid-2">
                         <div>
                             <label for="comp-trading-days" class="input-label">Trading Days / Year</label>
@@ -258,16 +270,6 @@
                         </div>
                     </div>
                     <div class="sub-info">Total available trading days: <strong id="comp-total-days">250 days</strong></div>
-                </div>
-
-                <!-- Preset Target Capital Shortcuts -->
-                <div class="input-group mb-0">
-                    <label class="input-label">Quick Capital Milestones</label>
-                    <div class="preset-chips">
-                        <button type="button" class="chip comp-preset-chip" data-target="10000">₹10K (10x)</button>
-                        <button type="button" class="chip comp-preset-chip active" data-target="100000">₹1 Lakh (100x)</button>
-                        <button type="button" class="chip comp-preset-chip" data-target="1000000">₹10 Lakh (1000x)</button>
-                    </div>
                 </div>
             </section>
 
@@ -322,13 +324,13 @@
                     </div>
                 </div>
 
-                <!-- Compounding Growth Roadmap Banner -->
+                <!-- Capital Deployment Sensitivity Comparison Banner -->
                 <div class="carryover-card">
                     <div class="c-header">
-                        <span class="c-title"><i class="fa-solid fa-flag-checkered text-orange"></i> Growth Milestone Roadmap</span>
-                        <span class="c-sub" id="comp-roadmap-summary">4 Compounding Phases</span>
+                        <span class="c-title"><i class="fa-solid fa-sliders text-orange"></i> Trades Comparison by Capital Deployed %</span>
+                        <span class="c-sub" id="comp-sensitivity-summary">5 Allocations (10% to 100%)</span>
                     </div>
-                    <div class="roadmap-grid" id="comp-roadmap-container">
+                    <div class="sensitivity-grid" id="comp-sensitivity-container">
                         <!-- Rendered dynamically by JS -->
                     </div>
                 </div>
