@@ -3,7 +3,7 @@
  * Includes Options Target Engine + Compounding Velocity Trade Counter
  *
  * Author: Antigravity AI Pair Programmer
- * Version: 6.0
+ * Version: 6.1 (Fluid Input & Zero-Clamp Fix)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isInternalUpdating: false
     };
 
-    let activeTab = 'options'; // 'options' | 'compounding'
+    let activeTab = 'options';
 
     // Helper: Safe Currency Formatter
     function formatINR(val, includeSign = false) {
@@ -189,51 +189,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- COMPOUNDING VELOCITY SOLVER ---
     function computeCompoundingVelocity(params) {
-        const cInit = Math.max(1.0, params.initialCap);
-        const cFinal = Math.max(cInit, params.finalCap);
-        const rPct = Math.max(0.001, params.returnPct);
-        const dPct = Math.max(0.001, Math.min(100.0, params.deployPct));
+        const cInit = Math.max(0.01, params.initialCap);
+        const cFinal = Math.max(0.01, params.finalCap);
+        const rPct = Math.max(0.0, params.returnPct);
+        const dPct = Math.max(0.0, Math.min(100.0, params.deployPct));
         const daysYear = Math.max(1, params.tradingDays);
         const yrs = Math.max(0.01, params.years);
 
         const effectiveRate = (dPct / 100.0) * (rPct / 100.0);
 
         let exactTrades = 0.0;
-        if (effectiveRate > 0 && cFinal > cInit) {
+        let isGoalValid = true;
+
+        if (cFinal <= cInit) {
+            isGoalValid = false;
+            exactTrades = 0.0;
+        } else if (effectiveRate <= 0) {
+            isGoalValid = false;
+            exactTrades = 0.0;
+        } else {
             exactTrades = Math.log(cFinal / cInit) / Math.log(1.0 + effectiveRate);
         }
 
         const totalTrades = Math.ceil(exactTrades);
         const totalDays = daysYear * yrs;
 
-        const tradesPerDay = totalDays > 0 ? exactTrades / totalDays : 0.0;
-        const tradesPerWeek = yrs > 0 ? exactTrades / (yrs * 52.0) : 0.0;
-        const tradesPerMonth = yrs > 0 ? exactTrades / (yrs * 12.0) : 0.0;
+        const tradesPerDay = (isGoalValid && totalDays > 0) ? exactTrades / totalDays : 0.0;
+        const tradesPerWeek = (isGoalValid && yrs > 0) ? exactTrades / (yrs * 52.0) : 0.0;
+        const tradesPerMonth = (isGoalValid && yrs > 0) ? exactTrades / (yrs * 12.0) : 0.0;
 
-        const netProfit = cFinal - cInit;
-        const multiplier = cFinal / cInit;
+        const netProfit = Math.max(0.0, cFinal - cInit);
+        const multiplier = cInit > 0 ? cFinal / cInit : 1.0;
 
-        // Generate 4 Growth Roadmap Milestones (25%, 50%, 75%, 100%)
+        // Generate 4 Growth Roadmap Milestones
         const milestones = [];
-        const steps = [0.25, 0.50, 0.75, 1.0];
-
-        steps.forEach(fraction => {
-            const milestoneTarget = cInit * Math.pow(multiplier, fraction);
-            let milestoneTrades = 0;
-            if (effectiveRate > 0 && milestoneTarget > cInit) {
-                milestoneTrades = Math.ceil(Math.log(milestoneTarget / cInit) / Math.log(1.0 + effectiveRate));
-            }
-            milestones.push({
-                fractionLabel: `${Math.round(fraction * 100)}% Goal`,
-                targetCap: milestoneTarget,
-                tradesNeeded: milestoneTrades
+        if (isGoalValid && multiplier > 1.0) {
+            const steps = [0.25, 0.50, 0.75, 1.0];
+            steps.forEach(fraction => {
+                const milestoneTarget = cInit * Math.pow(multiplier, fraction);
+                let milestoneTrades = 0;
+                if (effectiveRate > 0 && milestoneTarget > cInit) {
+                    milestoneTrades = Math.ceil(Math.log(milestoneTarget / cInit) / Math.log(1.0 + effectiveRate));
+                }
+                milestones.push({
+                    fractionLabel: `${Math.round(fraction * 100)}% Goal`,
+                    targetCap: milestoneTarget,
+                    tradesNeeded: milestoneTrades
+                });
             });
-        });
+        }
 
         return {
             cInit, cFinal, rPct, dPct, daysYear, yrs, effectiveRate,
             exactTrades, totalTrades, totalDays, tradesPerDay, tradesPerWeek,
-            tradesPerMonth, netProfit, multiplier, milestones
+            tradesPerMonth, netProfit, multiplier, milestones, isGoalValid
         };
     }
 
@@ -293,8 +302,13 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM.compEffectiveRate.textContent = `${(calc.effectiveRate * 100).toFixed(3)}% / trade`;
         DOM.compTotalDays.textContent = `${calc.totalDays.toFixed(0)} trading days`;
 
-        DOM.compHeroTrades.textContent = `${calc.totalTrades.toLocaleString('en-IN')} Trades`;
-        DOM.compHeroSub.innerHTML = `<i class="fa-solid fa-bolt"></i> Needs ${calc.tradesPerDay.toFixed(2)} trades / day across ${calc.totalDays.toFixed(0)} trading days`;
+        if (calc.isGoalValid) {
+            DOM.compHeroTrades.textContent = `${calc.totalTrades.toLocaleString('en-IN')} Trades`;
+            DOM.compHeroSub.innerHTML = `<i class="fa-solid fa-bolt"></i> Needs ${calc.tradesPerDay.toFixed(2)} trades / day across ${calc.totalDays.toFixed(0)} trading days`;
+        } else {
+            DOM.compHeroTrades.textContent = `0 Trades`;
+            DOM.compHeroSub.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Target Capital must be greater than Initial Capital`;
+        }
 
         DOM.compValPerDay.textContent = `${calc.tradesPerDay.toFixed(2)} / day`;
         DOM.compSubPerDay.textContent = `▲ ${calc.tradesPerWeek.toFixed(2)} trades / week`;
@@ -303,27 +317,29 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM.compSubPerMonth.textContent = `Across ${(calc.yrs * 12).toFixed(0)} months`;
 
         DOM.compValMultiplier.textContent = `${calc.multiplier.toFixed(1)}x`;
-        DOM.compSubMultiplier.textContent = `▲ +${((calc.multiplier - 1) * 100).toFixed(0)}% Growth`;
+        DOM.compSubMultiplier.textContent = calc.multiplier > 1.0 ? `▲ +${((calc.multiplier - 1) * 100).toFixed(0)}% Growth` : `0% Growth`;
 
         DOM.compValNetProfit.textContent = `+${formatShortINR(calc.netProfit)}`;
         DOM.compSubNetProfit.textContent = `From ${formatShortINR(calc.cInit)} capital`;
 
-        DOM.compRoadmapSummary.textContent = `${calc.milestones.length} Compounding Phases`;
+        DOM.compRoadmapSummary.textContent = calc.milestones.length > 0 ? `${calc.milestones.length} Compounding Phases` : `Roadmap Standby`;
 
-        // Render Dynamic Roadmap Cards
         let html = '';
-        calc.milestones.forEach(m => {
-            html += `
-                <div class="roadmap-card">
-                    <span class="roadmap-target">${m.fractionLabel}</span>
-                    <span class="roadmap-val">${formatShortINR(m.targetCap)}</span>
-                    <span class="roadmap-trades">${m.tradesNeeded} trades</span>
-                </div>
-            `;
-        });
+        if (calc.milestones.length > 0) {
+            calc.milestones.forEach(m => {
+                html += `
+                    <div class="roadmap-card">
+                        <span class="roadmap-target">${m.fractionLabel}</span>
+                        <span class="roadmap-val">${formatShortINR(m.targetCap)}</span>
+                        <span class="roadmap-trades">${m.tradesNeeded} trades</span>
+                    </div>
+                `;
+            });
+        } else {
+            html = `<div style="grid-column: 1 / -1; font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 0.5rem 0;">Enter Target Capital > Initial Capital to generate growth roadmap</div>`;
+        }
         DOM.compRoadmapContainer.innerHTML = html;
 
-        // Sync preset chips
         DOM.compPresetChips.forEach(chip => {
             const targetVal = parseFloat(chip.getAttribute('data-target'));
             if (!isNaN(targetVal) && Math.abs(targetVal - compoundingState.finalCap) < 0.01) {
@@ -406,29 +422,35 @@ document.addEventListener('DOMContentLoaded', () => {
     function syncCompoundingFromDOM() {
         if (compoundingState.isInternalUpdating) return;
 
-        let cInit = parseFloat(DOM.compInitialCapInput.value.trim());
-        if (isNaN(cInit) || cInit < 1) cInit = 1000.0;
+        let rawInit = DOM.compInitialCapInput.value.trim();
+        let cInit = parseFloat(rawInit);
+        if (isNaN(cInit) || cInit < 0) cInit = 0.0;
         compoundingState.initialCap = cInit;
 
-        let cFinal = parseFloat(DOM.compFinalCapInput.value.trim());
-        if (isNaN(cFinal) || cFinal < cInit) cFinal = cInit * 10;
+        let rawFinal = DOM.compFinalCapInput.value.trim();
+        let cFinal = parseFloat(rawFinal);
+        if (isNaN(cFinal) || cFinal < 0) cFinal = 0.0;
         compoundingState.finalCap = cFinal;
 
-        let retPct = parseFloat(DOM.compReturnPctInput.value.trim());
-        if (isNaN(retPct) || retPct <= 0) retPct = 1.0;
+        let rawRet = DOM.compReturnPctInput.value.trim();
+        let retPct = parseFloat(rawRet);
+        if (isNaN(retPct) || retPct < 0) retPct = 0.0;
         compoundingState.returnPct = retPct;
 
-        let depPct = parseFloat(DOM.compDeployPctInput.value.trim());
-        if (isNaN(depPct) || depPct <= 0) depPct = 100.0;
+        let rawDep = DOM.compDeployPctInput.value.trim();
+        let depPct = parseFloat(rawDep);
+        if (isNaN(depPct) || depPct < 0) depPct = 0.0;
         if (depPct > 100.0) depPct = 100.0;
         compoundingState.deployPct = depPct;
 
-        let days = parseInt(DOM.compTradingDaysInput.value.trim());
+        let rawDays = DOM.compTradingDaysInput.value.trim();
+        let days = parseInt(rawDays);
         if (isNaN(days) || days < 1) days = 250;
         compoundingState.tradingDays = days;
 
-        let yrs = parseFloat(DOM.compYearsInput.value.trim());
-        if (isNaN(yrs) || yrs <= 0) yrs = 1.0;
+        let rawYrs = DOM.compYearsInput.value.trim();
+        let yrs = parseFloat(rawYrs);
+        if (isNaN(yrs) || yrs < 0.01) yrs = 1.0;
         compoundingState.years = yrs;
 
         renderCompounding();
@@ -469,13 +491,54 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM.includeNextFeeToggle.addEventListener('change', syncOptionsFromDOM);
     }
 
-    // Compounding Engine Inputs
+    // Compounding Engine Inputs - Input, Change, and Blur Handlers
     DOM.compInitialCapInput.addEventListener('input', syncCompoundingFromDOM);
+    DOM.compInitialCapInput.addEventListener('change', syncCompoundingFromDOM);
+    DOM.compInitialCapInput.addEventListener('blur', () => {
+        let val = DOM.compInitialCapInput.value.trim();
+        if (val === '' || isNaN(parseFloat(val))) DOM.compInitialCapInput.value = '1000';
+        syncCompoundingFromDOM();
+    });
+
     DOM.compFinalCapInput.addEventListener('input', syncCompoundingFromDOM);
+    DOM.compFinalCapInput.addEventListener('change', syncCompoundingFromDOM);
+    DOM.compFinalCapInput.addEventListener('blur', () => {
+        let val = DOM.compFinalCapInput.value.trim();
+        if (val === '' || isNaN(parseFloat(val))) DOM.compFinalCapInput.value = '100000';
+        syncCompoundingFromDOM();
+    });
+
     DOM.compReturnPctInput.addEventListener('input', syncCompoundingFromDOM);
+    DOM.compReturnPctInput.addEventListener('change', syncCompoundingFromDOM);
+    DOM.compReturnPctInput.addEventListener('blur', () => {
+        let val = DOM.compReturnPctInput.value.trim();
+        if (val === '' || isNaN(parseFloat(val))) DOM.compReturnPctInput.value = '1.0';
+        syncCompoundingFromDOM();
+    });
+
     DOM.compDeployPctInput.addEventListener('input', syncCompoundingFromDOM);
+    DOM.compDeployPctInput.addEventListener('change', syncCompoundingFromDOM);
+    DOM.compDeployPctInput.addEventListener('blur', () => {
+        let val = DOM.compDeployPctInput.value.trim();
+        if (val === '' || isNaN(parseFloat(val))) DOM.compDeployPctInput.value = '100.0';
+        syncCompoundingFromDOM();
+    });
+
     DOM.compTradingDaysInput.addEventListener('input', syncCompoundingFromDOM);
+    DOM.compTradingDaysInput.addEventListener('change', syncCompoundingFromDOM);
+    DOM.compTradingDaysInput.addEventListener('blur', () => {
+        let val = DOM.compTradingDaysInput.value.trim();
+        if (val === '' || isNaN(parseInt(val))) DOM.compTradingDaysInput.value = '250';
+        syncCompoundingFromDOM();
+    });
+
     DOM.compYearsInput.addEventListener('input', syncCompoundingFromDOM);
+    DOM.compYearsInput.addEventListener('change', syncCompoundingFromDOM);
+    DOM.compYearsInput.addEventListener('blur', () => {
+        let val = DOM.compYearsInput.value.trim();
+        if (val === '' || isNaN(parseFloat(val))) DOM.compYearsInput.value = '1.0';
+        syncCompoundingFromDOM();
+    });
 
     DOM.compPresetChips.forEach(chip => {
         chip.addEventListener('click', () => {
