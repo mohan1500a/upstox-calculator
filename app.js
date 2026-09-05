@@ -3,7 +3,7 @@
  * Includes Options Target Engine + Compounding Velocity Trade Counter
  *
  * Author: Antigravity AI Pair Programmer
- * Version: 20.0 (Masterclass Audit & Full Vertical Layout Alignment)
+ * Version: 24.0 (200 Trading Days Default & Cache Invalidation)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
