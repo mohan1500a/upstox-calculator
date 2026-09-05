@@ -1,14 +1,23 @@
 /**
- * Upstox Options Target Calculator Engine (Official 2026 Rules)
- * Includes Zero Input Protection & Fluid Editing Engine
+ * Upstox Options & Compounding Calculator Engine (Official 2026 Rules)
+ * Includes Options Target Engine + Compounding Velocity Trade Counter
  *
  * Author: Antigravity AI Pair Programmer
- * Version: 5.0 (Pristine Ground-Up Rewrite)
+ * Version: 6.0
  */
 
 document.addEventListener('DOMContentLoaded', () => {
     // --- DOM ELEMENT REGISTRY ---
     const DOM = {
+        // Tab Navigation
+        tabBtnOptions: document.getElementById('tab-btn-options'),
+        tabBtnCompounding: document.getElementById('tab-btn-compounding'),
+        viewOptions: document.getElementById('view-options'),
+        viewCompounding: document.getElementById('view-compounding'),
+        headerSubtitle: document.getElementById('header-subtitle'),
+        resetBtn: document.getElementById('reset-btn'),
+
+        // Options Engine Inputs
         numLotsInput: document.getElementById('num-lots'),
         buyQtyInput: document.getElementById('buy-qty'),
         buyPriceInput: document.getElementById('buy-price'),
@@ -16,14 +25,12 @@ document.addEventListener('DOMContentLoaded', () => {
         targetProfitPctInput: document.getElementById('target-profit-pct'),
         includeNextFeeToggle: document.getElementById('include-next-fee-toggle'),
         lblToggleTitle: document.getElementById('lbl-toggle-title'),
-        resetBtn: document.getElementById('reset-btn'),
-
-        lotChips: document.querySelectorAll('.chip'),
+        lotChips: document.querySelectorAll('.chip:not(.comp-preset-chip)'),
         pctChips: document.querySelectorAll('.pct-chip'),
 
+        // Options Engine Outputs
         lblLotMultiple: document.getElementById('lbl-lot-multiple'),
         lblRealizedBuy: document.getElementById('lbl-realized-buy'),
-
         reqSellVal: document.getElementById('req-sell-val'),
         reqSellSub: document.getElementById('req-sell-sub'),
         realMoveVal: document.getElementById('real-move-val'),
@@ -38,14 +45,39 @@ document.addEventListener('DOMContentLoaded', () => {
         nextTradeCostVal: document.getElementById('next-trade-cost-val'),
         nextCapitalVal: document.getElementById('next-capital-val'),
 
+        // Compounding Engine Inputs
+        compInitialCapInput: document.getElementById('comp-initial-cap'),
+        compFinalCapInput: document.getElementById('comp-final-cap'),
+        compReturnPctInput: document.getElementById('comp-return-pct'),
+        compDeployPctInput: document.getElementById('comp-deploy-pct'),
+        compTradingDaysInput: document.getElementById('comp-trading-days'),
+        compYearsInput: document.getElementById('comp-years'),
+        compEffectiveRate: document.getElementById('comp-effective-rate'),
+        compTotalDays: document.getElementById('comp-total-days'),
+        compPresetChips: document.querySelectorAll('.comp-preset-chip'),
+
+        // Compounding Engine Outputs
+        compHeroTrades: document.getElementById('comp-hero-trades'),
+        compHeroSub: document.getElementById('comp-hero-sub'),
+        compValPerDay: document.getElementById('comp-val-per-day'),
+        compSubPerDay: document.getElementById('comp-sub-per-day'),
+        compValPerMonth: document.getElementById('comp-val-per-month'),
+        compSubPerMonth: document.getElementById('comp-sub-per-month'),
+        compValMultiplier: document.getElementById('comp-val-multiplier'),
+        compSubMultiplier: document.getElementById('comp-sub-multiplier'),
+        compValNetProfit: document.getElementById('comp-val-net-profit'),
+        compSubNetProfit: document.getElementById('comp-sub-net-profit'),
+        compRoadmapSummary: document.getElementById('comp-roadmap-summary'),
+        compRoadmapContainer: document.getElementById('comp-roadmap-container'),
+
         // Modal Elements
         tariffTrigger: document.getElementById('tariff-info-trigger'),
         tariffModal: document.getElementById('tariff-modal'),
         modalCloseBtn: document.getElementById('modal-close-btn')
     };
 
-    // --- STATE STORE (Default includeNextFee = true, targetProfitPct = 0.0) ---
-    const state = {
+    // --- STATE STORES ---
+    const optionsState = {
         indexName: 'NIFTY',
         lotSize: 65,
         maxLot: 27,
@@ -57,6 +89,18 @@ document.addEventListener('DOMContentLoaded', () => {
         isInternalUpdating: false
     };
 
+    const compoundingState = {
+        initialCap: 1000.0,
+        finalCap: 100000.0,
+        returnPct: 1.0,
+        deployPct: 100.0,
+        tradingDays: 250,
+        years: 1.0,
+        isInternalUpdating: false
+    };
+
+    let activeTab = 'options'; // 'options' | 'compounding'
+
     // Helper: Safe Currency Formatter
     function formatINR(val, includeSign = false) {
         if (isNaN(val) || !isFinite(val)) val = 0.0;
@@ -67,7 +111,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- MATHEMATICAL CLOSED-FORM SOLVER (STRICT UPSTOX 2026 RULES) ---
+    function formatShortINR(val) {
+        if (isNaN(val) || !isFinite(val)) return '₹0';
+        if (val >= 10000000) return '₹' + (val / 10000000).toFixed(2) + ' Cr';
+        if (val >= 100000) return '₹' + (val / 100000).toFixed(2) + ' Lakh';
+        if (val >= 1000) return '₹' + (val / 1000).toFixed(1) + 'K';
+        return '₹' + val.toFixed(0);
+    }
+
+    // --- OPTIONS ENGINE SOLVER ---
     function computeTargetTrade(params) {
         const qty = Math.max(1, params.numLots * params.lotSize);
         const pBuy = Math.max(0.0, params.buyPrice);
@@ -77,7 +129,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const rBuy = pBuy + slip;
         const buyTurnover = rBuy * qty;
 
-        // Dynamic Next Trade Buy Entry Fee:
         const nextBrok = 20.0;
         const nextEx = 0.000495 * buyTurnover;
         const nextSebi = 0.000001 * buyTurnover;
@@ -85,16 +136,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const nextGst = 0.18 * (nextBrok + nextEx + nextSebi);
         const dynamicNextEntryFee = nextBrok + nextEx + nextSebi + nextStamp + nextGst;
 
-        // Base Net Profit Goal
         let targetNetPnl = (targetPct / 100.0) * buyTurnover;
 
-        // If Toggle ON: Add Dynamic Next Trade Fee into required Net PnL goal!
         if (params.includeNextFee) {
             targetNetPnl += dynamicNextEntryFee;
         }
 
-        // Upstox Linear Tax Coefficients (Options)
-        const cSell = 0.001 + (1.18 * 0.000496); // 0.00158528
+        const cSell = 0.001 + (1.18 * 0.000496);
         const fixedKBuy = (40.0 * 1.18) + (0.00003 * buyTurnover) + (1.18 * 0.000496 * buyTurnover);
 
         const denominator = qty * (1.0 - cSell);
@@ -104,13 +152,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const sellTurnover = rSell * qty;
         const totalTurnover = buyTurnover + sellTurnover;
 
-        // Upstox Options Taxes & Slippage Breakdown
-        const brokerage = 40.0; // ₹20 buy + ₹20 sell
-        const stt = 0.001 * sellTurnover; // 0.1% on sell premium
-        const exchangeCharges = 0.000495 * totalTurnover; // 0.0495%
-        const sebiCharges = 0.000001 * totalTurnover; // 0.0001%
-        const stampDuty = 0.00003 * buyTurnover; // 0.003% buy side
-        const gst = 0.18 * (brokerage + exchangeCharges + sebiCharges); // 18% GST
+        const brokerage = 40.0;
+        const stt = 0.001 * sellTurnover;
+        const exchangeCharges = 0.000495 * totalTurnover;
+        const sebiCharges = 0.000001 * totalTurnover;
+        const stampDuty = 0.00003 * buyTurnover;
+        const gst = 0.18 * (brokerage + exchangeCharges + sebiCharges);
 
         const totalTaxes = brokerage + stt + exchangeCharges + sebiCharges + stampDuty + gst;
         const totalSlipPts = slip * 2;
@@ -133,45 +180,79 @@ document.addEventListener('DOMContentLoaded', () => {
         const nextTradeNetCapital = Math.max(0.0, nextProceeds - actualNextTradeEntryCost);
 
         return {
-            qty,
-            pBuy,
-            rBuy,
-            rSell,
-            pSell,
-            totalTaxes,
-            totalSlippageCost,
-            netPnlRealized,
-            actualNetRoi,
-            realPtsMove,
-            realPctMove,
-            totalBreakevenPts,
-            breakevenSellPrice,
-            dynamicNextEntryFee,
-            actualNextTradeEntryCost,
-            nextTradeNetCapital
+            qty, pBuy, rBuy, rSell, pSell, totalTaxes, totalSlippageCost,
+            netPnlRealized, actualNetRoi, realPtsMove, realPctMove,
+            totalBreakevenPts, breakevenSellPrice, dynamicNextEntryFee,
+            actualNextTradeEntryCost, nextTradeNetCapital
         };
     }
 
-    // --- RENDER ENGINE ---
-    function render() {
-        const calc = computeTargetTrade(state);
-        const maxQty = state.maxLot * state.lotSize;
+    // --- COMPOUNDING VELOCITY SOLVER ---
+    function computeCompoundingVelocity(params) {
+        const cInit = Math.max(1.0, params.initialCap);
+        const cFinal = Math.max(cInit, params.finalCap);
+        const rPct = Math.max(0.001, params.returnPct);
+        const dPct = Math.max(0.001, Math.min(100.0, params.deployPct));
+        const daysYear = Math.max(1, params.tradingDays);
+        const yrs = Math.max(0.01, params.years);
 
-        // Labels
-        DOM.lblLotMultiple.textContent = `${state.numLots} Lot${state.numLots > 1 ? 's' : ''} = ${calc.qty} units (Max: ${state.maxLot} Lots / ${maxQty.toLocaleString('en-IN')})`;
+        const effectiveRate = (dPct / 100.0) * (rPct / 100.0);
+
+        let exactTrades = 0.0;
+        if (effectiveRate > 0 && cFinal > cInit) {
+            exactTrades = Math.log(cFinal / cInit) / Math.log(1.0 + effectiveRate);
+        }
+
+        const totalTrades = Math.ceil(exactTrades);
+        const totalDays = daysYear * yrs;
+
+        const tradesPerDay = totalDays > 0 ? exactTrades / totalDays : 0.0;
+        const tradesPerWeek = yrs > 0 ? exactTrades / (yrs * 52.0) : 0.0;
+        const tradesPerMonth = yrs > 0 ? exactTrades / (yrs * 12.0) : 0.0;
+
+        const netProfit = cFinal - cInit;
+        const multiplier = cFinal / cInit;
+
+        // Generate 4 Growth Roadmap Milestones (25%, 50%, 75%, 100%)
+        const milestones = [];
+        const steps = [0.25, 0.50, 0.75, 1.0];
+
+        steps.forEach(fraction => {
+            const milestoneTarget = cInit * Math.pow(multiplier, fraction);
+            let milestoneTrades = 0;
+            if (effectiveRate > 0 && milestoneTarget > cInit) {
+                milestoneTrades = Math.ceil(Math.log(milestoneTarget / cInit) / Math.log(1.0 + effectiveRate));
+            }
+            milestones.push({
+                fractionLabel: `${Math.round(fraction * 100)}% Goal`,
+                targetCap: milestoneTarget,
+                tradesNeeded: milestoneTrades
+            });
+        });
+
+        return {
+            cInit, cFinal, rPct, dPct, daysYear, yrs, effectiveRate,
+            exactTrades, totalTrades, totalDays, tradesPerDay, tradesPerWeek,
+            tradesPerMonth, netProfit, multiplier, milestones
+        };
+    }
+
+    // --- RENDER ENGINES ---
+    function renderOptions() {
+        const calc = computeTargetTrade(optionsState);
+        const maxQty = optionsState.maxLot * optionsState.lotSize;
+
+        DOM.lblLotMultiple.textContent = `${optionsState.numLots} Lot${optionsState.numLots > 1 ? 's' : ''} = ${calc.qty} units (Max: ${optionsState.maxLot} Lots / ${maxQty.toLocaleString('en-IN')})`;
         DOM.lblRealizedBuy.textContent = formatINR(calc.rBuy);
 
-        // Dynamic Toggle Label
         if (DOM.lblToggleTitle) {
             DOM.lblToggleTitle.textContent = `Include Next Trade Fee (+${formatINR(calc.dynamicNextEntryFee)})`;
         }
 
-        // Hero Card
         DOM.reqSellVal.textContent = formatINR(calc.pSell);
-        const extraNote = state.includeNextFee ? ` (includes +${formatINR(calc.dynamicNextEntryFee)} next trade fee)` : '';
+        const extraNote = optionsState.includeNextFee ? ` (includes +${formatINR(calc.dynamicNextEntryFee)} next trade fee)` : '';
         DOM.reqSellSub.innerHTML = `<i class="fa-solid fa-arrow-trend-up"></i> +${calc.realPtsMove.toFixed(2)} pts move needed (+${calc.realPctMove.toFixed(2)}% price move)${extraNote}`;
 
-        // Sub Metrics
         DOM.realMoveVal.textContent = `+${calc.realPtsMove.toFixed(2)} pts`;
         DOM.realMoveSub.textContent = `▲ +${calc.realPctMove.toFixed(2)}% premium move`;
 
@@ -193,14 +274,12 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM.totalDeductionsVal.textContent = formatINR(totalDeductions);
         DOM.deductionsSub.textContent = `Taxes: ${formatINR(calc.totalTaxes)} + Slip: ${formatINR(calc.totalSlippageCost)}`;
 
-        // Next Trade Capital Carryover
         DOM.nextTradeCostVal.textContent = `Next Entry Fee: ${formatINR(calc.actualNextTradeEntryCost)}`;
         DOM.nextCapitalVal.textContent = formatINR(calc.nextTradeNetCapital);
 
-        // Dynamic Chip Glow Synchronization
         DOM.pctChips.forEach(chip => {
             const chipVal = parseFloat(chip.getAttribute('data-pct'));
-            if (!isNaN(chipVal) && Math.abs(chipVal - state.targetProfitPct) < 0.001) {
+            if (!isNaN(chipVal) && Math.abs(chipVal - optionsState.targetProfitPct) < 0.001) {
                 chip.classList.add('active');
             } else {
                 chip.classList.remove('active');
@@ -208,145 +287,210 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- SYNCHRONIZER & INPUT PARSER ---
-    function syncStateFromDOM(e) {
-        if (state.isInternalUpdating) return;
+    function renderCompounding() {
+        const calc = computeCompoundingVelocity(compoundingState);
 
-        const targetId = e && e.target ? e.target.id : null;
+        DOM.compEffectiveRate.textContent = `${(calc.effectiveRate * 100).toFixed(3)}% / trade`;
+        DOM.compTotalDays.textContent = `${calc.totalDays.toFixed(0)} trading days`;
 
-        // Parse Lots
-        let rawLots = DOM.numLotsInput.value.trim();
-        let lots = parseInt(rawLots);
-        if (isNaN(lots) || lots < 1) lots = 1;
-        if (lots > state.maxLot) lots = state.maxLot;
-        state.numLots = lots;
+        DOM.compHeroTrades.textContent = `${calc.totalTrades.toLocaleString('en-IN')} Trades`;
+        DOM.compHeroSub.innerHTML = `<i class="fa-solid fa-bolt"></i> Needs ${calc.tradesPerDay.toFixed(2)} trades / day across ${calc.totalDays.toFixed(0)} trading days`;
 
-        // Parse Buy Price
-        let rawBuyPrice = DOM.buyPriceInput.value.trim();
-        let buyPrice = parseFloat(rawBuyPrice);
-        if (isNaN(buyPrice) || buyPrice < 0) buyPrice = 0.0;
-        state.buyPrice = buyPrice;
+        DOM.compValPerDay.textContent = `${calc.tradesPerDay.toFixed(2)} / day`;
+        DOM.compSubPerDay.textContent = `▲ ${calc.tradesPerWeek.toFixed(2)} trades / week`;
 
-        // Parse Slippage
-        let rawSlippage = DOM.slippageInput.value.trim();
-        let slippage = parseFloat(rawSlippage);
-        if (isNaN(slippage) || slippage < 0) slippage = 0.0;
-        state.slippage = slippage;
+        DOM.compValPerMonth.textContent = `${calc.tradesPerMonth.toFixed(2)} / mo`;
+        DOM.compSubPerMonth.textContent = `Across ${(calc.yrs * 12).toFixed(0)} months`;
 
-        // Parse Target Profit %
-        let rawTargetPct = DOM.targetProfitPctInput.value.trim();
-        let targetPct = parseFloat(rawTargetPct);
-        if (isNaN(targetPct) || targetPct < 0) targetPct = 0.0;
-        state.targetProfitPct = targetPct;
+        DOM.compValMultiplier.textContent = `${calc.multiplier.toFixed(1)}x`;
+        DOM.compSubMultiplier.textContent = `▲ +${((calc.multiplier - 1) * 100).toFixed(0)}% Growth`;
 
-        state.includeNextFee = DOM.includeNextFeeToggle ? DOM.includeNextFeeToggle.checked : true;
+        DOM.compValNetProfit.textContent = `+${formatShortINR(calc.netProfit)}`;
+        DOM.compSubNetProfit.textContent = `From ${formatShortINR(calc.cInit)} capital`;
 
-        state.isInternalUpdating = true;
-        DOM.numLotsInput.max = state.maxLot;
+        DOM.compRoadmapSummary.textContent = `${calc.milestones.length} Compounding Phases`;
 
-        if (targetId !== 'num-lots' && targetId !== 'buy-qty') {
-            DOM.numLotsInput.value = state.numLots;
-            DOM.buyQtyInput.value = state.numLots * state.lotSize;
-        } else if (targetId === 'num-lots') {
-            DOM.buyQtyInput.value = state.numLots * state.lotSize;
-        }
+        // Render Dynamic Roadmap Cards
+        let html = '';
+        calc.milestones.forEach(m => {
+            html += `
+                <div class="roadmap-card">
+                    <span class="roadmap-target">${m.fractionLabel}</span>
+                    <span class="roadmap-val">${formatShortINR(m.targetCap)}</span>
+                    <span class="roadmap-trades">${m.tradesNeeded} trades</span>
+                </div>
+            `;
+        });
+        DOM.compRoadmapContainer.innerHTML = html;
 
-        DOM.buyQtyInput.max = state.maxLot * state.lotSize;
-        DOM.buyQtyInput.step = state.lotSize;
-        state.isInternalUpdating = false;
-
-        render();
+        // Sync preset chips
+        DOM.compPresetChips.forEach(chip => {
+            const targetVal = parseFloat(chip.getAttribute('data-target'));
+            if (!isNaN(targetVal) && Math.abs(targetVal - compoundingState.finalCap) < 0.01) {
+                chip.classList.add('active');
+            } else {
+                chip.classList.remove('active');
+            }
+        });
     }
 
-    function syncStateFromQtyInput() {
-        if (state.isInternalUpdating) return;
-        state.isInternalUpdating = true;
+    // --- TAB SWITCHER LOGIC ---
+    function switchTab(tabName) {
+        activeTab = tabName;
+        if (tabName === 'options') {
+            DOM.tabBtnOptions.classList.add('active');
+            DOM.tabBtnCompounding.classList.remove('active');
+            DOM.viewOptions.classList.remove('hidden');
+            DOM.viewOptions.classList.add('active');
+            DOM.viewCompounding.classList.add('hidden');
+            DOM.viewCompounding.classList.remove('active');
+            DOM.headerSubtitle.textContent = 'Target Sell Price & Re-entry Calculator';
+            renderOptions();
+        } else {
+            DOM.tabBtnCompounding.classList.add('active');
+            DOM.tabBtnOptions.classList.remove('active');
+            DOM.viewCompounding.classList.remove('hidden');
+            DOM.viewCompounding.classList.add('active');
+            DOM.viewOptions.classList.add('hidden');
+            DOM.viewOptions.classList.remove('active');
+            DOM.headerSubtitle.textContent = 'Compounding Trade Growth & Velocity Calculator';
+            renderCompounding();
+        }
+    }
 
-        let qty = parseInt(DOM.buyQtyInput.value);
-        if (isNaN(qty) || qty < 1) qty = state.lotSize;
+    DOM.tabBtnOptions.addEventListener('click', () => switchTab('options'));
+    DOM.tabBtnCompounding.addEventListener('click', () => switchTab('compounding'));
 
-        let lots = Math.max(1, Math.round(qty / state.lotSize));
-        if (lots > state.maxLot) lots = state.maxLot;
+    // --- OPTIONS INPUT PARSERS ---
+    function syncOptionsFromDOM(e) {
+        if (optionsState.isInternalUpdating) return;
+        const targetId = e && e.target ? e.target.id : null;
 
-        state.numLots = lots;
-        DOM.numLotsInput.value = state.numLots;
-        DOM.buyQtyInput.value = state.numLots * state.lotSize;
+        let lots = parseInt(DOM.numLotsInput.value.trim());
+        if (isNaN(lots) || lots < 1) lots = 1;
+        if (lots > optionsState.maxLot) lots = optionsState.maxLot;
+        optionsState.numLots = lots;
 
-        state.isInternalUpdating = false;
-        syncStateFromDOM();
+        let buyPrice = parseFloat(DOM.buyPriceInput.value.trim());
+        if (isNaN(buyPrice) || buyPrice < 0) buyPrice = 0.0;
+        optionsState.buyPrice = buyPrice;
+
+        let slip = parseFloat(DOM.slippageInput.value.trim());
+        if (isNaN(slip) || slip < 0) slip = 0.0;
+        optionsState.slippage = slip;
+
+        let targetPct = parseFloat(DOM.targetProfitPctInput.value.trim());
+        if (isNaN(targetPct) || targetPct < 0) targetPct = 0.0;
+        optionsState.targetProfitPct = targetPct;
+
+        optionsState.includeNextFee = DOM.includeNextFeeToggle ? DOM.includeNextFeeToggle.checked : true;
+
+        optionsState.isInternalUpdating = true;
+        DOM.numLotsInput.max = optionsState.maxLot;
+
+        if (targetId !== 'num-lots' && targetId !== 'buy-qty') {
+            DOM.numLotsInput.value = optionsState.numLots;
+            DOM.buyQtyInput.value = optionsState.numLots * optionsState.lotSize;
+        } else if (targetId === 'num-lots') {
+            DOM.buyQtyInput.value = optionsState.numLots * optionsState.lotSize;
+        }
+
+        DOM.buyQtyInput.max = optionsState.maxLot * optionsState.lotSize;
+        DOM.buyQtyInput.step = optionsState.lotSize;
+        optionsState.isInternalUpdating = false;
+
+        renderOptions();
+    }
+
+    // --- COMPOUNDING INPUT PARSERS ---
+    function syncCompoundingFromDOM() {
+        if (compoundingState.isInternalUpdating) return;
+
+        let cInit = parseFloat(DOM.compInitialCapInput.value.trim());
+        if (isNaN(cInit) || cInit < 1) cInit = 1000.0;
+        compoundingState.initialCap = cInit;
+
+        let cFinal = parseFloat(DOM.compFinalCapInput.value.trim());
+        if (isNaN(cFinal) || cFinal < cInit) cFinal = cInit * 10;
+        compoundingState.finalCap = cFinal;
+
+        let retPct = parseFloat(DOM.compReturnPctInput.value.trim());
+        if (isNaN(retPct) || retPct <= 0) retPct = 1.0;
+        compoundingState.returnPct = retPct;
+
+        let depPct = parseFloat(DOM.compDeployPctInput.value.trim());
+        if (isNaN(depPct) || depPct <= 0) depPct = 100.0;
+        if (depPct > 100.0) depPct = 100.0;
+        compoundingState.deployPct = depPct;
+
+        let days = parseInt(DOM.compTradingDaysInput.value.trim());
+        if (isNaN(days) || days < 1) days = 250;
+        compoundingState.tradingDays = days;
+
+        let yrs = parseFloat(DOM.compYearsInput.value.trim());
+        if (isNaN(yrs) || yrs <= 0) yrs = 1.0;
+        compoundingState.years = yrs;
+
+        renderCompounding();
     }
 
     // --- EVENT LISTENERS ---
-    DOM.numLotsInput.addEventListener('input', syncStateFromDOM);
-    DOM.numLotsInput.addEventListener('change', syncStateFromDOM);
+    // Options Engine Inputs
+    DOM.numLotsInput.addEventListener('input', syncOptionsFromDOM);
     DOM.numLotsInput.addEventListener('blur', () => {
         let val = DOM.numLotsInput.value.trim();
-        if (val === '' || isNaN(parseInt(val))) {
-            DOM.numLotsInput.value = '1';
-        } else {
-            let lots = parseInt(val);
-            if (lots < 1) lots = 1;
-            if (lots > state.maxLot) lots = state.maxLot;
-            DOM.numLotsInput.value = lots;
-        }
-        syncStateFromDOM();
+        if (val === '' || isNaN(parseInt(val))) DOM.numLotsInput.value = '1';
+        syncOptionsFromDOM();
     });
 
-    DOM.buyQtyInput.addEventListener('input', syncStateFromDOM);
-    DOM.buyQtyInput.addEventListener('change', syncStateFromQtyInput);
-
-    DOM.buyPriceInput.addEventListener('input', syncStateFromDOM);
-    DOM.buyPriceInput.addEventListener('change', syncStateFromDOM);
+    DOM.buyQtyInput.addEventListener('input', syncOptionsFromDOM);
+    DOM.buyPriceInput.addEventListener('input', syncOptionsFromDOM);
     DOM.buyPriceInput.addEventListener('blur', () => {
         let val = DOM.buyPriceInput.value.trim();
-        if (val === '' || isNaN(parseFloat(val))) {
-            DOM.buyPriceInput.value = '0.00';
-        } else {
-            DOM.buyPriceInput.value = Math.max(0, parseFloat(val)).toFixed(2);
-        }
-        syncStateFromDOM();
+        if (val === '' || isNaN(parseFloat(val))) DOM.buyPriceInput.value = '0.00';
+        syncOptionsFromDOM();
     });
 
-    DOM.slippageInput.addEventListener('input', syncStateFromDOM);
-    DOM.slippageInput.addEventListener('change', syncStateFromDOM);
+    DOM.slippageInput.addEventListener('input', syncOptionsFromDOM);
     DOM.slippageInput.addEventListener('blur', () => {
         let val = DOM.slippageInput.value.trim();
-        if (val === '' || isNaN(parseFloat(val))) {
-            DOM.slippageInput.value = '0.00';
-        } else {
-            DOM.slippageInput.value = Math.max(0, parseFloat(val)).toFixed(2);
-        }
-        syncStateFromDOM();
+        if (val === '' || isNaN(parseFloat(val))) DOM.slippageInput.value = '0.00';
+        syncOptionsFromDOM();
     });
 
-    DOM.targetProfitPctInput.addEventListener('input', syncStateFromDOM);
-    DOM.targetProfitPctInput.addEventListener('change', syncStateFromDOM);
+    DOM.targetProfitPctInput.addEventListener('input', syncOptionsFromDOM);
     DOM.targetProfitPctInput.addEventListener('blur', () => {
         let val = DOM.targetProfitPctInput.value.trim();
-        if (val === '' || isNaN(parseFloat(val))) {
-            DOM.targetProfitPctInput.value = "0.0";
-        } else {
-            DOM.targetProfitPctInput.value = Math.max(0, parseFloat(val)).toFixed(1);
-        }
-        syncStateFromDOM();
+        if (val === '' || isNaN(parseFloat(val))) DOM.targetProfitPctInput.value = '0.0';
+        syncOptionsFromDOM();
     });
 
     if (DOM.includeNextFeeToggle) {
-        DOM.includeNextFeeToggle.addEventListener('change', syncStateFromDOM);
+        DOM.includeNextFeeToggle.addEventListener('change', syncOptionsFromDOM);
     }
+
+    // Compounding Engine Inputs
+    DOM.compInitialCapInput.addEventListener('input', syncCompoundingFromDOM);
+    DOM.compFinalCapInput.addEventListener('input', syncCompoundingFromDOM);
+    DOM.compReturnPctInput.addEventListener('input', syncCompoundingFromDOM);
+    DOM.compDeployPctInput.addEventListener('input', syncCompoundingFromDOM);
+    DOM.compTradingDaysInput.addEventListener('input', syncCompoundingFromDOM);
+    DOM.compYearsInput.addEventListener('input', syncCompoundingFromDOM);
+
+    DOM.compPresetChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            const targetVal = parseFloat(chip.getAttribute('data-target'));
+            DOM.compFinalCapInput.value = targetVal;
+            syncCompoundingFromDOM();
+        });
+    });
 
     // Modal Trigger Listeners
     if (DOM.tariffTrigger && DOM.tariffModal && DOM.modalCloseBtn) {
-        DOM.tariffTrigger.addEventListener('click', () => {
-            DOM.tariffModal.style.display = 'flex';
-        });
-        DOM.modalCloseBtn.addEventListener('click', () => {
-            DOM.tariffModal.style.display = 'none';
-        });
+        DOM.tariffTrigger.addEventListener('click', () => DOM.tariffModal.style.display = 'flex');
+        DOM.modalCloseBtn.addEventListener('click', () => DOM.tariffModal.style.display = 'none');
         DOM.tariffModal.addEventListener('click', (e) => {
-            if (e.target === DOM.tariffModal) {
-                DOM.tariffModal.style.display = 'none';
-            }
+            if (e.target === DOM.tariffModal) DOM.tariffModal.style.display = 'none';
         });
     }
 
@@ -356,16 +500,15 @@ document.addEventListener('DOMContentLoaded', () => {
             DOM.lotChips.forEach(c => c.classList.remove('active'));
             chip.classList.add('active');
 
-            state.indexName = chip.getAttribute('data-index') || 'NIFTY';
-            state.lotSize = parseInt(chip.getAttribute('data-lot')) || 65;
-            state.maxLot = parseInt(chip.getAttribute('data-maxlot')) || 27;
+            optionsState.indexName = chip.getAttribute('data-index') || 'NIFTY';
+            optionsState.lotSize = parseInt(chip.getAttribute('data-lot')) || 65;
+            optionsState.maxLot = parseInt(chip.getAttribute('data-maxlot')) || 27;
 
-            if (state.numLots > state.maxLot) state.numLots = state.maxLot;
+            if (optionsState.numLots > optionsState.maxLot) optionsState.numLots = optionsState.maxLot;
 
-            DOM.numLotsInput.value = state.numLots;
-            DOM.buyQtyInput.value = state.numLots * state.lotSize;
-
-            syncStateFromDOM();
+            DOM.numLotsInput.value = optionsState.numLots;
+            DOM.buyQtyInput.value = optionsState.numLots * optionsState.lotSize;
+            syncOptionsFromDOM();
         });
     });
 
@@ -373,41 +516,48 @@ document.addEventListener('DOMContentLoaded', () => {
         chip.addEventListener('click', () => {
             const pctVal = parseFloat(chip.getAttribute('data-pct'));
             DOM.targetProfitPctInput.value = pctVal;
-            syncStateFromDOM();
+            syncOptionsFromDOM();
         });
     });
 
     // Reset Listener
     DOM.resetBtn.addEventListener('click', () => {
-        state.indexName = 'NIFTY';
-        state.lotSize = 65;
-        state.maxLot = 27;
-        state.numLots = 1;
-        state.buyPrice = 100.00;
-        state.slippage = 0.50;
-        state.targetProfitPct = 0.0;
-        state.includeNextFee = true;
+        if (activeTab === 'options') {
+            optionsState.indexName = 'NIFTY';
+            optionsState.lotSize = 65;
+            optionsState.maxLot = 27;
+            optionsState.numLots = 1;
+            optionsState.buyPrice = 100.00;
+            optionsState.slippage = 0.50;
+            optionsState.targetProfitPct = 0.0;
+            optionsState.includeNextFee = true;
 
-        DOM.numLotsInput.value = 1;
-        DOM.numLotsInput.max = 27;
-        DOM.buyQtyInput.value = 65;
-        DOM.buyQtyInput.step = 65;
-        DOM.buyQtyInput.max = 1755;
-        DOM.buyQtyInput.min = 65;
-        DOM.buyPriceInput.value = "100.00";
-        DOM.slippageInput.value = "0.50";
-        DOM.targetProfitPctInput.value = "0.0";
-        if (DOM.includeNextFeeToggle) DOM.includeNextFeeToggle.checked = true;
+            DOM.numLotsInput.value = 1;
+            DOM.numLotsInput.max = 27;
+            DOM.buyQtyInput.value = 65;
+            DOM.buyPriceInput.value = "100.00";
+            DOM.slippageInput.value = "0.50";
+            DOM.targetProfitPctInput.value = "0.0";
+            if (DOM.includeNextFeeToggle) DOM.includeNextFeeToggle.checked = true;
 
-        DOM.lotChips.forEach(c => c.classList.remove('active'));
-        document.querySelector('[data-lot="65"]').classList.add('active');
+            DOM.lotChips.forEach(c => c.classList.remove('active'));
+            document.querySelector('[data-lot="65"]').classList.add('active');
+            DOM.pctChips.forEach(c => c.classList.remove('active'));
+            document.querySelector('[data-pct="0"]').classList.add('active');
 
-        DOM.pctChips.forEach(c => c.classList.remove('active'));
-        document.querySelector('[data-pct="0"]').classList.add('active');
-
-        syncStateFromDOM();
+            syncOptionsFromDOM();
+        } else {
+            DOM.compInitialCapInput.value = "1000";
+            DOM.compFinalCapInput.value = "100000";
+            DOM.compReturnPctInput.value = "1.0";
+            DOM.compDeployPctInput.value = "100.0";
+            DOM.compTradingDaysInput.value = "250";
+            DOM.compYearsInput.value = "1.0";
+            syncCompoundingFromDOM();
+        }
     });
 
     // Initial render
-    syncStateFromDOM();
+    syncOptionsFromDOM();
+    syncCompoundingFromDOM();
 });

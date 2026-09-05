@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>Upstox Options Target Calculator (Official 2026 Upstox Rules)</title>
+    <title>Upstox Options & Compounding Calculator (Official 2026 Rules)</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,13 +19,14 @@
             <div class="brand">
                 <div class="brand-icon"><i class="fa-solid fa-bolt-lightning"></i></div>
                 <div class="brand-text">
-                    <h1>Upstox Options</h1>
-                    <span class="brand-sub">Target Sell Price & Re-entry Calculator</span>
+                    <h1>Upstox Suite</h1>
+                    <span class="brand-sub" id="header-subtitle">Target Sell Price & Re-entry Calculator</span>
                 </div>
             </div>
             
             <nav class="nav-pills">
-                <button class="nav-pill active"><i class="fa-solid fa-calculator"></i> Options Engine</button>
+                <button class="nav-pill active" id="tab-btn-options"><i class="fa-solid fa-calculator"></i> Options Engine</button>
+                <button class="nav-pill" id="tab-btn-compounding"><i class="fa-solid fa-chart-line"></i> Compounding Velocity</button>
             </nav>
 
             <div class="header-right">
@@ -36,8 +37,8 @@
             </div>
         </header>
 
-        <!-- Lumos Dashboard Grid Layout -->
-        <main class="dashboard-grid">
+        <!-- VIEW 1: OPTIONS ENGINE DASHBOARD -->
+        <main id="view-options" class="dashboard-grid tab-view active">
             <!-- Left Panel: Trade Inputs -->
             <section class="card input-panel">
                 <div class="panel-header">
@@ -185,6 +186,150 @@
                     <div class="capital-display">
                         <span class="c-amount" id="next-capital-val">₹6,493.78</span>
                         <span class="c-status">Net Capital Ready</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- VIEW 2: COMPOUNDING VELOCITY DASHBOARD -->
+        <main id="view-compounding" class="dashboard-grid tab-view hidden">
+            <!-- Left Panel: Compounding Inputs -->
+            <section class="card input-panel">
+                <div class="panel-header">
+                    <h2>Compounding Setup</h2>
+                    <span class="sub-date">Velocity Engine</span>
+                </div>
+
+                <!-- Initial & Final Capital Inputs -->
+                <div class="input-group">
+                    <div class="grid-2">
+                        <div>
+                            <label for="comp-initial-cap" class="input-label">Initial Capital (₹)</label>
+                            <div class="input-field">
+                                <span class="symbol">₹</span>
+                                <input type="number" id="comp-initial-cap" value="1000" min="1" step="500" inputmode="decimal">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="comp-final-cap" class="input-label">Target Capital (₹)</label>
+                            <div class="input-field">
+                                <span class="symbol">₹</span>
+                                <input type="number" id="comp-final-cap" value="100000" min="2" step="5000" inputmode="decimal">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Return % per Trade & Capital Deployed % -->
+                <div class="input-group">
+                    <div class="grid-2">
+                        <div>
+                            <label for="comp-return-pct" class="input-label">Expected Net % / Trade</label>
+                            <div class="input-field">
+                                <input type="number" id="comp-return-pct" value="1.0" min="0.01" step="0.25" inputmode="decimal">
+                                <span class="suffix">%</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label for="comp-deploy-pct" class="input-label">Capital Deployed %</label>
+                            <div class="input-field">
+                                <input type="number" id="comp-deploy-pct" value="100.0" min="1" max="100" step="5" inputmode="decimal">
+                                <span class="suffix">%</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sub-info">Effective compound rate per trade: <strong id="comp-effective-rate">1.000%</strong></div>
+                </div>
+
+                <!-- Trading Days & Number of Years -->
+                <div class="input-group">
+                    <div class="grid-2">
+                        <div>
+                            <label for="comp-trading-days" class="input-label">Trading Days / Year</label>
+                            <div class="input-field">
+                                <input type="number" id="comp-trading-days" value="250" min="1" max="365" step="5" inputmode="numeric">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="comp-years" class="input-label">Time Horizon (Years)</label>
+                            <div class="input-field">
+                                <input type="number" id="comp-years" value="1.0" min="0.1" max="50" step="0.5" inputmode="decimal">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="sub-info">Total available trading days: <strong id="comp-total-days">250 days</strong></div>
+                </div>
+
+                <!-- Preset Target Capital Shortcuts -->
+                <div class="input-group mb-0">
+                    <label class="input-label">Quick Capital Milestones</label>
+                    <div class="preset-chips">
+                        <button type="button" class="chip comp-preset-chip" data-target="10000">₹10K (10x)</button>
+                        <button type="button" class="chip comp-preset-chip active" data-target="100000">₹1 Lakh (100x)</button>
+                        <button type="button" class="chip comp-preset-chip" data-target="1000000">₹10 Lakh (1000x)</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Compounding Results Dashboard -->
+            <section class="results-panel">
+                <!-- Hero Compounding Trades Card -->
+                <div class="hero-target-card">
+                    <div class="hero-header">
+                        <span class="hero-tag">TOTAL TRADES REQUIRED</span>
+                        <i class="fa-solid fa-chart-line arrow-icon text-orange"></i>
+                    </div>
+                    <div class="hero-price" id="comp-hero-trades">463 Trades</div>
+                    <div class="hero-badge" id="comp-hero-sub"><i class="fa-solid fa-bolt"></i> Needs 1.85 trades / day across 250 trading days</div>
+                </div>
+
+                <!-- 4 Lumos Metric Cards Grid -->
+                <div class="metrics-grid">
+                    <div class="lumos-metric-card">
+                        <div class="card-head">
+                            <span class="card-tag">Trades / Day</span>
+                            <i class="fa-solid fa-calendar-day text-green icon-corner"></i>
+                        </div>
+                        <div class="card-val text-orange" id="comp-val-per-day">1.85 / day</div>
+                        <span class="trend-pill positive" id="comp-sub-per-day">▲ 8.90 trades / week</span>
+                    </div>
+
+                    <div class="lumos-metric-card">
+                        <div class="card-head">
+                            <span class="card-tag">Trades / Month</span>
+                            <i class="fa-solid fa-calendar-days text-blue icon-corner"></i>
+                        </div>
+                        <div class="card-val text-dark" id="comp-val-per-month">38.57 / mo</div>
+                        <span class="trend-pill neutral" id="comp-sub-per-month">Across 12 months</span>
+                    </div>
+
+                    <div class="lumos-metric-card">
+                        <div class="card-head">
+                            <span class="card-tag">Capital Multiplier</span>
+                            <i class="fa-solid fa-arrow-trend-up text-green icon-corner"></i>
+                        </div>
+                        <div class="card-val text-green" id="comp-val-multiplier">100.0x</div>
+                        <span class="trend-pill positive" id="comp-sub-multiplier">▲ +9,900% Growth</span>
+                    </div>
+
+                    <div class="lumos-metric-card">
+                        <div class="card-head">
+                            <span class="card-tag">Total Net Profit</span>
+                            <i class="fa-solid fa-sack-dollar text-amber icon-corner"></i>
+                        </div>
+                        <div class="card-val text-amber" id="comp-val-net-profit">+₹99,000</div>
+                        <span class="trend-pill warning" id="comp-sub-net-profit">From ₹1,000 capital</span>
+                    </div>
+                </div>
+
+                <!-- Compounding Growth Roadmap Banner -->
+                <div class="carryover-card">
+                    <div class="c-header">
+                        <span class="c-title"><i class="fa-solid fa-flag-checkered text-orange"></i> Growth Milestone Roadmap</span>
+                        <span class="c-sub" id="comp-roadmap-summary">4 Compounding Phases</span>
+                    </div>
+                    <div class="roadmap-grid" id="comp-roadmap-container">
+                        <!-- Rendered dynamically by JS -->
                     </div>
                 </div>
             </section>

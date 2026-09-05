@@ -1,9 +1,9 @@
 /*
- * Lumos Solar Design System - Upstox Options Target Calculator (2026 Engine)
- * Pristine Scratch Rewrite - Laptop Zero-Scroll & Mobile Touch Precision Layout
+ * Lumos Solar Design System - Upstox Options & Compounding Calculator (2026 Engine)
+ * Production Scratch Rewrite - Options Engine + Compounding Velocity Feature
  *
  * Author: Antigravity AI Pair Programmer
- * Version: 5.0
+ * Version: 6.0
  */
 
 :root {
@@ -122,18 +122,19 @@ input[type="number"] {
     color: var(--text-muted);
 }
 
-/* Nav Pills */
+/* Nav Pills (Tab Switcher) */
 .nav-pills {
     display: flex;
     background: #e2decb;
     padding: 4px;
     border-radius: 30px;
+    gap: 2px;
 }
 
 .nav-pill {
     background: transparent;
     border: none;
-    padding: 0.45rem 1.35rem;
+    padding: 0.45rem 1.25rem;
     border-radius: 25px;
     font-size: 0.85rem;
     font-weight: 700;
@@ -143,12 +144,17 @@ input[type="number"] {
     align-items: center;
     gap: 0.45rem;
     transition: all 0.2s ease;
+    white-space: nowrap;
 }
 
 .nav-pill.active {
     background: #ffffff;
     color: var(--text-main);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.nav-pill:hover:not(.active) {
+    color: var(--text-main);
 }
 
 .header-right {
@@ -206,6 +212,11 @@ input[type="number"] {
 .icon-btn:hover {
     background: var(--text-main);
     color: #fff;
+}
+
+/* TAB VIEW SWITCHER */
+.tab-view.hidden {
+    display: none !important;
 }
 
 /* Dashboard Grid Layout (Desktop 2-column) */
@@ -339,6 +350,12 @@ input[type="number"]:focus {
     grid-template-columns: repeat(6, 1fr);
     gap: 0.4rem;
     width: 100%;
+}
+
+.preset-chips {
+    display: flex;
+    gap: 0.45rem;
+    flex-wrap: wrap;
 }
 
 .mt-chip {
@@ -613,7 +630,7 @@ input:checked + .slider:before {
     color: var(--color-amber);
 }
 
-/* Lumos Capital Carryover Banner */
+/* Lumos Capital Carryover & Roadmap Banner */
 .carryover-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
@@ -667,6 +684,43 @@ input:checked + .slider:before {
     color: var(--text-muted);
     font-weight: 600;
     white-space: nowrap;
+}
+
+/* COMPOUNDING ROADMAP GRID */
+.roadmap-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.6rem;
+    margin-top: 0.3rem;
+}
+
+.roadmap-card {
+    background: var(--bg-input);
+    border-radius: var(--radius-md);
+    padding: 0.65rem 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.roadmap-target {
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+}
+
+.roadmap-val {
+    font-family: var(--font-heading);
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.roadmap-trades {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent-orange);
 }
 
 /* MODAL OVERLAY STYLING */
@@ -817,7 +871,13 @@ input:checked + .slider:before {
     }
 
     .nav-pills {
-        display: none;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .nav-pill {
+        flex: 1;
+        justify-content: center;
     }
 
     .dashboard-grid {
@@ -832,6 +892,10 @@ input:checked + .slider:before {
 
     .card {
         padding: 1.15rem 1.15rem;
+    }
+
+    .roadmap-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 

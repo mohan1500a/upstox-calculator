@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
 """
 Upstox Options Target Sell Price & Brokerage Calculator (2026 Engine)
-Calculates exact Target Limit Sell Price, Real Price Move, Statutory Taxes,
-Execution Slippages, and Dynamic Next Trade Capital Carryover.
+Includes Compounding Trade Growth & Velocity Calculator.
+
+Calculates exact Target Limit Sell Price, Statutory Taxes, Execution Slippage,
+and Compounding Trades Required to achieve financial growth targets.
 
 Author: Antigravity AI Pair Programmer
-Version: 5.0 (Pristine Ground-Up Rewrite)
+Version: 6.0 (Options Engine + Compounding Velocity Feature)
 """
 
 import sys
+import math
 from dataclasses import dataclass
 
 MAX_LOT_CAPS = {
@@ -61,6 +64,26 @@ class OptionTradeCalculation:
     dynamic_next_entry_fee: float
     next_trade_entry_cost: float
     next_trade_net_capital: float
+
+
+@dataclass(frozen=True)
+class CompoundingVelocityCalculation:
+    initial_capital: float
+    final_capital: float
+    return_pct_per_trade: float
+    deploy_pct_per_trade: float
+    trading_days_per_year: int
+    num_years: float
+    
+    effective_rate_per_trade: float
+    total_trades_needed: int
+    exact_trades_needed: float
+    total_trading_days: float
+    trades_per_day: float
+    trades_per_month: float
+    trades_per_week: float
+    total_net_profit: float
+    growth_multiplier: float
 
 
 def calculate_option_target(
@@ -174,6 +197,57 @@ def calculate_option_target(
     )
 
 
+def calculate_compounding_velocity(
+    initial_capital: float,
+    final_capital: float,
+    return_pct_per_trade: float = 1.0,
+    deploy_pct_per_trade: float = 100.0,
+    trading_days_per_year: int = 250,
+    num_years: float = 1.0
+) -> CompoundingVelocityCalculation:
+    c_init = max(1.0, float(initial_capital))
+    c_final = max(c_init, float(final_capital))
+    r_pct = max(0.001, float(return_pct_per_trade))
+    d_pct = max(0.001, min(100.0, float(deploy_pct_per_trade)))
+    days_year = max(1, int(trading_days_per_year))
+    years = max(0.01, float(num_years))
+
+    effective_rate = (d_pct / 100.0) * (r_pct / 100.0)
+    
+    if effective_rate > 0 and c_final > c_init:
+        exact_trades = math.log(c_final / c_init) / math.log(1.0 + effective_rate)
+    else:
+        exact_trades = 0.0
+
+    total_trades = math.ceil(exact_trades)
+    total_days = days_year * years
+
+    trades_per_day = exact_trades / total_days if total_days > 0 else 0.0
+    trades_per_month = exact_trades / (years * 12.0) if years > 0 else 0.0
+    trades_per_week = exact_trades / (years * 52.0) if years > 0 else 0.0
+
+    total_net_profit = c_final - c_init
+    growth_multiplier = c_final / c_init
+
+    return CompoundingVelocityCalculation(
+        initial_capital=round(c_init, 2),
+        final_capital=round(c_final, 2),
+        return_pct_per_trade=round(r_pct, 2),
+        deploy_pct_per_trade=round(d_pct, 2),
+        trading_days_per_year=days_year,
+        num_years=round(years, 2),
+        effective_rate_per_trade=round(effective_rate * 100.0, 4),
+        total_trades_needed=total_trades,
+        exact_trades_needed=round(exact_trades, 2),
+        total_trading_days=round(total_days, 1),
+        trades_per_day=round(trades_per_day, 2),
+        trades_per_month=round(trades_per_month, 2),
+        trades_per_week=round(trades_per_week, 2),
+        total_net_profit=round(total_net_profit, 2),
+        growth_multiplier=round(growth_multiplier, 2)
+    )
+
+
 def print_trade_report(calc: OptionTradeCalculation):
     GREEN = "\033[92m"
     RED = "\033[91m"
@@ -207,8 +281,44 @@ def print_trade_report(calc: OptionTradeCalculation):
     print("=" * 65 + "\n")
 
 
+def print_compounding_report(calc: CompoundingVelocityCalculation):
+    GREEN = "\033[92m"
+    YELLOW = "\033[93m"
+    CYAN = "\033[96m"
+    BOLD = "\033[1m"
+    RESET = "\033[0m"
+
+    print("\n" + "=" * 65)
+    print(f"{BOLD}{CYAN}  COMPOUNDING TRADE GROWTH & VELOCITY CALCULATOR{RESET}")
+    print("=" * 65)
+
+    print(f"\n{BOLD}1. CAPITAL & TIMELINE INPUTS{RESET}")
+    print(f"  • Initial Capital     : ₹{calc.initial_capital:,.2f}")
+    print(f"  • Target Final Capital: {BOLD}{GREEN}₹{calc.final_capital:,.2f}{RESET} ({calc.growth_multiplier:.1f}x Growth)")
+    print(f"  • Profit / Trade      : +{calc.return_pct_per_trade:.2f}% (Capital Deployed: {calc.deploy_pct_per_trade:.1f}%)")
+    print(f"  • Time Horizon        : {calc.num_years} Year(s) ({calc.trading_days_per_year} trading days/yr = {calc.total_trading_days:.0f} days)")
+
+    print(f"\n{BOLD}2. COMPOUNDING VELOCITY OUTPUTS{RESET}")
+    print(f"  • Total Trades Needed : {BOLD}{YELLOW}{calc.total_trades_needed} trades{RESET} (exact: {calc.exact_trades_needed:.2f})")
+    print(f"  • Trades Needed / Day : {BOLD}{CYAN}{calc.trades_per_day:.2f} trades/day{RESET}")
+    print(f"  • Trades Needed / Wk  : {calc.trades_per_week:.2f} trades/week")
+    print(f"  • Trades Needed / Mo  : {calc.trades_per_month:.2f} trades/month")
+    print(f"  • Total Net Gain      : {BOLD}{GREEN}+₹{calc.total_net_profit:,.2f}{RESET}")
+    print("=" * 65 + "\n")
+
+
 if __name__ == "__main__":
-    if len(sys.argv) >= 4:
+    if len(sys.argv) >= 2 and sys.argv[1].lower() in ['compound', 'compounding']:
+        c_init = float(sys.argv[2]) if len(sys.argv) >= 3 else 1000.0
+        c_final = float(sys.argv[3]) if len(sys.argv) >= 4 else 100000.0
+        ret_pct = float(sys.argv[4]) if len(sys.argv) >= 5 else 1.0
+        dep_pct = float(sys.argv[5]) if len(sys.argv) >= 6 else 100.0
+        days = int(sys.argv[6]) if len(sys.argv) >= 7 else 250
+        yrs = float(sys.argv[7]) if len(sys.argv) >= 8 else 1.0
+
+        comp_res = calculate_compounding_velocity(c_init, c_final, ret_pct, dep_pct, days, yrs)
+        print_compounding_report(comp_res)
+    elif len(sys.argv) >= 4:
         try:
             qty = int(sys.argv[1])
             buy = float(sys.argv[2])
@@ -223,3 +333,5 @@ if __name__ == "__main__":
     else:
         demo = calculate_option_target(quantity=65, buy_price=100.0, target_profit_pct=0.0, slippage=0.50, include_next_trade_fee=True)
         print_trade_report(demo)
+        comp_demo = calculate_compounding_velocity(1000.0, 100000.0, 1.0, 100.0, 250, 1.0)
+        print_compounding_report(comp_demo)
