@@ -202,7 +202,7 @@ def calculate_compounding_velocity(
     final_capital: float,
     return_pct_per_trade: float = 1.0,
     deploy_pct_per_trade: float = 100.0,
-    trading_days_per_year: int = 250,
+    trading_days_per_year: int = 200,
     num_years: float = 1.0
 ) -> CompoundingVelocityCalculation:
     c_init = max(1.0, float(initial_capital))
@@ -313,7 +313,7 @@ if __name__ == "__main__":
         c_final = float(sys.argv[3]) if len(sys.argv) >= 4 else 100000.0
         ret_pct = float(sys.argv[4]) if len(sys.argv) >= 5 else 1.0
         dep_pct = float(sys.argv[5]) if len(sys.argv) >= 6 else 100.0
-        days = int(sys.argv[6]) if len(sys.argv) >= 7 else 250
+        days = int(sys.argv[6]) if len(sys.argv) >= 7 else 200
         yrs = float(sys.argv[7]) if len(sys.argv) >= 8 else 1.0
 
         comp_res = calculate_compounding_velocity(c_init, c_final, ret_pct, dep_pct, days, yrs)
@@ -333,5 +333,5 @@ if __name__ == "__main__":
     else:
         demo = calculate_option_target(quantity=65, buy_price=100.0, target_profit_pct=0.0, slippage=0.50, include_next_trade_fee=True)
         print_trade_report(demo)
-        comp_demo = calculate_compounding_velocity(10000.0, 100000.0, 1.0, 100.0, 250, 1.0)
+        comp_demo = calculate_compounding_velocity(10000.0, 100000.0, 1.0, 100.0, 200, 1.0)
         print_compounding_report(comp_demo)

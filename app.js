@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         finalCap: 100000.0,
         returnPct: 1.0,
         deployPct: 100.0,
-        tradingDays: 250,
+        tradingDays: 200,
         years: 1.0,
         isInternalUpdating: false
     };
@@ -703,8 +703,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const valStr = DOM.compTradingDaysInput.value.trim();
         const val = parseInt(valStr);
         if (valStr === '' || isNaN(val) || val < 1 || val > 365) {
-            DOM.compTradingDaysInput.value = '250';
-            compoundingState.tradingDays = 250;
+            DOM.compTradingDaysInput.value = '200';
+            compoundingState.tradingDays = 200;
         } else {
             compoundingState.tradingDays = val;
         }
@@ -806,7 +806,7 @@ document.addEventListener('DOMContentLoaded', () => {
             DOM.compFinalCapInput.value = "100000";
             DOM.compReturnPctInput.value = "1.0";
             DOM.compDeployPctInput.value = "100.0";
-            DOM.compTradingDaysInput.value = "250";
+            DOM.compTradingDaysInput.value = "200";
             DOM.compYearsInput.value = "1.0";
             syncCompoundingFromDOM();
         }
