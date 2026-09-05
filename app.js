@@ -3,7 +3,7 @@
  * Includes Options Target Engine + Compounding Velocity Trade Counter
  *
  * Author: Antigravity AI Pair Programmer
- * Version: 15.0 (Clean Input Guards & Native HTML5 Step Engine)
+ * Version: 20.0 (Masterclass Audit & Full Vertical Layout Alignment)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -575,7 +575,72 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM.compYearsInput.addEventListener(evt, syncCompoundingFromDOM);
     });
 
-    // Blur Normalization Listeners
+    // Options Blur Normalization Listeners
+    DOM.numLotsInput.addEventListener('blur', () => {
+        const valStr = DOM.numLotsInput.value.trim();
+        let val = parseInt(valStr);
+        if (valStr === '' || isNaN(val) || val < 1) {
+            val = 1;
+        } else if (val > optionsState.maxLot) {
+            val = optionsState.maxLot;
+        }
+        DOM.numLotsInput.value = val;
+        optionsState.numLots = val;
+        DOM.buyQtyInput.value = val * optionsState.lotSize;
+        renderOptions();
+    });
+
+    DOM.buyQtyInput.addEventListener('blur', () => {
+        const valStr = DOM.buyQtyInput.value.trim();
+        let val = parseInt(valStr);
+        if (valStr === '' || isNaN(val) || val < optionsState.lotSize) {
+            optionsState.numLots = 1;
+        } else {
+            let lots = Math.max(1, Math.min(optionsState.maxLot, Math.round(val / optionsState.lotSize)));
+            optionsState.numLots = lots;
+        }
+        DOM.numLotsInput.value = optionsState.numLots;
+        DOM.buyQtyInput.value = optionsState.numLots * optionsState.lotSize;
+        renderOptions();
+    });
+
+    DOM.buyPriceInput.addEventListener('blur', () => {
+        const valStr = DOM.buyPriceInput.value.trim();
+        const val = parseFloat(valStr);
+        if (valStr === '' || isNaN(val) || val < 0) {
+            DOM.buyPriceInput.value = '100.00';
+            optionsState.buyPrice = 100.00;
+        } else {
+            optionsState.buyPrice = val;
+        }
+        renderOptions();
+    });
+
+    DOM.slippageInput.addEventListener('blur', () => {
+        const valStr = DOM.slippageInput.value.trim();
+        const val = parseFloat(valStr);
+        if (valStr === '' || isNaN(val) || val < 0) {
+            DOM.slippageInput.value = '0.50';
+            optionsState.slippage = 0.50;
+        } else {
+            optionsState.slippage = val;
+        }
+        renderOptions();
+    });
+
+    DOM.targetProfitPctInput.addEventListener('blur', () => {
+        const valStr = DOM.targetProfitPctInput.value.trim();
+        const val = parseFloat(valStr);
+        if (valStr === '' || isNaN(val) || val < 0) {
+            DOM.targetProfitPctInput.value = '0.0';
+            optionsState.targetProfitPct = 0.0;
+        } else {
+            optionsState.targetProfitPct = val;
+        }
+        renderOptions();
+    });
+
+    // Compounding Blur Normalization Listeners
     DOM.compInitialCapInput.addEventListener('blur', () => {
         const valStr = DOM.compInitialCapInput.value.trim();
         const val = parseFloat(valStr);
