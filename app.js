@@ -451,30 +451,100 @@ document.addEventListener('DOMContentLoaded', () => {
     function syncCompoundingFromDOM() {
         if (compoundingState.isInternalUpdating) return;
 
-        let cInit = parseFloat(DOM.compInitialCapInput.value.trim());
-        if (!isNaN(cInit) && cInit >= 0) compoundingState.initialCap = cInit;
+        const activeEl = document.activeElement;
 
-        let cFinal = parseFloat(DOM.compFinalCapInput.value.trim());
-        if (!isNaN(cFinal) && cFinal >= 0) compoundingState.finalCap = cFinal;
+        // 1. Initial Capital
+        const rawInitStr = DOM.compInitialCapInput.value.trim();
+        if (rawInitStr !== '') {
+            const parsedInit = parseFloat(rawInitStr);
+            if (!isNaN(parsedInit) && parsedInit >= 0) {
+                // Ignore transient single/double digit input (< 100) while actively typing
+                if (activeEl === DOM.compInitialCapInput && parsedInit < 100) {
+                    // Retain existing valid initialCap state during typing
+                } else {
+                    compoundingState.initialCap = parsedInit;
+                }
+            }
+        }
 
-        let retPct = parseFloat(DOM.compReturnPctInput.value.trim());
-        if (!isNaN(retPct) && retPct >= 0) compoundingState.returnPct = retPct;
+        // 2. Target Capital
+        const rawFinalStr = DOM.compFinalCapInput.value.trim();
+        if (rawFinalStr !== '') {
+            const parsedFinal = parseFloat(rawFinalStr);
+            if (!isNaN(parsedFinal) && parsedFinal >= 0) {
+                // Ignore transient single/double digit input (< 100 or <= initialCap) while actively typing
+                if (activeEl === DOM.compFinalCapInput && (parsedFinal < 100 || parsedFinal <= compoundingState.initialCap)) {
+                    // Retain existing valid finalCap state during typing
+                } else {
+                    compoundingState.finalCap = parsedFinal;
+                }
+            }
+        }
 
-        let depPct = parseFloat(DOM.compDeployPctInput.value.trim());
-        if (!isNaN(depPct) && depPct >= 0) compoundingState.deployPct = Math.min(100.0, depPct);
+        // 3. Net Return % per Trade
+        const rawRetStr = DOM.compReturnPctInput.value.trim();
+        if (rawRetStr !== '') {
+            const parsedRet = parseFloat(rawRetStr);
+            if (!isNaN(parsedRet) && parsedRet >= 0) {
+                if (activeEl === DOM.compReturnPctInput && (parsedRet <= 0 || rawRetStr.endsWith('.'))) {
+                    // Retain valid returnPct state during typing
+                } else {
+                    compoundingState.returnPct = parsedRet;
+                }
+            }
+        }
 
-        let days = parseInt(DOM.compTradingDaysInput.value.trim());
-        if (!isNaN(days) && days >= 1) compoundingState.tradingDays = days;
+        // 4. Capital Deployed %
+        const rawDeployStr = DOM.compDeployPctInput.value.trim();
+        if (rawDeployStr !== '') {
+            const parsedDeploy = parseFloat(rawDeployStr);
+            if (!isNaN(parsedDeploy) && parsedDeploy >= 0) {
+                if (activeEl === DOM.compDeployPctInput && parsedDeploy < 1) {
+                    // Retain valid deployPct state during typing
+                } else {
+                    compoundingState.deployPct = Math.min(100.0, parsedDeploy);
+                }
+            }
+        }
 
-        let yrs = parseFloat(DOM.compYearsInput.value.trim());
-        if (!isNaN(yrs) && yrs > 0) compoundingState.years = yrs;
+        // 5. Trading Days
+        const rawDaysStr = DOM.compTradingDaysInput.value.trim();
+        if (rawDaysStr !== '') {
+            const parsedDays = parseInt(rawDaysStr);
+            if (!isNaN(parsedDays) && parsedDays >= 1) {
+                compoundingState.tradingDays = Math.min(365, parsedDays);
+            }
+        }
+
+        // 6. Time Horizon (Years)
+        const rawYrsStr = DOM.compYearsInput.value.trim();
+        if (rawYrsStr !== '') {
+            const parsedYrs = parseFloat(rawYrsStr);
+            if (!isNaN(parsedYrs) && parsedYrs > 0) {
+                if (activeEl === DOM.compYearsInput && rawYrsStr.endsWith('.')) {
+                    // Trailing decimal
+                } else {
+                    compoundingState.years = Math.min(50.0, parsedYrs);
+                }
+            }
+        }
+
+        // Dynamic 10% step calculation for capital inputs
+        if (compoundingState.initialCap >= 100) {
+            const initStep = Math.max(100, Math.pow(10, Math.floor(Math.log10(compoundingState.initialCap))) / 10);
+            DOM.compInitialCapInput.step = initStep;
+        }
+        if (compoundingState.finalCap >= 100) {
+            const finalStep = Math.max(1000, Math.pow(10, Math.floor(Math.log10(compoundingState.finalCap))) / 10);
+            DOM.compFinalCapInput.step = finalStep;
+        }
 
         renderCompounding();
     }
 
     // --- EVENT LISTENERS FOR INSTANT REAL-TIME REACTION ---
     // Options Inputs
-    ['input', 'change', 'keyup'].forEach(evt => {
+    ['input', 'change'].forEach(evt => {
         DOM.numLotsInput.addEventListener(evt, syncOptionsFromDOM);
         DOM.buyQtyInput.addEventListener(evt, syncOptionsFromDOM);
         DOM.buyPriceInput.addEventListener(evt, syncOptionsFromDOM);
@@ -487,7 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Compounding Inputs
-    ['input', 'change', 'keyup'].forEach(evt => {
+    ['input', 'change'].forEach(evt => {
         DOM.compInitialCapInput.addEventListener(evt, syncCompoundingFromDOM);
         DOM.compFinalCapInput.addEventListener(evt, syncCompoundingFromDOM);
         DOM.compReturnPctInput.addEventListener(evt, syncCompoundingFromDOM);
@@ -498,45 +568,80 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Blur Normalization Listeners
     DOM.compInitialCapInput.addEventListener('blur', () => {
-        if (DOM.compInitialCapInput.value.trim() === '' || isNaN(parseFloat(DOM.compInitialCapInput.value))) {
+        const valStr = DOM.compInitialCapInput.value.trim();
+        const val = parseFloat(valStr);
+        if (valStr === '' || isNaN(val) || val < 100) {
             DOM.compInitialCapInput.value = '10000';
-            syncCompoundingFromDOM();
+            compoundingState.initialCap = 10000.0;
+        } else {
+            compoundingState.initialCap = val;
         }
+        renderCompounding();
     });
 
     DOM.compFinalCapInput.addEventListener('blur', () => {
-        if (DOM.compFinalCapInput.value.trim() === '' || isNaN(parseFloat(DOM.compFinalCapInput.value))) {
-            DOM.compFinalCapInput.value = '100000';
-            syncCompoundingFromDOM();
+        const valStr = DOM.compFinalCapInput.value.trim();
+        const val = parseFloat(valStr);
+        if (valStr === '' || isNaN(val) || val <= compoundingState.initialCap) {
+            const fallbackFinal = Math.max(100000.0, compoundingState.initialCap * 10);
+            DOM.compFinalCapInput.value = fallbackFinal.toString();
+            compoundingState.finalCap = fallbackFinal;
+        } else {
+            compoundingState.finalCap = val;
         }
+        renderCompounding();
     });
 
     DOM.compReturnPctInput.addEventListener('blur', () => {
-        if (DOM.compReturnPctInput.value.trim() === '' || isNaN(parseFloat(DOM.compReturnPctInput.value))) {
+        const valStr = DOM.compReturnPctInput.value.trim();
+        const val = parseFloat(valStr);
+        if (valStr === '' || isNaN(val) || val <= 0) {
             DOM.compReturnPctInput.value = '1.0';
-            syncCompoundingFromDOM();
+            compoundingState.returnPct = 1.0;
+        } else {
+            compoundingState.returnPct = val;
         }
+        renderCompounding();
     });
 
     DOM.compDeployPctInput.addEventListener('blur', () => {
-        if (DOM.compDeployPctInput.value.trim() === '' || isNaN(parseFloat(DOM.compDeployPctInput.value))) {
+        const valStr = DOM.compDeployPctInput.value.trim();
+        const val = parseFloat(valStr);
+        if (valStr === '' || isNaN(val) || val <= 0) {
             DOM.compDeployPctInput.value = '100.0';
-            syncCompoundingFromDOM();
+            compoundingState.deployPct = 100.0;
+        } else {
+            const clamped = Math.min(100.0, val);
+            DOM.compDeployPctInput.value = clamped.toString();
+            compoundingState.deployPct = clamped;
         }
+        renderCompounding();
     });
 
     DOM.compTradingDaysInput.addEventListener('blur', () => {
-        if (DOM.compTradingDaysInput.value.trim() === '' || isNaN(parseInt(DOM.compTradingDaysInput.value))) {
+        const valStr = DOM.compTradingDaysInput.value.trim();
+        const val = parseInt(valStr);
+        if (valStr === '' || isNaN(val) || val < 1 || val > 365) {
             DOM.compTradingDaysInput.value = '250';
-            syncCompoundingFromDOM();
+            compoundingState.tradingDays = 250;
+        } else {
+            compoundingState.tradingDays = val;
         }
+        renderCompounding();
     });
 
     DOM.compYearsInput.addEventListener('blur', () => {
-        if (DOM.compYearsInput.value.trim() === '' || isNaN(parseFloat(DOM.compYearsInput.value))) {
+        const valStr = DOM.compYearsInput.value.trim();
+        const val = parseFloat(valStr);
+        if (valStr === '' || isNaN(val) || val <= 0) {
             DOM.compYearsInput.value = '1.0';
-            syncCompoundingFromDOM();
+            compoundingState.years = 1.0;
+        } else {
+            const clamped = Math.min(50.0, val);
+            DOM.compYearsInput.value = clamped.toString();
+            compoundingState.years = clamped;
         }
+        renderCompounding();
     });
 
     // Compounding Preset Chips
