@@ -388,10 +388,12 @@ input[type="number"]:focus {
     width: 100%;
 }
 
-.preset-chips {
-    display: flex;
-    gap: 0.4rem;
-    flex-wrap: wrap;
+/* CAPITAL DEPLOYMENT SENSITIVITY GRID & MINI CARDS */
+.sensitivity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+    gap: 0.45rem;
+    margin-top: 0.25rem;
 }
 
 .mt-chip {
@@ -699,35 +701,7 @@ input:checked + .slider:before {
     white-space: nowrap;
 }
 
-.capital-display {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 0.5rem;
-}
 
-.c-amount {
-    font-family: var(--font-heading);
-    font-size: 1.65rem;
-    font-weight: 800;
-    color: var(--color-green);
-    letter-spacing: -0.02em;
-}
-
-.c-status {
-    font-size: 0.78rem;
-    color: var(--text-muted);
-    font-weight: 600;
-    white-space: nowrap;
-}
-
-/* CAPITAL DEPLOYMENT SENSITIVITY GRID */
-.sensitivity-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 0.45rem;
-    margin-top: 0.25rem;
-}
 
 .sensitivity-card {
     background: var(--bg-input);
