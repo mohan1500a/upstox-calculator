@@ -529,22 +529,24 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Dynamic 10% step calculation for capital inputs & zero-aligned min attributes
+        // Clean fixed step & min configuration
         DOM.compInitialCapInput.min = "0";
-        DOM.compFinalCapInput.min = "0";
-        DOM.compReturnPctInput.min = "0";
-        DOM.compDeployPctInput.min = "0";
-        DOM.compTradingDaysInput.min = "0";
-        DOM.compYearsInput.min = "0";
+        DOM.compInitialCapInput.step = "1000";
 
-        if (compoundingState.initialCap >= 100) {
-            const initStep = Math.max(100, Math.pow(10, Math.floor(Math.log10(compoundingState.initialCap))) / 10);
-            DOM.compInitialCapInput.step = initStep;
-        }
-        if (compoundingState.finalCap >= 100) {
-            const finalStep = Math.max(1000, Math.pow(10, Math.floor(Math.log10(compoundingState.finalCap))) / 10);
-            DOM.compFinalCapInput.step = finalStep;
-        }
+        DOM.compFinalCapInput.min = "0";
+        DOM.compFinalCapInput.step = "10000";
+
+        DOM.compReturnPctInput.min = "0";
+        DOM.compReturnPctInput.step = "0.1";
+
+        DOM.compDeployPctInput.min = "0";
+        DOM.compDeployPctInput.step = "5";
+
+        DOM.compTradingDaysInput.min = "0";
+        DOM.compTradingDaysInput.step = "5";
+
+        DOM.compYearsInput.min = "0";
+        DOM.compYearsInput.step = "0.1";
 
         renderCompounding();
     }
