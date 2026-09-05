@@ -615,31 +615,31 @@ input:checked + .slider:before {
 }
 
 .card-tag {
-    font-size: 0.76rem;
-    font-weight: 700;
+    font-size: 0.82rem;
+    font-weight: 800;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
 }
 
 .icon-corner {
-    font-size: 0.95rem;
+    font-size: 1.1rem;
 }
 
 .card-val {
     font-family: var(--font-heading);
-    font-size: 1.85rem;
+    font-size: 2.35rem;
     font-weight: 800;
-    margin: 0.15rem 0;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
+    margin: 0.25rem 0;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
 }
 
 .trend-pill {
-    font-size: 0.78rem;
+    font-size: 0.84rem;
     font-weight: 700;
-    padding: 0.28rem 0.75rem;
-    border-radius: 12px;
+    padding: 0.35rem 0.85rem;
+    border-radius: 14px;
     display: inline-block;
     width: fit-content;
 }
@@ -987,7 +987,7 @@ input:checked + .slider:before {
     }
 
     .card-val {
-        font-size: 1.45rem;
+        font-size: 1.75rem;
     }
 
     .hero-price {
