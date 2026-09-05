@@ -352,6 +352,19 @@ input[type="number"]:focus {
     gap: 0.65rem;
 }
 
+.grid-2 > div {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.grid-2 .input-label {
+    min-height: 2.1rem;
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 0.35rem;
+}
+
 /* Index Chips Grid */
 .index-chips {
     display: grid;
