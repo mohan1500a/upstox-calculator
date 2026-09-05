@@ -1,9 +1,9 @@
 /*
  * Lumos Solar Design System - Upstox Options & Compounding Calculator (2026 Engine)
- * High-Density Compact Layout - Zero Wasted Space
+ * High-Density Compact Layout - Zero Stretched Space Fix
  *
  * Author: Antigravity AI Pair Programmer
- * Version: 7.0 (Compact Precision Layout)
+ * Version: 7.1
  */
 
 :root {
@@ -230,16 +230,20 @@ input[type="number"] {
     padding: 0.95rem 1.15rem;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
     box-shadow: var(--shadow-soft);
     min-height: 0;
+}
+
+.input-panel {
+    justify-content: flex-start !important; /* Top aligned, no space-between stretching */
+    gap: 0.5rem;
 }
 
 .panel-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.35rem;
 }
 
 .panel-header h2 {
@@ -255,9 +259,9 @@ input[type="number"] {
     font-weight: 600;
 }
 
-/* Input Group Spacing (High Density) */
+/* Input Group Spacing (Tight Top Stacking) */
 .input-group {
-    margin-bottom: 0.55rem;
+    margin-bottom: 0.25rem;
 }
 
 .mb-0 { margin-bottom: 0 !important; }
@@ -361,7 +365,7 @@ input[type="number"]:focus {
 }
 
 .mt-chip {
-    margin-top: 0.35rem;
+    margin-top: 0.25rem;
 }
 
 .chip, .pct-chip {
@@ -398,7 +402,7 @@ input[type="number"]:focus {
 .lot-status, .sub-info {
     font-size: 0.72rem;
     color: var(--text-muted);
-    margin-top: 0.25rem;
+    margin-top: 0.2rem;
     display: block;
     clear: both;
     font-weight: 500;
@@ -414,7 +418,7 @@ input[type="number"]:focus {
     background: var(--bg-input);
     border-radius: var(--radius-md);
     padding: 0.6rem 0.85rem;
-    margin-top: 0.3rem;
+    margin-top: 0.2rem;
 }
 
 .toggle-container {
