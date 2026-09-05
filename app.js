@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const compoundingState = {
-        initialCap: 1000.0,
+        initialCap: 10000.0,
         finalCap: 100000.0,
         returnPct: 1.0,
         deployPct: 100.0,
@@ -550,6 +550,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Custom Relative Step Handlers for Keyboard Cursor Stepping
+    function attachStepHandler(inputEl, pctStep = 0.10, isInt = false, minVal = 0, maxVal = Infinity) {
+        if (!inputEl) return;
+        inputEl.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                let current = parseFloat(inputEl.value) || 0;
+                let step = Math.max(0.1, current * pctStep);
+                if (isInt) step = Math.max(1, Math.round(step));
+                
+                if (e.key === 'ArrowUp') {
+                    current += step;
+                } else {
+                    current = Math.max(minVal, current - step);
+                }
+                if (current > maxVal) current = maxVal;
+                
+                inputEl.value = isInt ? Math.round(current) : (current < 10 ? current.toFixed(2) : (current < 100 ? current.toFixed(1) : Math.round(current)));
+                syncCompoundingFromDOM();
+            }
+        });
+    }
+
+    attachStepHandler(DOM.compInitialCapInput, 0.10, true, 1);
+    attachStepHandler(DOM.compFinalCapInput, 0.10, true, 1);
+    attachStepHandler(DOM.compReturnPctInput, 0.10, false, 0.01);
+    attachStepHandler(DOM.compYearsInput, 0.10, false, 0.1);
+
     // Reset Button
     DOM.resetBtn.addEventListener('click', () => {
         if (activeTab === 'options') {
@@ -577,7 +605,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             syncOptionsFromDOM();
         } else {
-            DOM.compInitialCapInput.value = "1000";
+            DOM.compInitialCapInput.value = "10000";
             DOM.compFinalCapInput.value = "100000";
             DOM.compReturnPctInput.value = "1.0";
             DOM.compDeployPctInput.value = "100.0";
