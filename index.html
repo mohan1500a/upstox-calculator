@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css?v=24.0">
+    <link rel="stylesheet" href="styles.css?v=25.0">
 </head>
 <body>
     <div class="viewport-app">
@@ -245,15 +245,15 @@
                 <div class="input-group">
                     <label for="comp-deploy-pct" class="input-label">Capital Deployed %</label>
                     <div class="input-field">
-                        <input type="number" id="comp-deploy-pct" value="100.0" min="0" max="100" step="5" inputmode="decimal">
+                        <input type="number" id="comp-deploy-pct" value="50.0" min="0" max="100" step="5" inputmode="decimal">
                         <span class="suffix">%</span>
                     </div>
                     <div class="deploy-chips mt-chip">
                         <button type="button" class="chip comp-deploy-chip" data-deploy="10">10%</button>
                         <button type="button" class="chip comp-deploy-chip" data-deploy="25">25%</button>
-                        <button type="button" class="chip comp-deploy-chip" data-deploy="50">50%</button>
+                        <button type="button" class="chip comp-deploy-chip active" data-deploy="50">50%</button>
                         <button type="button" class="chip comp-deploy-chip" data-deploy="75">75%</button>
-                        <button type="button" class="chip comp-deploy-chip active" data-deploy="100">100%</button>
+                        <button type="button" class="chip comp-deploy-chip" data-deploy="100">100%</button>
                     </div>
                 </div>
 
@@ -396,6 +396,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=24.0"></script>
+    <script src="app.js?v=25.0"></script>
 </body>
 </html>

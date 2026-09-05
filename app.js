@@ -3,7 +3,7 @@
  * Includes Options Target Engine + Compounding Velocity Trade Counter
  *
  * Author: Antigravity AI Pair Programmer
- * Version: 24.0 (200 Trading Days Default & Cache Invalidation)
+ * Version: 25.0 (Default 50% Capital Deployed & 200 Trading Days)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         initialCap: 10000.0,
         finalCap: 100000.0,
         returnPct: 1.0,
-        deployPct: 100.0,
+        deployPct: 50.0,
         tradingDays: 200,
         years: 1.0,
         isInternalUpdating: false
@@ -689,8 +689,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const valStr = DOM.compDeployPctInput.value.trim();
         const val = parseFloat(valStr);
         if (valStr === '' || isNaN(val) || val <= 0) {
-            DOM.compDeployPctInput.value = '100.0';
-            compoundingState.deployPct = 100.0;
+            DOM.compDeployPctInput.value = '50.0';
+            compoundingState.deployPct = 50.0;
         } else {
             const clamped = Math.min(100.0, val);
             DOM.compDeployPctInput.value = clamped.toString();
@@ -805,7 +805,7 @@ document.addEventListener('DOMContentLoaded', () => {
             DOM.compInitialCapInput.value = "10000";
             DOM.compFinalCapInput.value = "100000";
             DOM.compReturnPctInput.value = "1.0";
-            DOM.compDeployPctInput.value = "100.0";
+            DOM.compDeployPctInput.value = "50.0";
             DOM.compTradingDaysInput.value = "200";
             DOM.compYearsInput.value = "1.0";
             syncCompoundingFromDOM();
