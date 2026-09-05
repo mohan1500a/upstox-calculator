@@ -529,7 +529,14 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Dynamic 10% step calculation for capital inputs
+        // Dynamic 10% step calculation for capital inputs & zero-aligned min attributes
+        DOM.compInitialCapInput.min = "0";
+        DOM.compFinalCapInput.min = "0";
+        DOM.compReturnPctInput.min = "0";
+        DOM.compDeployPctInput.min = "0";
+        DOM.compTradingDaysInput.min = "0";
+        DOM.compYearsInput.min = "0";
+
         if (compoundingState.initialCap >= 100) {
             const initStep = Math.max(100, Math.pow(10, Math.floor(Math.log10(compoundingState.initialCap))) / 10);
             DOM.compInitialCapInput.step = initStep;
