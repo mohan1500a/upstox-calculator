@@ -3,7 +3,7 @@
  * Includes Options Target Engine + Compounding Velocity Trade Counter
  *
  * Author: Antigravity AI Pair Programmer
- * Version: 13.0 (Instant Reactive Sync & Zero Dead Code Engine)
+ * Version: 15.0 (Clean Input Guards & Native HTML5 Step Engine)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -403,37 +403,40 @@ document.addEventListener('DOMContentLoaded', () => {
         if (optionsState.isInternalUpdating) return;
         const targetId = e && e.target ? e.target.id : null;
 
-        if (targetId === 'buy-qty') {
-            let qty = parseInt(DOM.buyQtyInput.value.trim());
-            if (isNaN(qty) || qty < 1) qty = optionsState.lotSize;
-            let lots = Math.max(1, Math.min(optionsState.maxLot, Math.round(qty / optionsState.lotSize)));
-            optionsState.numLots = lots;
-            optionsState.isInternalUpdating = true;
-            DOM.numLotsInput.value = lots;
-            DOM.buyQtyInput.value = lots * optionsState.lotSize;
-            optionsState.isInternalUpdating = false;
-        } else {
+        if (targetId === 'num-lots') {
             let lots = parseInt(DOM.numLotsInput.value.trim());
-            if (isNaN(lots) || lots < 1) lots = 1;
-            if (lots > optionsState.maxLot) lots = optionsState.maxLot;
-            optionsState.numLots = lots;
-            optionsState.isInternalUpdating = true;
-            DOM.numLotsInput.value = lots;
-            DOM.buyQtyInput.value = lots * optionsState.lotSize;
-            optionsState.isInternalUpdating = false;
+            if (!isNaN(lots) && lots >= 1) {
+                if (lots > optionsState.maxLot) lots = optionsState.maxLot;
+                optionsState.numLots = lots;
+                optionsState.isInternalUpdating = true;
+                DOM.buyQtyInput.value = lots * optionsState.lotSize;
+                optionsState.isInternalUpdating = false;
+            }
+        } else if (targetId === 'buy-qty') {
+            let qty = parseInt(DOM.buyQtyInput.value.trim());
+            if (!isNaN(qty) && qty >= 1) {
+                let lots = Math.max(1, Math.min(optionsState.maxLot, Math.round(qty / optionsState.lotSize)));
+                optionsState.numLots = lots;
+                optionsState.isInternalUpdating = true;
+                DOM.numLotsInput.value = lots;
+                optionsState.isInternalUpdating = false;
+            }
         }
 
         let buyPrice = parseFloat(DOM.buyPriceInput.value.trim());
-        if (isNaN(buyPrice) || buyPrice < 0) buyPrice = 0.0;
-        optionsState.buyPrice = buyPrice;
+        if (!isNaN(buyPrice) && buyPrice >= 0) {
+            optionsState.buyPrice = buyPrice;
+        }
 
         let slip = parseFloat(DOM.slippageInput.value.trim());
-        if (isNaN(slip) || slip < 0) slip = 0.0;
-        optionsState.slippage = slip;
+        if (!isNaN(slip) && slip >= 0) {
+            optionsState.slippage = slip;
+        }
 
         let targetPct = parseFloat(DOM.targetProfitPctInput.value.trim());
-        if (isNaN(targetPct) || targetPct < 0) targetPct = 0.0;
-        optionsState.targetProfitPct = targetPct;
+        if (!isNaN(targetPct) && targetPct >= 0) {
+            optionsState.targetProfitPct = targetPct;
+        }
 
         optionsState.includeNextFee = DOM.includeNextFeeToggle ? DOM.includeNextFeeToggle.checked : true;
 
@@ -449,36 +452,29 @@ document.addEventListener('DOMContentLoaded', () => {
         if (compoundingState.isInternalUpdating) return;
 
         let cInit = parseFloat(DOM.compInitialCapInput.value.trim());
-        if (isNaN(cInit) || cInit < 0) cInit = 0.0;
-        compoundingState.initialCap = cInit;
+        if (!isNaN(cInit) && cInit >= 0) compoundingState.initialCap = cInit;
 
         let cFinal = parseFloat(DOM.compFinalCapInput.value.trim());
-        if (isNaN(cFinal) || cFinal < 0) cFinal = 0.0;
-        compoundingState.finalCap = cFinal;
+        if (!isNaN(cFinal) && cFinal >= 0) compoundingState.finalCap = cFinal;
 
         let retPct = parseFloat(DOM.compReturnPctInput.value.trim());
-        if (isNaN(retPct) || retPct < 0) retPct = 0.0;
-        compoundingState.returnPct = retPct;
+        if (!isNaN(retPct) && retPct >= 0) compoundingState.returnPct = retPct;
 
         let depPct = parseFloat(DOM.compDeployPctInput.value.trim());
-        if (isNaN(depPct) || depPct < 0) depPct = 0.0;
-        if (depPct > 100.0) depPct = 100.0;
-        compoundingState.deployPct = depPct;
+        if (!isNaN(depPct) && depPct >= 0) compoundingState.deployPct = Math.min(100.0, depPct);
 
         let days = parseInt(DOM.compTradingDaysInput.value.trim());
-        if (isNaN(days) || days < 1) days = 250;
-        compoundingState.tradingDays = days;
+        if (!isNaN(days) && days >= 1) compoundingState.tradingDays = days;
 
         let yrs = parseFloat(DOM.compYearsInput.value.trim());
-        if (isNaN(yrs) || yrs < 0.01) yrs = 1.0;
-        compoundingState.years = yrs;
+        if (!isNaN(yrs) && yrs > 0) compoundingState.years = yrs;
 
         renderCompounding();
     }
 
     // --- EVENT LISTENERS FOR INSTANT REAL-TIME REACTION ---
     // Options Inputs
-    ['input', 'change', 'keyup', 'blur'].forEach(evt => {
+    ['input', 'change', 'keyup'].forEach(evt => {
         DOM.numLotsInput.addEventListener(evt, syncOptionsFromDOM);
         DOM.buyQtyInput.addEventListener(evt, syncOptionsFromDOM);
         DOM.buyPriceInput.addEventListener(evt, syncOptionsFromDOM);
@@ -491,13 +487,56 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Compounding Inputs
-    ['input', 'change', 'keyup', 'blur'].forEach(evt => {
+    ['input', 'change', 'keyup'].forEach(evt => {
         DOM.compInitialCapInput.addEventListener(evt, syncCompoundingFromDOM);
         DOM.compFinalCapInput.addEventListener(evt, syncCompoundingFromDOM);
         DOM.compReturnPctInput.addEventListener(evt, syncCompoundingFromDOM);
         DOM.compDeployPctInput.addEventListener(evt, syncCompoundingFromDOM);
         DOM.compTradingDaysInput.addEventListener(evt, syncCompoundingFromDOM);
         DOM.compYearsInput.addEventListener(evt, syncCompoundingFromDOM);
+    });
+
+    // Blur Normalization Listeners
+    DOM.compInitialCapInput.addEventListener('blur', () => {
+        if (DOM.compInitialCapInput.value.trim() === '' || isNaN(parseFloat(DOM.compInitialCapInput.value))) {
+            DOM.compInitialCapInput.value = '10000';
+            syncCompoundingFromDOM();
+        }
+    });
+
+    DOM.compFinalCapInput.addEventListener('blur', () => {
+        if (DOM.compFinalCapInput.value.trim() === '' || isNaN(parseFloat(DOM.compFinalCapInput.value))) {
+            DOM.compFinalCapInput.value = '100000';
+            syncCompoundingFromDOM();
+        }
+    });
+
+    DOM.compReturnPctInput.addEventListener('blur', () => {
+        if (DOM.compReturnPctInput.value.trim() === '' || isNaN(parseFloat(DOM.compReturnPctInput.value))) {
+            DOM.compReturnPctInput.value = '1.0';
+            syncCompoundingFromDOM();
+        }
+    });
+
+    DOM.compDeployPctInput.addEventListener('blur', () => {
+        if (DOM.compDeployPctInput.value.trim() === '' || isNaN(parseFloat(DOM.compDeployPctInput.value))) {
+            DOM.compDeployPctInput.value = '100.0';
+            syncCompoundingFromDOM();
+        }
+    });
+
+    DOM.compTradingDaysInput.addEventListener('blur', () => {
+        if (DOM.compTradingDaysInput.value.trim() === '' || isNaN(parseInt(DOM.compTradingDaysInput.value))) {
+            DOM.compTradingDaysInput.value = '250';
+            syncCompoundingFromDOM();
+        }
+    });
+
+    DOM.compYearsInput.addEventListener('blur', () => {
+        if (DOM.compYearsInput.value.trim() === '' || isNaN(parseFloat(DOM.compYearsInput.value))) {
+            DOM.compYearsInput.value = '1.0';
+            syncCompoundingFromDOM();
+        }
     });
 
     // Compounding Preset Chips
@@ -549,34 +588,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-
-    // Custom Relative Step Handlers for Keyboard Cursor Stepping
-    function attachStepHandler(inputEl, pctStep = 0.10, isInt = false, minVal = 0, maxVal = Infinity) {
-        if (!inputEl) return;
-        inputEl.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                e.preventDefault();
-                let current = parseFloat(inputEl.value) || 0;
-                let step = Math.max(0.1, current * pctStep);
-                if (isInt) step = Math.max(1, Math.round(step));
-                
-                if (e.key === 'ArrowUp') {
-                    current += step;
-                } else {
-                    current = Math.max(minVal, current - step);
-                }
-                if (current > maxVal) current = maxVal;
-                
-                inputEl.value = isInt ? Math.round(current) : (current < 10 ? current.toFixed(2) : (current < 100 ? current.toFixed(1) : Math.round(current)));
-                syncCompoundingFromDOM();
-            }
-        });
-    }
-
-    attachStepHandler(DOM.compInitialCapInput, 0.10, true, 1);
-    attachStepHandler(DOM.compFinalCapInput, 0.10, true, 1);
-    attachStepHandler(DOM.compReturnPctInput, 0.10, false, 0.01);
-    attachStepHandler(DOM.compYearsInput, 0.10, false, 0.1);
 
     // Reset Button
     DOM.resetBtn.addEventListener('click', () => {
