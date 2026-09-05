@@ -3,7 +3,7 @@
  * Includes Options Target Engine + Compounding Velocity Trade Counter
  *
  * Author: Antigravity AI Pair Programmer
- * Version: 6.2 (Capital Deployment Sensitivity Matrix)
+ * Version: 13.0 (Instant Reactive Sync & Zero Dead Code Engine)
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -345,16 +345,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         DOM.compSensitivityContainer.innerHTML = html;
 
-        // Attach click listeners to sensitivity cards so tapping any card updates Capital Deployed %
-        const sensCards = DOM.compSensitivityContainer.querySelectorAll('.sensitivity-card');
-        sensCards.forEach(card => {
-            card.addEventListener('click', () => {
-                const depVal = parseFloat(card.getAttribute('data-deploy'));
-                DOM.compDeployPctInput.value = depVal;
-                syncCompoundingFromDOM();
-            });
-        });
-
         // Sync preset chips
         DOM.compDeployChips.forEach(chip => {
             const depVal = parseFloat(chip.getAttribute('data-deploy'));
@@ -362,6 +352,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 chip.classList.add('active');
             } else {
                 chip.classList.remove('active');
+            }
+        });
+    }
+
+    // Attach Event Delegation once for Sensitivity Cards
+    if (DOM.compSensitivityContainer) {
+        DOM.compSensitivityContainer.addEventListener('click', (e) => {
+            const card = e.target.closest('.sensitivity-card');
+            if (card) {
+                const depVal = parseFloat(card.getAttribute('data-deploy'));
+                if (!isNaN(depVal)) {
+                    compoundingState.deployPct = depVal;
+                    DOM.compDeployPctInput.value = depVal;
+                    renderCompounding();
+                }
             }
         });
     }
@@ -393,15 +398,30 @@ document.addEventListener('DOMContentLoaded', () => {
     DOM.tabBtnOptions.addEventListener('click', () => switchTab('options'));
     DOM.tabBtnCompounding.addEventListener('click', () => switchTab('compounding'));
 
-    // --- OPTIONS INPUT PARSERS ---
+    // --- OPTIONS INPUT REACTION HANDLERS ---
     function syncOptionsFromDOM(e) {
         if (optionsState.isInternalUpdating) return;
         const targetId = e && e.target ? e.target.id : null;
 
-        let lots = parseInt(DOM.numLotsInput.value.trim());
-        if (isNaN(lots) || lots < 1) lots = 1;
-        if (lots > optionsState.maxLot) lots = optionsState.maxLot;
-        optionsState.numLots = lots;
+        if (targetId === 'buy-qty') {
+            let qty = parseInt(DOM.buyQtyInput.value.trim());
+            if (isNaN(qty) || qty < 1) qty = optionsState.lotSize;
+            let lots = Math.max(1, Math.min(optionsState.maxLot, Math.round(qty / optionsState.lotSize)));
+            optionsState.numLots = lots;
+            optionsState.isInternalUpdating = true;
+            DOM.numLotsInput.value = lots;
+            DOM.buyQtyInput.value = lots * optionsState.lotSize;
+            optionsState.isInternalUpdating = false;
+        } else {
+            let lots = parseInt(DOM.numLotsInput.value.trim());
+            if (isNaN(lots) || lots < 1) lots = 1;
+            if (lots > optionsState.maxLot) lots = optionsState.maxLot;
+            optionsState.numLots = lots;
+            optionsState.isInternalUpdating = true;
+            DOM.numLotsInput.value = lots;
+            DOM.buyQtyInput.value = lots * optionsState.lotSize;
+            optionsState.isInternalUpdating = false;
+        }
 
         let buyPrice = parseFloat(DOM.buyPriceInput.value.trim());
         if (isNaN(buyPrice) || buyPrice < 0) buyPrice = 0.0;
@@ -417,150 +437,78 @@ document.addEventListener('DOMContentLoaded', () => {
 
         optionsState.includeNextFee = DOM.includeNextFeeToggle ? DOM.includeNextFeeToggle.checked : true;
 
-        optionsState.isInternalUpdating = true;
         DOM.numLotsInput.max = optionsState.maxLot;
-
-        if (targetId !== 'num-lots' && targetId !== 'buy-qty') {
-            DOM.numLotsInput.value = optionsState.numLots;
-            DOM.buyQtyInput.value = optionsState.numLots * optionsState.lotSize;
-        } else if (targetId === 'num-lots') {
-            DOM.buyQtyInput.value = optionsState.numLots * optionsState.lotSize;
-        }
-
         DOM.buyQtyInput.max = optionsState.maxLot * optionsState.lotSize;
         DOM.buyQtyInput.step = optionsState.lotSize;
-        optionsState.isInternalUpdating = false;
 
         renderOptions();
     }
 
-    // --- COMPOUNDING INPUT PARSERS ---
+    // --- COMPOUNDING INPUT REACTION HANDLERS ---
     function syncCompoundingFromDOM() {
         if (compoundingState.isInternalUpdating) return;
 
-        let rawInit = DOM.compInitialCapInput.value.trim();
-        let cInit = parseFloat(rawInit);
+        let cInit = parseFloat(DOM.compInitialCapInput.value.trim());
         if (isNaN(cInit) || cInit < 0) cInit = 0.0;
         compoundingState.initialCap = cInit;
 
-        let rawFinal = DOM.compFinalCapInput.value.trim();
-        let cFinal = parseFloat(rawFinal);
+        let cFinal = parseFloat(DOM.compFinalCapInput.value.trim());
         if (isNaN(cFinal) || cFinal < 0) cFinal = 0.0;
         compoundingState.finalCap = cFinal;
 
-        let rawRet = DOM.compReturnPctInput.value.trim();
-        let retPct = parseFloat(rawRet);
+        let retPct = parseFloat(DOM.compReturnPctInput.value.trim());
         if (isNaN(retPct) || retPct < 0) retPct = 0.0;
         compoundingState.returnPct = retPct;
 
-        let rawDep = DOM.compDeployPctInput.value.trim();
-        let depPct = parseFloat(rawDep);
+        let depPct = parseFloat(DOM.compDeployPctInput.value.trim());
         if (isNaN(depPct) || depPct < 0) depPct = 0.0;
         if (depPct > 100.0) depPct = 100.0;
         compoundingState.deployPct = depPct;
 
-        let rawDays = DOM.compTradingDaysInput.value.trim();
-        let days = parseInt(rawDays);
+        let days = parseInt(DOM.compTradingDaysInput.value.trim());
         if (isNaN(days) || days < 1) days = 250;
         compoundingState.tradingDays = days;
 
-        let rawYrs = DOM.compYearsInput.value.trim();
-        let yrs = parseFloat(rawYrs);
+        let yrs = parseFloat(DOM.compYearsInput.value.trim());
         if (isNaN(yrs) || yrs < 0.01) yrs = 1.0;
         compoundingState.years = yrs;
 
         renderCompounding();
     }
 
-    // --- EVENT LISTENERS ---
-    // Options Engine Inputs
-    DOM.numLotsInput.addEventListener('input', syncOptionsFromDOM);
-    DOM.numLotsInput.addEventListener('blur', () => {
-        let val = DOM.numLotsInput.value.trim();
-        if (val === '' || isNaN(parseInt(val))) DOM.numLotsInput.value = '1';
-        syncOptionsFromDOM();
-    });
-
-    DOM.buyQtyInput.addEventListener('input', syncOptionsFromDOM);
-    DOM.buyPriceInput.addEventListener('input', syncOptionsFromDOM);
-    DOM.buyPriceInput.addEventListener('blur', () => {
-        let val = DOM.buyPriceInput.value.trim();
-        if (val === '' || isNaN(parseFloat(val))) DOM.buyPriceInput.value = '0.00';
-        syncOptionsFromDOM();
-    });
-
-    DOM.slippageInput.addEventListener('input', syncOptionsFromDOM);
-    DOM.slippageInput.addEventListener('blur', () => {
-        let val = DOM.slippageInput.value.trim();
-        if (val === '' || isNaN(parseFloat(val))) DOM.slippageInput.value = '0.00';
-        syncOptionsFromDOM();
-    });
-
-    DOM.targetProfitPctInput.addEventListener('input', syncOptionsFromDOM);
-    DOM.targetProfitPctInput.addEventListener('blur', () => {
-        let val = DOM.targetProfitPctInput.value.trim();
-        if (val === '' || isNaN(parseFloat(val))) DOM.targetProfitPctInput.value = '0.0';
-        syncOptionsFromDOM();
+    // --- EVENT LISTENERS FOR INSTANT REAL-TIME REACTION ---
+    // Options Inputs
+    ['input', 'change', 'keyup', 'blur'].forEach(evt => {
+        DOM.numLotsInput.addEventListener(evt, syncOptionsFromDOM);
+        DOM.buyQtyInput.addEventListener(evt, syncOptionsFromDOM);
+        DOM.buyPriceInput.addEventListener(evt, syncOptionsFromDOM);
+        DOM.slippageInput.addEventListener(evt, syncOptionsFromDOM);
+        DOM.targetProfitPctInput.addEventListener(evt, syncOptionsFromDOM);
     });
 
     if (DOM.includeNextFeeToggle) {
         DOM.includeNextFeeToggle.addEventListener('change', syncOptionsFromDOM);
     }
 
-    // Compounding Engine Inputs
-    DOM.compInitialCapInput.addEventListener('input', syncCompoundingFromDOM);
-    DOM.compInitialCapInput.addEventListener('change', syncCompoundingFromDOM);
-    DOM.compInitialCapInput.addEventListener('blur', () => {
-        let val = DOM.compInitialCapInput.value.trim();
-        if (val === '' || isNaN(parseFloat(val))) DOM.compInitialCapInput.value = '1000';
-        syncCompoundingFromDOM();
+    // Compounding Inputs
+    ['input', 'change', 'keyup', 'blur'].forEach(evt => {
+        DOM.compInitialCapInput.addEventListener(evt, syncCompoundingFromDOM);
+        DOM.compFinalCapInput.addEventListener(evt, syncCompoundingFromDOM);
+        DOM.compReturnPctInput.addEventListener(evt, syncCompoundingFromDOM);
+        DOM.compDeployPctInput.addEventListener(evt, syncCompoundingFromDOM);
+        DOM.compTradingDaysInput.addEventListener(evt, syncCompoundingFromDOM);
+        DOM.compYearsInput.addEventListener(evt, syncCompoundingFromDOM);
     });
 
-    DOM.compFinalCapInput.addEventListener('input', syncCompoundingFromDOM);
-    DOM.compFinalCapInput.addEventListener('change', syncCompoundingFromDOM);
-    DOM.compFinalCapInput.addEventListener('blur', () => {
-        let val = DOM.compFinalCapInput.value.trim();
-        if (val === '' || isNaN(parseFloat(val))) DOM.compFinalCapInput.value = '100000';
-        syncCompoundingFromDOM();
-    });
-
-    DOM.compReturnPctInput.addEventListener('input', syncCompoundingFromDOM);
-    DOM.compReturnPctInput.addEventListener('change', syncCompoundingFromDOM);
-    DOM.compReturnPctInput.addEventListener('blur', () => {
-        let val = DOM.compReturnPctInput.value.trim();
-        if (val === '' || isNaN(parseFloat(val))) DOM.compReturnPctInput.value = '1.0';
-        syncCompoundingFromDOM();
-    });
-
-    DOM.compDeployPctInput.addEventListener('input', syncCompoundingFromDOM);
-    DOM.compDeployPctInput.addEventListener('change', syncCompoundingFromDOM);
-    DOM.compDeployPctInput.addEventListener('blur', () => {
-        let val = DOM.compDeployPctInput.value.trim();
-        if (val === '' || isNaN(parseFloat(val))) DOM.compDeployPctInput.value = '100.0';
-        syncCompoundingFromDOM();
-    });
-
-    DOM.compTradingDaysInput.addEventListener('input', syncCompoundingFromDOM);
-    DOM.compTradingDaysInput.addEventListener('change', syncCompoundingFromDOM);
-    DOM.compTradingDaysInput.addEventListener('blur', () => {
-        let val = DOM.compTradingDaysInput.value.trim();
-        if (val === '' || isNaN(parseInt(val))) DOM.compTradingDaysInput.value = '250';
-        syncCompoundingFromDOM();
-    });
-
-    DOM.compYearsInput.addEventListener('input', syncCompoundingFromDOM);
-    DOM.compYearsInput.addEventListener('change', syncCompoundingFromDOM);
-    DOM.compYearsInput.addEventListener('blur', () => {
-        let val = DOM.compYearsInput.value.trim();
-        if (val === '' || isNaN(parseFloat(val))) DOM.compYearsInput.value = '1.0';
-        syncCompoundingFromDOM();
-    });
-
+    // Compounding Preset Chips
     DOM.compDeployChips.forEach(chip => {
         chip.addEventListener('click', () => {
             const depVal = parseFloat(chip.getAttribute('data-deploy'));
-            DOM.compDeployPctInput.value = depVal;
-            syncCompoundingFromDOM();
+            if (!isNaN(depVal)) {
+                compoundingState.deployPct = depVal;
+                DOM.compDeployPctInput.value = depVal;
+                syncCompoundingFromDOM();
+            }
         });
     });
 
@@ -573,7 +521,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Chip Listeners
+    // Index Chips
     DOM.lotChips.forEach(chip => {
         chip.addEventListener('click', () => {
             DOM.lotChips.forEach(c => c.classList.remove('active'));
@@ -591,15 +539,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Profit Pct Chips
     DOM.pctChips.forEach(chip => {
         chip.addEventListener('click', () => {
             const pctVal = parseFloat(chip.getAttribute('data-pct'));
-            DOM.targetProfitPctInput.value = pctVal;
-            syncOptionsFromDOM();
+            if (!isNaN(pctVal)) {
+                DOM.targetProfitPctInput.value = pctVal;
+                syncOptionsFromDOM();
+            }
         });
     });
 
-    // Reset Listener
+    // Reset Button
     DOM.resetBtn.addEventListener('click', () => {
         if (activeTab === 'options') {
             optionsState.indexName = 'NIFTY';
