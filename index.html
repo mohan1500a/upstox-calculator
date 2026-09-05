@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css?v=21.0">
+    <link rel="stylesheet" href="styles.css?v=22.0">
 </head>
 <body>
     <div class="viewport-app">
@@ -183,9 +183,22 @@
                         <span class="c-title"><i class="fa-solid fa-wallet text-orange"></i> Next Trade Re-entry Capital</span>
                         <span class="c-sub" id="next-trade-cost-val">Next Entry Fee: ₹24.03</span>
                     </div>
-                    <div class="capital-display">
-                        <span class="c-amount" id="next-capital-val">₹6,493.78</span>
-                        <span class="c-status">Net Capital Ready</span>
+                    <div class="sensitivity-grid">
+                        <div class="sensitivity-card active">
+                            <span class="sens-tag">Net Capital Ready</span>
+                            <span class="sens-trades text-green" id="next-capital-val">₹6,493.78</span>
+                            <span class="sens-rate">100% Reusable</span>
+                        </div>
+                        <div class="sensitivity-card">
+                            <span class="sens-tag">Next Entry Fee</span>
+                            <span class="sens-trades text-dark" id="lbl-next-entry-fee">₹24.03</span>
+                            <span class="sens-rate text-amber">Statutory Charges</span>
+                        </div>
+                        <div class="sensitivity-card">
+                            <span class="sens-tag">Capital Yield</span>
+                            <span class="sens-trades text-orange" id="lbl-capital-preserved">99.6%</span>
+                            <span class="sens-rate text-green">▲ Post-Tax Capital</span>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -383,6 +396,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=21.0"></script>
+    <script src="app.js?v=22.0"></script>
 </body>
 </html>

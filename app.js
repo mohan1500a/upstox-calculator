@@ -44,6 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
         deductionsSub: document.getElementById('deductions-sub'),
         nextTradeCostVal: document.getElementById('next-trade-cost-val'),
         nextCapitalVal: document.getElementById('next-capital-val'),
+        lblNextEntryFee: document.getElementById('lbl-next-entry-fee'),
+        lblCapitalPreserved: document.getElementById('lbl-capital-preserved'),
 
         // Compounding Engine Inputs
         compInitialCapInput: document.getElementById('comp-initial-cap'),
@@ -288,6 +290,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         DOM.nextTradeCostVal.textContent = `Next Entry Fee: ${formatINR(calc.actualNextTradeEntryCost)}`;
         DOM.nextCapitalVal.textContent = formatINR(calc.nextTradeNetCapital);
+        if (DOM.lblNextEntryFee) DOM.lblNextEntryFee.textContent = formatINR(calc.actualNextTradeEntryCost);
+        if (DOM.lblCapitalPreserved) {
+            const yieldPct = calc.buyTurnover > 0 ? ((calc.nextTradeNetCapital / calc.buyTurnover) * 100).toFixed(1) : '100.0';
+            DOM.lblCapitalPreserved.textContent = `${yieldPct}%`;
+        }
 
         DOM.pctChips.forEach(chip => {
             const chipVal = parseFloat(chip.getAttribute('data-pct'));
