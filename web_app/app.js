@@ -527,7 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (rawDaysStr !== '') {
             const parsedDays = parseInt(rawDaysStr);
             if (!isNaN(parsedDays) && parsedDays >= 1) {
-                compoundingState.tradingDays = Math.min(365, parsedDays);
+                compoundingState.tradingDays = Math.min(240, parsedDays);
             }
         }
 
@@ -714,7 +714,7 @@ document.addEventListener('DOMContentLoaded', () => {
     DOM.compTradingDaysInput.addEventListener('blur', () => {
         const valStr = DOM.compTradingDaysInput.value.trim();
         const val = parseInt(valStr);
-        if (valStr === '' || isNaN(val) || val < 1 || val > 365) {
+        if (valStr === '' || isNaN(val) || val < 1 || val > 240) {
             DOM.compTradingDaysInput.value = '200';
             compoundingState.tradingDays = 200;
         } else {
