@@ -490,12 +490,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Automatic condition: If Target Capital is less than Initial Capital, match it to Initial Capital
+        // Automatic condition: Target Capital MUST be >= Initial Capital
         if (compoundingState.finalCap < compoundingState.initialCap) {
             compoundingState.finalCap = compoundingState.initialCap;
-            if (activeEl !== DOM.compFinalCapInput) {
-                DOM.compFinalCapInput.value = compoundingState.initialCap.toString();
-            }
+            DOM.compFinalCapInput.value = compoundingState.initialCap.toString();
         }
 
         // 3. Net Return % per Trade
