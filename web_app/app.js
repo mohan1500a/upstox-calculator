@@ -486,16 +486,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (rawFinalStr !== '') {
             const parsedFinal = parseFloat(rawFinalStr);
             if (!isNaN(parsedFinal) && parsedFinal >= 0) {
-                if (parsedFinal < compoundingState.initialCap) {
-                    compoundingState.finalCap = compoundingState.initialCap;
-                } else {
-                    compoundingState.finalCap = parsedFinal;
-                }
+                compoundingState.finalCap = parsedFinal;
             }
         }
 
+        // Automatic condition: If Target Capital is less than Initial Capital, match it to Initial Capital
         if (compoundingState.finalCap < compoundingState.initialCap) {
             compoundingState.finalCap = compoundingState.initialCap;
+            if (activeEl !== DOM.compFinalCapInput) {
+                DOM.compFinalCapInput.value = compoundingState.initialCap.toString();
+            }
         }
 
         // 3. Net Return % per Trade
