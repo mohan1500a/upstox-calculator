@@ -580,6 +580,62 @@ document.addEventListener('DOMContentLoaded', () => {
         DOM.includeNextFeeToggle.addEventListener('change', syncOptionsFromDOM);
     }
 
+    // Helper: Calculate order of magnitude dynamic step (1K -> 10K -> 1L -> 1Cr -> 10Cr)
+    function getDynamicStep(val) {
+        if (isNaN(val) || val <= 0) return 1000;
+        const magnitude = Math.pow(10, Math.floor(Math.log10(val)));
+        return Math.max(1000, magnitude);
+    }
+
+    // Helper: Attach cursor wheel scroll and arrow key dynamic stepping
+    function attachDynamicControls(inputEl, onSync) {
+        if (!inputEl) return;
+
+        // Mouse Wheel Scroll Listener
+        inputEl.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            let val = parseFloat(inputEl.value.trim());
+            if (isNaN(val)) val = 0;
+            const step = getDynamicStep(val);
+
+            if (e.deltaY < 0) {
+                val += step;
+            } else if (e.deltaY > 0) {
+                val = Math.max(0, val - step);
+            }
+
+            inputEl.value = val.toString();
+            if (typeof onSync === 'function') {
+                onSync();
+            }
+        }, { passive: false });
+
+        // Arrow Key Up/Down Listener
+        inputEl.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                let val = parseFloat(inputEl.value.trim());
+                if (isNaN(val)) val = 0;
+                const step = getDynamicStep(val);
+
+                if (e.key === 'ArrowUp') {
+                    val += step;
+                } else if (e.key === 'ArrowDown') {
+                    val = Math.max(0, val - step);
+                }
+
+                inputEl.value = val.toString();
+                if (typeof onSync === 'function') {
+                    onSync();
+                }
+            }
+        });
+    }
+
+    // Attach dynamic cursor scroll and arrow key controls to Initial & Target Capital
+    attachDynamicControls(DOM.compInitialCapInput, syncCompoundingFromDOM);
+    attachDynamicControls(DOM.compFinalCapInput, syncCompoundingFromDOM);
+
     // Compounding Inputs
     ['input', 'change'].forEach(evt => {
         DOM.compInitialCapInput.addEventListener(evt, syncCompoundingFromDOM);
