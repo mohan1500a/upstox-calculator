@@ -209,7 +209,7 @@ def calculate_compounding_velocity(
     c_final = max(c_init, float(final_capital))
     r_pct = max(0.001, float(return_pct_per_trade))
     d_pct = max(0.001, min(100.0, float(deploy_pct_per_trade)))
-    days_year = max(1, int(trading_days_per_year))
+    days_year = max(1, min(240, int(trading_days_per_year)))
     years = max(0.01, float(num_years))
 
     effective_rate = (d_pct / 100.0) * (r_pct / 100.0)
