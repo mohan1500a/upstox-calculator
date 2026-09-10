@@ -1,13 +1,12 @@
 /**
- * Upstox Options, Compounding & Financial Vocabulary Calculator Suite (Official 2026 Rules)
- * Includes:
- * 1. Options Target Sell Price & Re-entry Engine
- * 2. Compounding Velocity 200-Day Target Growth Engine
- * 3. Level 0 Financial Vocabulary, Accounting & Microstructure Engine
- * 4. Hamburger Side Drawer Navigation & Lumos UI Framework
- *
+ * Upstox Options Target Sell Price & Compounding Velocity Suite (Official 2026 Engine)
+ * Features:
+ * 1. Options Target Sell Price & Re-entry Calculator (Upstox Statutory Taxes)
+ * 2. Compounding Velocity 200-Day Target Growth Model & Sensitivity Grid
+ * 3. Hamburger Side Drawer Navigation & Lumos Theme Framework
+ * 
  * Author: Antigravity AI Pair Programmer
- * Version: 30.0 (Level 0 Financial Vocabulary & Hamburger Drawer)
+ * Version: 31.0
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -16,10 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Tab Navigation & Header
         tabBtnOptions: document.getElementById('tab-btn-options'),
         tabBtnCompounding: document.getElementById('tab-btn-compounding'),
-        tabBtnFinancial: document.getElementById('tab-btn-financial'),
         viewOptions: document.getElementById('view-options'),
         viewCompounding: document.getElementById('view-compounding'),
-        viewFinancial: document.getElementById('view-financial'),
         headerSubtitle: document.getElementById('header-subtitle'),
         resetBtn: document.getElementById('reset-btn'),
 
@@ -30,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
         drawerCloseBtn: document.getElementById('drawer-close-btn'),
         drawerLinkOptions: document.getElementById('drawer-link-options'),
         drawerLinkCompounding: document.getElementById('drawer-link-compounding'),
-        drawerLinkFinancial: document.getElementById('drawer-link-financial'),
         drawerLinkTariff: document.getElementById('drawer-link-tariff'),
 
         // Options Engine Inputs
@@ -42,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
         includeNextFeeToggle: document.getElementById('include-next-fee-toggle'),
         lblToggleTitle: document.getElementById('lbl-toggle-title'),
         lotChips: document.querySelectorAll('.chip:not(.comp-deploy-chip)'),
-        pctChips: document.querySelectorAll('.pct-chip'),
+        pctChips: document.querySelectorAll('.pct-chip:not(.comp-deploy-chip)'),
 
         // Options Engine Outputs
         lblLotMultiple: document.getElementById('lbl-lot-multiple'),
@@ -88,36 +84,15 @@ document.addEventListener('DOMContentLoaded', () => {
         compSensitivitySummary: document.getElementById('comp-sensitivity-summary'),
         compSensitivityContainer: document.getElementById('comp-sensitivity-container'),
 
-        // Financial Vocabulary Level 0 Inputs
-        finCashInput: document.getElementById('fin-cash'),
-        finPlantInput: document.getElementById('fin-plant'),
-        finInventoryInput: document.getElementById('fin-inventory'),
-        finReceivablesInput: document.getElementById('fin-receivables'),
-        finLiabilitiesInput: document.getElementById('fin-liabilities'),
-        finSharePriceInput: document.getElementById('fin-share-price'),
-        finSharesOutInput: document.getElementById('fin-shares-out'),
-        finBidPriceInput: document.getElementById('fin-bid-price'),
-        finAskPriceInput: document.getElementById('fin-ask-price'),
-
-        // Financial Vocabulary Level 0 Outputs
-        finHeroEquity: document.getElementById('fin-hero-equity'),
-        finHeroSub: document.getElementById('fin-hero-sub'),
-        finValMarketCap: document.getElementById('fin-val-market-cap'),
-        finSubMarketCap: document.getElementById('fin-sub-market-cap'),
-        finValBvps: document.getElementById('fin-val-bvps'),
-        finSubBvps: document.getElementById('fin-sub-bvps'),
-        finValPb: document.getElementById('fin-val-pb'),
-        finSubPb: document.getElementById('fin-sub-pb'),
-        finValSpread: document.getElementById('fin-val-spread'),
-        finSubSpread: document.getElementById('fin-sub-spread'),
-
-        // Modal Elements
+        // Tariff Modal
         tariffTrigger: document.getElementById('tariff-info-trigger'),
         tariffModal: document.getElementById('tariff-modal'),
         modalCloseBtn: document.getElementById('modal-close-btn')
     };
 
     // --- STATE STORES ---
+    let activeTab = 'options';
+
     const optionsState = {
         indexName: 'NIFTY',
         lotSize: 65,
@@ -140,98 +115,27 @@ document.addEventListener('DOMContentLoaded', () => {
         isInternalUpdating: false
     };
 
-    const financialState = {
-        cash: 200000000.0,
-        plant: 500000000.0,
-        inventory: 100000000.0,
-        receivables: 200000000.0,
-        liabilities: 400000000.0,
-        sharePrice: 25.0,
-        sharesOutstanding: 60000000.0,
-        bidPrice: 100.0,
-        askPrice: 100.10,
-        isInternalUpdating: false
-    };
+    // --- PURE QUANTITATIVE CALCULATION ENGINES ---
 
-    let activeTab = 'options';
+    /**
+     * Upstox Options Brokerage & Target Sell Price Engine
+     */
+    function computeOptionsEngine(params) {
+        const indexName = params.indexName || 'NIFTY';
+        const lotSize = Math.max(1, parseInt(params.lotSize) || 65);
+        const maxLot = Math.max(1, parseInt(params.maxLot) || 27);
+        const numLots = Math.min(maxLot, Math.max(1, parseInt(params.numLots) || 1));
+        const qty = numLots * lotSize;
 
-    // --- FORMATTING HELPERS ---
-    function formatINR(val, includeSign = false) {
-        if (isNaN(val) || !isFinite(val)) val = 0.0;
-        const sign = includeSign && val > 0 ? '+' : '';
-        return sign + '₹' + Math.abs(val).toLocaleString('en-IN', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
-    }
+        const pBuy = Math.max(0.0, parseFloat(params.buyPrice) || 0.0);
+        const sSlip = Math.max(0.0, parseFloat(params.slippage) || 0.0);
+        const tPct = Math.max(0.0, parseFloat(params.targetProfitPct) || 0.0);
+        const includeNextFee = params.includeNextFee !== false;
 
-    function formatShortINR(val) {
-        if (isNaN(val) || !isFinite(val)) return '₹0';
-        if (val >= 10000000) return '₹' + (val / 10000000).toFixed(1) + ' Cr';
-        if (val >= 100000) return '₹' + (val / 100000).toFixed(1) + ' Lakh';
-        if (val >= 1000) return '₹' + (val / 1000).toFixed(1) + 'K';
-        return '₹' + val.toFixed(0);
-    }
-
-    // Dynamic Step Scaling (1K -> 10K -> 1L -> 1Cr -> 10Cr)
-    function getDynamicStep(val) {
-        if (isNaN(val) || val <= 0) return 1000;
-        const magnitude = Math.pow(10, Math.floor(Math.log10(val)));
-        return Math.max(1000, magnitude);
-    }
-
-    function attachDynamicControls(inputEl, onSync) {
-        if (!inputEl) return;
-
-        inputEl.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            let val = parseFloat(inputEl.value.trim());
-            if (isNaN(val)) val = 0;
-            const step = getDynamicStep(val);
-
-            if (e.deltaY < 0) {
-                val += step;
-            } else if (e.deltaY > 0) {
-                val = Math.max(0, val - step);
-            }
-
-            inputEl.value = val.toString();
-            if (typeof onSync === 'function') {
-                onSync();
-            }
-        }, { passive: false });
-
-        inputEl.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-                e.preventDefault();
-                let val = parseFloat(inputEl.value.trim());
-                if (isNaN(val)) val = 0;
-                const step = getDynamicStep(val);
-
-                if (e.key === 'ArrowUp') {
-                    val += step;
-                } else if (e.key === 'ArrowDown') {
-                    val = Math.max(0, val - step);
-                }
-
-                inputEl.value = val.toString();
-                if (typeof onSync === 'function') {
-                    onSync();
-                }
-            }
-        });
-    }
-
-    // --- OPTIONS ENGINE SOLVER ---
-    function computeTargetTrade(params) {
-        const qty = Math.max(1, params.numLots * params.lotSize);
-        const pBuy = Math.max(0.0, params.buyPrice);
-        const slip = Math.max(0.0, params.slippage);
-        const targetPct = Math.max(0.0, params.targetProfitPct);
-
-        const rBuy = pBuy + slip;
+        const rBuy = pBuy + sSlip;
         const buyTurnover = rBuy * qty;
 
+        // Dynamic Next Trade Entry Fee (Estimated Buy Side Costs)
         const nextBrok = 20.0;
         const nextEx = 0.000495 * buyTurnover;
         const nextSebi = 0.000001 * buyTurnover;
@@ -239,290 +143,197 @@ document.addEventListener('DOMContentLoaded', () => {
         const nextGst = 0.18 * (nextBrok + nextEx + nextSebi);
         const dynamicNextEntryFee = nextBrok + nextEx + nextSebi + nextStamp + nextGst;
 
-        let targetNetPnl = (targetPct / 100.0) * buyTurnover;
-        if (params.includeNextFee) {
+        let targetNetPnl = (tPct / 100.0) * buyTurnover;
+        if (includeNextFee) {
             targetNetPnl += dynamicNextEntryFee;
         }
 
-        const cSell = 0.001 + (1.18 * 0.000496);
+        // Upstox Linear Tax Coefficients (Options)
+        const cSell = 0.001 + (1.18 * 0.000496); // STT 0.1% + Exchange/SEBI/GST
         const fixedKBuy = (40.0 * 1.18) + (0.00003 * buyTurnover) + (1.18 * 0.000496 * buyTurnover);
 
         const denominator = qty * (1.0 - cSell);
         const rSell = denominator > 0 ? (targetNetPnl + buyTurnover + fixedKBuy) / denominator : rBuy;
-        const pSell = rSell + slip;
+        const pSell = rSell + sSlip;
 
         const sellTurnover = rSell * qty;
         const totalTurnover = buyTurnover + sellTurnover;
 
-        const brokerage = 40.0;
-        const stt = 0.001 * sellTurnover;
-        const exchangeCharges = 0.000495 * totalTurnover;
-        const sebiCharges = 0.000001 * totalTurnover;
-        const stampDuty = 0.00003 * buyTurnover;
+        // Itemized Upstox Taxes & Fees
+        const brokerage = 40.0; // ₹20 buy + ₹20 sell
+        const stt = 0.001 * sellTurnover; // 0.1% on sell premium
+        const exchangeCharges = 0.000495 * totalTurnover; // 0.0495%
+        const sebiCharges = 0.000001 * totalTurnover; // 0.0001%
+        const stampDuty = 0.00003 * buyTurnover; // 0.003% buy side
         const gst = 0.18 * (brokerage + exchangeCharges + sebiCharges);
 
         const totalTaxes = brokerage + stt + exchangeCharges + sebiCharges + stampDuty + gst;
-        const totalSlipPts = slip * 2;
-        const totalSlippageCost = totalSlipPts * qty;
+        const totalSlippagePts = sSlip * 2;
+        const totalSlippageCost = totalSlippagePts * qty;
 
         const grossPnlRealized = (rSell - rBuy) * qty;
         const netPnlRealized = grossPnlRealized - totalTaxes;
-        const actualNetRoi = buyTurnover > 0 ? (netPnlRealized / buyTurnover) * 100.0 : 0.0;
+        const actualNetRoiPct = buyTurnover > 0 ? (netPnlRealized / buyTurnover) * 100.0 : 0.0;
 
-        const realPtsMove = pSell - pBuy;
-        const realPctMove = pBuy > 0 ? (realPtsMove / pBuy) * 100.0 : 0.0;
+        const pointsMoveNeeded = pSell - pBuy;
+        const pctMoveNeeded = pBuy > 0 ? (pointsMoveNeeded / pBuy) * 100.0 : 0.0;
 
         const chargesBreakevenPts = totalTaxes / qty;
-        const totalBreakevenPts = chargesBreakevenPts + totalSlipPts;
+        const totalBreakevenPts = chargesBreakevenPts + totalSlippagePts;
         const breakevenSellPrice = pBuy + totalBreakevenPts;
 
+        // Next Trade Re-entry Capital
         const nextProceeds = Math.max(0.0, sellTurnover - totalTaxes);
         const actualNextStamp = 0.00003 * nextProceeds;
-        const actualNextTradeEntryCost = 20.0 + (0.18 * 20.0) + (1.18 * 0.000496 * nextProceeds) + actualNextStamp;
-        const nextTradeNetCapital = Math.max(0.0, nextProceeds - actualNextTradeEntryCost);
+        const actualNextEntryCost = 20.0 + (0.18 * 20.0) + (1.18 * 0.000496 * nextProceeds) + actualNextStamp;
+        const nextTradeNetCapital = Math.max(0.0, nextProceeds - actualNextEntryCost);
 
         return {
-            qty, pBuy, rBuy, rSell, pSell, totalTaxes, totalSlippageCost,
-            netPnlRealized, actualNetRoi, realPtsMove, realPctMove,
-            totalBreakevenPts, breakevenSellPrice, dynamicNextEntryFee,
-            actualNextTradeEntryCost, nextTradeNetCapital, buyTurnover
+            indexName, lotSize, numLots, maxLot, qty,
+            targetBuyPrice: pBuy, slippage: sSlip, targetProfitPct: tPct, includeNextFee,
+            realizedBuyPrice: rBuy, realizedSellPrice: rSell, requiredTargetSellPrice: pSell,
+            buyTurnover, sellTurnover, totalTurnover,
+            brokerage, stt, exchangeCharges, sebiCharges, stampDuty, gst,
+            totalTaxes, totalSlippageCost, totalSlippagePts,
+            grossPnlRealized, netPnlRealized, actualNetRoiPct,
+            pointsMoveNeeded, pctMoveNeeded,
+            chargesBreakevenPts, totalBreakevenPts, breakevenSellPrice,
+            dynamicNextEntryFee, actualNextEntryCost, nextTradeNetCapital
         };
     }
 
-    // --- COMPOUNDING VELOCITY SOLVER ---
-    function computeCompoundingVelocity(params) {
-        let cInit = Math.max(0.01, params.initialCap);
-        let cFinal = Math.max(0.01, params.finalCap);
-
-        if (cFinal < cInit) {
-            cFinal = cInit;
-        }
-
-        const rPct = Math.max(0.0, params.returnPct);
-        const dPct = Math.max(0.0, Math.min(100.0, params.deployPct));
-        const daysYear = Math.max(1, Math.min(240, params.tradingDays));
-        const yrs = Math.max(0.01, params.years);
+    /**
+     * Compounding Velocity & Growth Engine
+     */
+    function computeCompoundingEngine(params) {
+        const cInit = Math.max(1.0, parseFloat(params.initialCap) || 10000.0);
+        const cFinal = Math.max(cInit, parseFloat(params.finalCap) || 100000.0);
+        const rPct = Math.max(0.001, parseFloat(params.returnPct) || 1.0);
+        const dPct = Math.max(0.001, Math.min(100.0, parseFloat(params.deployPct) || 50.0));
+        const daysYear = Math.max(1, Math.min(240, parseInt(params.tradingDays) || 200));
+        const years = Math.max(0.01, parseFloat(params.years) || 1.0);
 
         const effectiveRate = (dPct / 100.0) * (rPct / 100.0);
-
-        let exactTrades = 0.0;
-        let isGoalValid = true;
-
-        if (cFinal <= cInit) {
-            isGoalValid = true;
-            exactTrades = 0.0;
-        } else if (effectiveRate <= 0) {
-            isGoalValid = false;
-            exactTrades = 0.0;
-        } else {
-            exactTrades = Math.log(cFinal / cInit) / Math.log(1.0 + effectiveRate);
-        }
-
+        const exactTrades = (effectiveRate > 0 && cFinal > cInit) ? Math.log(cFinal / cInit) / Math.log(1.0 + effectiveRate) : 0.0;
         const totalTrades = Math.ceil(exactTrades);
-        const totalDays = daysYear * yrs;
 
-        const tradesPerDay = (isGoalValid && totalDays > 0) ? exactTrades / totalDays : 0.0;
-        const tradesPerWeek = (isGoalValid && yrs > 0) ? exactTrades / (yrs * 52.0) : 0.0;
-        const tradesPerMonth = (isGoalValid && yrs > 0) ? exactTrades / (yrs * 12.0) : 0.0;
+        const totalDays = daysYear * years;
+        const tradesPerDay = totalDays > 0 ? exactTrades / totalDays : 0.0;
+        const tradesPerMonth = years > 0 ? exactTrades / (years * 12.0) : 0.0;
+        const tradesPerWeek = years > 0 ? exactTrades / (years * 52.0) : 0.0;
 
-        const netProfit = Math.max(0.0, cFinal - cInit);
-        const multiplier = cInit > 0 ? cFinal / cInit : 1.0;
-
-        const sensitivities = [];
-        const deploySteps = [10, 25, 50, 75, 100];
-
-        deploySteps.forEach(deployVal => {
-            const effRate = (deployVal / 100.0) * (rPct / 100.0);
-            let trades = 0;
-            let perDay = 0.0;
-            if (isGoalValid && effRate > 0 && cFinal > cInit) {
-                const exact = Math.log(cFinal / cInit) / Math.log(1.0 + effRate);
-                trades = Math.ceil(exact);
-                perDay = totalDays > 0 ? exact / totalDays : 0.0;
-            }
-            sensitivities.push({
-                deployPct: deployVal,
-                tradesNeeded: trades,
-                tradesPerDay: perDay,
-                isSelected: Math.abs(deployVal - dPct) < 0.1
-            });
-        });
+        const totalNetProfit = cFinal - cInit;
+        const growthMultiplier = cFinal / cInit;
 
         return {
-            cInit, cFinal, rPct, dPct, daysYear, yrs, effectiveRate,
-            exactTrades, totalTrades, totalDays, tradesPerDay, tradesPerWeek,
-            tradesPerMonth, netProfit, multiplier, sensitivities, isGoalValid
+            initialCap: cInit, finalCap: cFinal, returnPct: rPct, deployPct: dPct,
+            tradingDays: daysYear, years, effectiveRate,
+            totalTrades, exactTrades, totalDays,
+            tradesPerDay, tradesPerMonth, tradesPerWeek,
+            totalNetProfit, growthMultiplier
         };
     }
 
-    // --- LEVEL 0 FINANCIAL VOCABULARY SOLVER ---
-    function computeFinancialVocabulary(params) {
-        const cash = Math.max(0.0, params.cash);
-        const plant = Math.max(0.0, params.plant);
-        const inventory = Math.max(0.0, params.inventory);
-        const receivables = Math.max(0.0, params.receivables);
-        const liabilities = Math.max(0.0, params.liabilities);
+    // --- DOM RENDERING PROCEDURES ---
 
-        const totalAssets = cash + plant + inventory + receivables;
-        const bookEquity = totalAssets - liabilities;
-        const deRatio = bookEquity > 0 ? liabilities / bookEquity : 0.0;
-
-        const price = Math.max(0.01, params.sharePrice);
-        const shares = Math.max(1.0, params.sharesOutstanding);
-        const marketCap = price * shares;
-        const bvps = shares > 0 ? bookEquity / shares : 0.0;
-        const pbRatio = bookEquity > 0 ? marketCap / bookEquity : 0.0;
-
-        const bid = Math.max(0.0, params.bidPrice);
-        const ask = Math.max(bid, params.askPrice);
-        const spread = ask - bid;
-        const midPrice = (bid + ask) / 2.0;
-        const spreadPct = midPrice > 0 ? (spread / midPrice) * 100.0 : 0.0;
-        const spreadBps = spreadPct * 100.0;
-
-        return {
-            totalAssets, bookEquity, deRatio, price, shares,
-            marketCap, bvps, pbRatio, bid, ask, spread, midPrice,
-            spreadPct, spreadBps
-        };
-    }
-
-    // --- RENDER ENGINES ---
     function renderOptions() {
-        const calc = computeTargetTrade(optionsState);
-        const maxQty = optionsState.maxLot * optionsState.lotSize;
+        const res = computeOptionsEngine(optionsState);
 
-        DOM.lblLotMultiple.textContent = `${optionsState.numLots} Lot${optionsState.numLots > 1 ? 's' : ''} = ${calc.qty} units (Max: ${optionsState.maxLot} Lots / ${maxQty.toLocaleString('en-IN')})`;
-        DOM.lblRealizedBuy.textContent = formatINR(calc.rBuy);
+        DOM.lblLotMultiple.textContent = `Max ${res.maxLot} Lots (${res.qty} Qty)`;
+        DOM.lblRealizedBuy.textContent = `Realized Buy Price: ₹${res.realizedBuyPrice.toFixed(2)} (+₹${res.slippage.toFixed(2)} slip)`;
 
-        if (DOM.lblToggleTitle) {
-            DOM.lblToggleTitle.textContent = `Include Next Trade Fee (+${formatINR(calc.dynamicNextEntryFee)})`;
-        }
+        DOM.reqSellVal.textContent = `₹${res.requiredTargetSellPrice.toFixed(2)}`;
+        DOM.reqSellSub.innerHTML = `<i class="fa-solid fa-arrow-trend-up"></i> Realized Sell: ₹${res.realizedSellPrice.toFixed(2)}`;
 
-        DOM.reqSellVal.textContent = formatINR(calc.pSell);
-        const extraNote = optionsState.includeNextFee ? ` (includes +${formatINR(calc.dynamicNextEntryFee)} next trade fee)` : '';
-        DOM.reqSellSub.innerHTML = `<i class="fa-solid fa-arrow-trend-up"></i> +${calc.realPtsMove.toFixed(2)} pts move needed (+${calc.realPctMove.toFixed(2)}% price move)${extraNote}`;
+        DOM.realMoveVal.textContent = `+${res.pointsMoveNeeded.toFixed(2)} pts`;
+        DOM.realMoveSub.textContent = `▲ +${res.pctMoveNeeded.toFixed(2)}% premium move`;
 
-        DOM.realMoveVal.textContent = `+${calc.realPtsMove.toFixed(2)} pts`;
-        DOM.realMoveSub.textContent = `▲ +${calc.realPctMove.toFixed(2)}% premium move`;
+        DOM.netPnlVal.textContent = `${res.netPnlRealized >= 0 ? '+' : ''}₹${res.netPnlRealized.toFixed(2)}`;
+        DOM.netRoiVal.textContent = `${res.actualNetRoiPct >= 0 ? '+' : ''}${res.actualNetRoiPct.toFixed(2)}% Net ROI`;
 
-        DOM.netPnlVal.textContent = (calc.netPnlRealized >= 0 ? '+' : '-') + formatINR(calc.netPnlRealized);
-        DOM.netRoiVal.textContent = (calc.actualNetRoi >= 0 ? '▲ +' : '▼ ') + calc.actualNetRoi.toFixed(2) + '% Net ROI';
-
-        if (calc.netPnlRealized >= 0) {
-            DOM.netPnlVal.className = 'card-val text-green';
-            DOM.netRoiVal.className = 'trend-pill positive';
-        } else {
+        if (res.netPnlRealized < 0) {
+            DOM.netPnlCard.classList.remove('highlight');
             DOM.netPnlVal.className = 'card-val text-red';
             DOM.netRoiVal.className = 'trend-pill negative';
+        } else {
+            DOM.netPnlCard.classList.add('highlight');
+            DOM.netPnlVal.className = 'card-val text-green';
+            DOM.netRoiVal.className = 'trend-pill positive';
         }
 
-        DOM.breakevenSellVal.textContent = formatINR(calc.breakevenSellPrice);
-        DOM.breakevenSub.textContent = `+${calc.totalBreakevenPts.toFixed(2)} pts breakeven`;
+        DOM.breakevenSellVal.textContent = `₹${res.breakevenSellPrice.toFixed(2)}`;
+        DOM.breakevenSub.textContent = `▲ +${res.totalBreakevenPts.toFixed(2)} pts move needed`;
 
-        const totalDeductions = calc.totalTaxes + calc.totalSlippageCost;
-        DOM.totalDeductionsVal.textContent = formatINR(totalDeductions);
-        DOM.deductionsSub.textContent = `Taxes: ${formatINR(calc.totalTaxes)} + Slip: ${formatINR(calc.totalSlippageCost)}`;
+        DOM.totalDeductionsVal.textContent = `₹${res.totalTaxes.toFixed(2)}`;
+        DOM.deductionsSub.textContent = `Tax: ₹${res.totalTaxes.toFixed(2)} | Slip: ₹${res.totalSlippageCost.toFixed(2)}`;
 
-        DOM.nextTradeCostVal.textContent = `Next Entry Fee: ${formatINR(calc.actualNextTradeEntryCost)}`;
-        DOM.nextCapitalVal.textContent = formatINR(calc.nextTradeNetCapital);
-        if (DOM.lblNextEntryFee) DOM.lblNextEntryFee.textContent = formatINR(calc.actualNextTradeEntryCost);
-        if (DOM.lblCapitalPreserved) {
-            const yieldPct = calc.buyTurnover > 0 ? ((calc.nextTradeNetCapital / calc.buyTurnover) * 100).toFixed(1) : '100.0';
-            DOM.lblCapitalPreserved.textContent = `${yieldPct}%`;
+        if (optionsState.includeNextFee) {
+            DOM.lblNextEntryFee.textContent = 'Next Entry Fee (Deducted)';
+            DOM.nextTradeCostVal.textContent = `₹${res.actualNextEntryCost.toFixed(2)}`;
+            DOM.lblCapitalPreserved.textContent = 'Net Capital for Next Trade';
+            DOM.nextCapitalVal.textContent = `₹${res.nextTradeNetCapital.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        } else {
+            DOM.lblNextEntryFee.textContent = 'Next Entry Fee (Excluded)';
+            DOM.nextTradeCostVal.textContent = `₹0.00`;
+            DOM.lblCapitalPreserved.textContent = 'Gross Capital Preserved';
+            DOM.nextCapitalVal.textContent = `₹${(res.sellTurnover - res.totalTaxes).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         }
-
-        DOM.pctChips.forEach(chip => {
-            const chipVal = parseFloat(chip.getAttribute('data-pct'));
-            if (!isNaN(chipVal) && Math.abs(chipVal - optionsState.targetProfitPct) < 0.001) {
-                chip.classList.add('active');
-            } else {
-                chip.classList.remove('active');
-            }
-        });
     }
 
     function renderCompounding() {
-        const calc = computeCompoundingVelocity(compoundingState);
+        const res = computeCompoundingEngine(compoundingState);
 
-        DOM.compEffectiveRate.textContent = `${(calc.effectiveRate * 100).toFixed(3)}% / trade`;
-        DOM.compTotalDays.textContent = `${calc.totalDays.toFixed(0)} trading days`;
+        DOM.compEffectiveRate.textContent = `Effective Compound Rate: ${(res.effectiveRate * 100).toFixed(4)}% / trade`;
+        DOM.compTotalDays.textContent = `Total Trading Horizon: ${res.totalDays.toFixed(0)} trading days`;
 
-        if (calc.isGoalValid) {
-            if (calc.cFinal <= calc.cInit) {
-                DOM.compHeroTrades.textContent = `0 Trades`;
-                DOM.compHeroSub.innerHTML = `<i class="fa-solid fa-check-circle text-green"></i> Target capital matches initial capital (0 trades needed)`;
-            } else {
-                DOM.compHeroTrades.textContent = `${calc.totalTrades.toLocaleString('en-IN')} Trades`;
-                DOM.compHeroSub.innerHTML = `<i class="fa-solid fa-bolt"></i> Needs ${calc.tradesPerDay.toFixed(2)} trades / day across ${calc.totalDays.toFixed(0)} trading days`;
-            }
-        } else {
-            DOM.compHeroTrades.textContent = `0 Trades`;
-            DOM.compHeroSub.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Net return % must be greater than 0`;
-        }
+        DOM.compHeroTrades.textContent = `${res.totalTrades} Trades`;
+        DOM.compHeroSub.innerHTML = `<i class="fa-solid fa-bolt"></i> ${res.exactTrades.toFixed(2)} exact trades @ ${(res.effectiveRate * 100).toFixed(4)}% rate`;
 
-        DOM.compValPerDay.textContent = `${calc.tradesPerDay.toFixed(2)} / day`;
-        DOM.compSubPerDay.textContent = `▲ ${calc.tradesPerWeek.toFixed(2)} trades / week`;
+        DOM.compValPerDay.textContent = `${res.tradesPerDay.toFixed(2)} / day`;
+        DOM.compSubPerDay.textContent = `Over ${res.totalDays.toFixed(0)} trading days`;
 
-        DOM.compValPerMonth.textContent = `${calc.tradesPerMonth.toFixed(2)} / mo`;
-        DOM.compSubPerMonth.textContent = `Across ${(calc.yrs * 12).toFixed(0)} months`;
+        DOM.compValPerMonth.textContent = `${res.tradesPerMonth.toFixed(2)} / mo`;
+        DOM.compSubPerMonth.textContent = `~${res.tradesPerWeek.toFixed(2)} trades / week`;
 
-        DOM.compValMultiplier.textContent = `${calc.multiplier.toFixed(1)}x`;
-        DOM.compSubMultiplier.textContent = calc.multiplier > 1.0 ? `▲ +${((calc.multiplier - 1) * 100).toFixed(0)}% Growth` : `0% Growth`;
+        DOM.compValMultiplier.textContent = `${res.growthMultiplier.toFixed(2)}x`;
+        DOM.compSubMultiplier.textContent = `₹${res.initialCap.toLocaleString('en-IN')} ➔ ₹${res.finalCap.toLocaleString('en-IN')}`;
 
-        DOM.compValNetProfit.textContent = `+${formatShortINR(calc.netProfit)}`;
-        DOM.compSubNetProfit.textContent = `From ${formatShortINR(calc.cInit)} capital`;
+        const roiPct = res.initialCap > 0 ? (res.totalNetProfit / res.initialCap) * 100.0 : 0.0;
+        DOM.compValNetProfit.textContent = `+₹${res.totalNetProfit.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        DOM.compSubNetProfit.textContent = `+${roiPct.toFixed(2)}% Net Return`;
 
         DOM.compSensitivitySummary.textContent = `5 Allocations (10% to 100%)`;
+        renderSensitivityGrid(res.initialCap, res.finalCap, res.returnPct, res.tradingDays, res.years, res.deployPct);
+    }
 
+    function renderSensitivityGrid(cInit, cFinal, returnPct, tradingDays, years, activeDeployPct) {
+        if (!DOM.compSensitivityContainer) return;
+
+        const presets = [10.0, 25.0, 50.0, 75.0, 100.0];
         let html = '';
-        if (calc.isGoalValid) {
-            calc.sensitivities.forEach(s => {
-                const activeClass = s.isSelected ? 'active' : '';
-                html += `
-                    <div class="sensitivity-card ${activeClass}" data-deploy="${s.deployPct}">
-                        <span class="sens-tag">${s.deployPct}% Deployed</span>
-                        <span class="sens-trades">${s.tradesNeeded.toLocaleString('en-IN')} Trades</span>
-                        <span class="sens-rate">${s.tradesPerDay.toFixed(1)} / day</span>
-                    </div>
-                `;
+
+        presets.forEach(deploy => {
+            const subRes = computeCompoundingEngine({
+                initialCap: cInit, finalCap: cFinal, returnPct, deployPct: deploy, tradingDays, years
             });
-        } else {
-            html = `<div style="grid-column: 1 / -1; font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 0.5rem 0;">Enter Target Capital > Initial Capital to generate deployment matrix</div>`;
-        }
-        DOM.compSensitivityContainer.innerHTML = html;
+            const isActive = Math.abs(deploy - activeDeployPct) < 0.1;
 
-        DOM.compDeployChips.forEach(chip => {
-            const depVal = parseFloat(chip.getAttribute('data-deploy'));
-            if (!isNaN(depVal) && Math.abs(depVal - compoundingState.deployPct) < 0.1) {
-                chip.classList.add('active');
-            } else {
-                chip.classList.remove('active');
-            }
+            html += `
+                <div class="sensitivity-cell ${isActive ? 'active' : ''}">
+                    <span class="s-pct">${deploy.toFixed(0)}% Deploy</span>
+                    <span class="s-trades">${subRes.totalTrades} T</span>
+                    <span class="s-daily">${subRes.tradesPerDay.toFixed(2)}/day</span>
+                </div>
+            `;
         });
+
+        DOM.compSensitivityContainer.innerHTML = html;
     }
 
-    function renderFinancialVocabulary() {
-        const calc = computeFinancialVocabulary(financialState);
+    // --- NAVIGATION & INTERACTION CONTROLS ---
 
-        DOM.finHeroEquity.textContent = formatShortINR(calc.bookEquity);
-        DOM.finHeroSub.innerHTML = `<i class="fa-solid fa-coins"></i> Total Assets ${formatShortINR(calc.totalAssets)} | Liabilities ${formatShortINR(financialState.liabilities)} (D/E Ratio: ${calc.deRatio.toFixed(2)}x)`;
-
-        DOM.finValMarketCap.textContent = formatShortINR(calc.marketCap);
-        DOM.finSubMarketCap.textContent = `▲ P = ${formatINR(calc.price)} × ${(calc.shares / 10000000).toFixed(1)} Cr Shares`;
-
-        DOM.finValBvps.textContent = `${formatINR(calc.bvps)} / sh`;
-        DOM.finSubBvps.textContent = `Book Equity / ${(calc.shares / 10000000).toFixed(1)} Cr Shares`;
-
-        DOM.finValPb.textContent = `${calc.pbRatio.toFixed(2)}x`;
-        DOM.finSubPb.textContent = `Market Cap / Book Equity`;
-
-        DOM.finValSpread.textContent = formatINR(calc.spread);
-        DOM.finSubSpread.textContent = `Mid: ${formatINR(calc.midPrice)} (${calc.spreadBps.toFixed(0)} bps / ${calc.spreadPct.toFixed(2)}%)`;
-    }
-
-    // --- HAMBURGER DRAWER & TAB SWITCHING LOGIC ---
     function toggleDrawer(open) {
+        if (!DOM.sideDrawer || !DOM.drawerOverlay) return;
         if (open) {
             DOM.sideDrawer.classList.add('active');
             DOM.drawerOverlay.classList.add('active');
@@ -537,15 +348,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function switchTab(tabName) {
         activeTab = tabName;
 
-        // Reset active tabs & views
-        [DOM.tabBtnOptions, DOM.tabBtnCompounding, DOM.tabBtnFinancial].forEach(btn => btn && btn.classList.remove('active'));
-        [DOM.viewOptions, DOM.viewCompounding, DOM.viewFinancial].forEach(view => {
+        [DOM.tabBtnOptions, DOM.tabBtnCompounding].forEach(btn => { if (btn) btn.classList.remove('active'); });
+        [DOM.drawerLinkOptions, DOM.drawerLinkCompounding].forEach(link => { if (link) link.classList.remove('active'); });
+        [DOM.viewOptions, DOM.viewCompounding].forEach(view => {
             if (view) {
-                view.classList.add('hidden');
                 view.classList.remove('active');
+                view.classList.add('hidden');
             }
         });
-        [DOM.drawerLinkOptions, DOM.drawerLinkCompounding, DOM.drawerLinkFinancial].forEach(link => link && link.classList.remove('active'));
 
         if (tabName === 'options') {
             if (DOM.tabBtnOptions) DOM.tabBtnOptions.classList.add('active');
@@ -565,32 +375,21 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             DOM.headerSubtitle.textContent = 'Compounding Trade Growth & Velocity Calculator';
             renderCompounding();
-        } else if (tabName === 'financial') {
-            if (DOM.tabBtnFinancial) DOM.tabBtnFinancial.classList.add('active');
-            if (DOM.drawerLinkFinancial) DOM.drawerLinkFinancial.classList.add('active');
-            if (DOM.viewFinancial) {
-                DOM.viewFinancial.classList.remove('hidden');
-                DOM.viewFinancial.classList.add('active');
-            }
-            DOM.headerSubtitle.textContent = 'Level 0 Financial Vocabulary & Microstructure Engine';
-            renderFinancialVocabulary();
         }
 
         toggleDrawer(false);
     }
 
-    // Attach Nav Pills Listeners
+    // Nav Pill Listeners
     if (DOM.tabBtnOptions) DOM.tabBtnOptions.addEventListener('click', () => switchTab('options'));
     if (DOM.tabBtnCompounding) DOM.tabBtnCompounding.addEventListener('click', () => switchTab('compounding'));
-    if (DOM.tabBtnFinancial) DOM.tabBtnFinancial.addEventListener('click', () => switchTab('financial'));
 
-    // Attach Drawer Links Listeners
+    // Drawer Listeners
     if (DOM.hamburgerBtn) DOM.hamburgerBtn.addEventListener('click', () => toggleDrawer(true));
     if (DOM.drawerCloseBtn) DOM.drawerCloseBtn.addEventListener('click', () => toggleDrawer(false));
     if (DOM.drawerOverlay) DOM.drawerOverlay.addEventListener('click', () => toggleDrawer(false));
     if (DOM.drawerLinkOptions) DOM.drawerLinkOptions.addEventListener('click', () => switchTab('options'));
     if (DOM.drawerLinkCompounding) DOM.drawerLinkCompounding.addEventListener('click', () => switchTab('compounding'));
-    if (DOM.drawerLinkFinancial) DOM.drawerLinkFinancial.addEventListener('click', () => switchTab('financial'));
     if (DOM.drawerLinkTariff) {
         DOM.drawerLinkTariff.addEventListener('click', () => {
             toggleDrawer(false);
@@ -598,7 +397,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Keydown Esc listener for drawer & modal
+    // Modal & Escape Key Listeners
+    if (DOM.tariffTrigger && DOM.tariffModal && DOM.modalCloseBtn) {
+        DOM.tariffTrigger.addEventListener('click', () => DOM.tariffModal.style.display = 'flex');
+        DOM.modalCloseBtn.addEventListener('click', () => DOM.tariffModal.style.display = 'none');
+        DOM.tariffModal.addEventListener('click', (e) => {
+            if (e.target === DOM.tariffModal) DOM.tariffModal.style.display = 'none';
+        });
+    }
+
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             toggleDrawer(false);
@@ -606,15 +413,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- DYNAMIC STEPPING CONTROLS ---
-    attachDynamicControls(DOM.compInitialCapInput, syncCompoundingFromDOM);
-    attachDynamicControls(DOM.compFinalCapInput, syncCompoundingFromDOM);
-    attachDynamicControls(DOM.finCashInput, syncFinancialFromDOM);
-    attachDynamicControls(DOM.finPlantInput, syncFinancialFromDOM);
-    attachDynamicControls(DOM.finLiabilitiesInput, syncFinancialFromDOM);
-    attachDynamicControls(DOM.finSharesOutInput, syncFinancialFromDOM);
-
     // --- REACTION SYNC HANDLERS ---
+
     function syncOptionsFromDOM(e) {
         if (optionsState.isInternalUpdating) return;
         const targetId = e && e.target ? e.target.id : null;
@@ -640,19 +440,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let buyPrice = parseFloat(DOM.buyPriceInput.value.trim());
-        if (!isNaN(buyPrice) && buyPrice >= 0) {
-            optionsState.buyPrice = buyPrice;
-        }
+        if (!isNaN(buyPrice) && buyPrice >= 0) optionsState.buyPrice = buyPrice;
 
         let slip = parseFloat(DOM.slippageInput.value.trim());
-        if (!isNaN(slip) && slip >= 0) {
-            optionsState.slippage = slip;
-        }
+        if (!isNaN(slip) && slip >= 0) optionsState.slippage = slip;
 
         let targetPct = parseFloat(DOM.targetProfitPctInput.value.trim());
-        if (!isNaN(targetPct) && targetPct >= 0) {
-            optionsState.targetProfitPct = targetPct;
-        }
+        if (!isNaN(targetPct) && targetPct >= 0) optionsState.targetProfitPct = targetPct;
 
         optionsState.includeNextFee = DOM.includeNextFeeToggle ? DOM.includeNextFeeToggle.checked : true;
 
@@ -672,8 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (rawInitStr !== '') {
             const parsedInit = parseFloat(rawInitStr);
             if (!isNaN(parsedInit) && parsedInit >= 0) {
-                if (activeEl === DOM.compInitialCapInput && parsedInit < 100) {
-                } else {
+                if (activeEl !== DOM.compInitialCapInput || parsedInit >= 100) {
                     compoundingState.initialCap = parsedInit;
                 }
             }
@@ -696,8 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (rawRetStr !== '') {
             const parsedRet = parseFloat(rawRetStr);
             if (!isNaN(parsedRet) && parsedRet >= 0) {
-                if (activeEl === DOM.compReturnPctInput && (parsedRet <= 0 || rawRetStr.endsWith('.'))) {
-                } else {
+                if (activeEl !== DOM.compReturnPctInput || (!rawRetStr.endsWith('.') && parsedRet > 0)) {
                     compoundingState.returnPct = parsedRet;
                 }
             }
@@ -707,10 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (rawDeployStr !== '') {
             const parsedDeploy = parseFloat(rawDeployStr);
             if (!isNaN(parsedDeploy) && parsedDeploy >= 0) {
-                if (activeEl === DOM.compDeployPctInput && parsedDeploy < 1) {
-                } else {
-                    compoundingState.deployPct = Math.min(100.0, parsedDeploy);
-                }
+                compoundingState.deployPct = Math.min(100.0, parsedDeploy);
             }
         }
 
@@ -726,8 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (rawYrsStr !== '') {
             const parsedYrs = parseFloat(rawYrsStr);
             if (!isNaN(parsedYrs) && parsedYrs > 0) {
-                if (activeEl === DOM.compYearsInput && rawYrsStr.endsWith('.')) {
-                } else {
+                if (activeEl !== DOM.compYearsInput || !rawYrsStr.endsWith('.')) {
                     compoundingState.years = Math.min(50.0, parsedYrs);
                 }
             }
@@ -736,53 +524,20 @@ document.addEventListener('DOMContentLoaded', () => {
         renderCompounding();
     }
 
-    function syncFinancialFromDOM() {
-        if (financialState.isInternalUpdating) return;
-
-        const parseVal = (inputEl, fallback) => {
-            if (!inputEl) return fallback;
-            const str = inputEl.value.trim();
-            const val = parseFloat(str);
-            return (!isNaN(val) && val >= 0) ? val : fallback;
-        };
-
-        financialState.cash = parseVal(DOM.finCashInput, financialState.cash);
-        financialState.plant = parseVal(DOM.finPlantInput, financialState.plant);
-        financialState.inventory = parseVal(DOM.finInventoryInput, financialState.inventory);
-        financialState.receivables = parseVal(DOM.finReceivablesInput, financialState.receivables);
-        financialState.liabilities = parseVal(DOM.finLiabilitiesInput, financialState.liabilities);
-        financialState.sharePrice = parseVal(DOM.finSharePriceInput, financialState.sharePrice);
-        financialState.sharesOutstanding = parseVal(DOM.finSharesOutInput, financialState.sharesOutstanding);
-        financialState.bidPrice = parseVal(DOM.finBidPriceInput, financialState.bidPrice);
-        financialState.askPrice = parseVal(DOM.finAskPriceInput, financialState.askPrice);
-
-        renderFinancialVocabulary();
-    }
-
-    // Attach Reaction Listeners
+    // Attach Event Listeners
     ['input', 'change'].forEach(evt => {
-        DOM.numLotsInput.addEventListener(evt, syncOptionsFromDOM);
-        DOM.buyQtyInput.addEventListener(evt, syncOptionsFromDOM);
-        DOM.buyPriceInput.addEventListener(evt, syncOptionsFromDOM);
-        DOM.slippageInput.addEventListener(evt, syncOptionsFromDOM);
-        DOM.targetProfitPctInput.addEventListener(evt, syncOptionsFromDOM);
+        if (DOM.numLotsInput) DOM.numLotsInput.addEventListener(evt, syncOptionsFromDOM);
+        if (DOM.buyQtyInput) DOM.buyQtyInput.addEventListener(evt, syncOptionsFromDOM);
+        if (DOM.buyPriceInput) DOM.buyPriceInput.addEventListener(evt, syncOptionsFromDOM);
+        if (DOM.slippageInput) DOM.slippageInput.addEventListener(evt, syncOptionsFromDOM);
+        if (DOM.targetProfitPctInput) DOM.targetProfitPctInput.addEventListener(evt, syncOptionsFromDOM);
 
-        DOM.compInitialCapInput.addEventListener(evt, syncCompoundingFromDOM);
-        DOM.compFinalCapInput.addEventListener(evt, syncCompoundingFromDOM);
-        DOM.compReturnPctInput.addEventListener(evt, syncCompoundingFromDOM);
-        DOM.compDeployPctInput.addEventListener(evt, syncCompoundingFromDOM);
-        DOM.compTradingDaysInput.addEventListener(evt, syncCompoundingFromDOM);
-        DOM.compYearsInput.addEventListener(evt, syncCompoundingFromDOM);
-
-        if (DOM.finCashInput) DOM.finCashInput.addEventListener(evt, syncFinancialFromDOM);
-        if (DOM.finPlantInput) DOM.finPlantInput.addEventListener(evt, syncFinancialFromDOM);
-        if (DOM.finInventoryInput) DOM.finInventoryInput.addEventListener(evt, syncFinancialFromDOM);
-        if (DOM.finReceivablesInput) DOM.finReceivablesInput.addEventListener(evt, syncFinancialFromDOM);
-        if (DOM.finLiabilitiesInput) DOM.finLiabilitiesInput.addEventListener(evt, syncFinancialFromDOM);
-        if (DOM.finSharePriceInput) DOM.finSharePriceInput.addEventListener(evt, syncFinancialFromDOM);
-        if (DOM.finSharesOutInput) DOM.finSharesOutInput.addEventListener(evt, syncFinancialFromDOM);
-        if (DOM.finBidPriceInput) DOM.finBidPriceInput.addEventListener(evt, syncFinancialFromDOM);
-        if (DOM.finAskPriceInput) DOM.finAskPriceInput.addEventListener(evt, syncFinancialFromDOM);
+        if (DOM.compInitialCapInput) DOM.compInitialCapInput.addEventListener(evt, syncCompoundingFromDOM);
+        if (DOM.compFinalCapInput) DOM.compFinalCapInput.addEventListener(evt, syncCompoundingFromDOM);
+        if (DOM.compReturnPctInput) DOM.compReturnPctInput.addEventListener(evt, syncCompoundingFromDOM);
+        if (DOM.compDeployPctInput) DOM.compDeployPctInput.addEventListener(evt, syncCompoundingFromDOM);
+        if (DOM.compTradingDaysInput) DOM.compTradingDaysInput.addEventListener(evt, syncCompoundingFromDOM);
+        if (DOM.compYearsInput) DOM.compYearsInput.addEventListener(evt, syncCompoundingFromDOM);
     });
 
     if (DOM.includeNextFeeToggle) {
@@ -828,75 +583,46 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Tariff Modal Listeners
-    if (DOM.tariffTrigger && DOM.tariffModal && DOM.modalCloseBtn) {
-        DOM.tariffTrigger.addEventListener('click', () => DOM.tariffModal.style.display = 'flex');
-        DOM.modalCloseBtn.addEventListener('click', () => DOM.tariffModal.style.display = 'none');
-        DOM.tariffModal.addEventListener('click', (e) => {
-            if (e.target === DOM.tariffModal) DOM.tariffModal.style.display = 'none';
+    // Reset Button
+    if (DOM.resetBtn) {
+        DOM.resetBtn.addEventListener('click', () => {
+            if (activeTab === 'options') {
+                optionsState.indexName = 'NIFTY';
+                optionsState.lotSize = 65;
+                optionsState.maxLot = 27;
+                optionsState.numLots = 1;
+                optionsState.buyPrice = 100.00;
+                optionsState.slippage = 0.50;
+                optionsState.targetProfitPct = 0.0;
+                optionsState.includeNextFee = true;
+
+                DOM.numLotsInput.value = 1;
+                DOM.buyQtyInput.value = 65;
+                DOM.buyPriceInput.value = "100.00";
+                DOM.slippageInput.value = "0.50";
+                DOM.targetProfitPctInput.value = "0.0";
+                if (DOM.includeNextFeeToggle) DOM.includeNextFeeToggle.checked = true;
+
+                renderOptions();
+            } else if (activeTab === 'compounding') {
+                compoundingState.initialCap = 10000.0;
+                compoundingState.finalCap = 100000.0;
+                compoundingState.returnPct = 1.0;
+                compoundingState.deployPct = 50.0;
+                compoundingState.tradingDays = 200;
+                compoundingState.years = 1.0;
+
+                DOM.compInitialCapInput.value = "10000";
+                DOM.compFinalCapInput.value = "100000";
+                DOM.compReturnPctInput.value = "1.0";
+                DOM.compDeployPctInput.value = "50.0";
+                DOM.compTradingDaysInput.value = "200";
+                DOM.compYearsInput.value = "1.0";
+
+                renderCompounding();
+            }
         });
     }
-
-    // Reset Button
-    DOM.resetBtn.addEventListener('click', () => {
-        if (activeTab === 'options') {
-            optionsState.indexName = 'NIFTY';
-            optionsState.lotSize = 65;
-            optionsState.maxLot = 27;
-            optionsState.numLots = 1;
-            optionsState.buyPrice = 100.00;
-            optionsState.slippage = 0.50;
-            optionsState.targetProfitPct = 0.0;
-            optionsState.includeNextFee = true;
-
-            DOM.numLotsInput.value = 1;
-            DOM.buyQtyInput.value = 65;
-            DOM.buyPriceInput.value = "100.00";
-            DOM.slippageInput.value = "0.50";
-            DOM.targetProfitPctInput.value = "0.0";
-            if (DOM.includeNextFeeToggle) DOM.includeNextFeeToggle.checked = true;
-
-            renderOptions();
-        } else if (activeTab === 'compounding') {
-            compoundingState.initialCap = 10000.0;
-            compoundingState.finalCap = 100000.0;
-            compoundingState.returnPct = 1.0;
-            compoundingState.deployPct = 50.0;
-            compoundingState.tradingDays = 200;
-            compoundingState.years = 1.0;
-
-            DOM.compInitialCapInput.value = "10000";
-            DOM.compFinalCapInput.value = "100000";
-            DOM.compReturnPctInput.value = "1.0";
-            DOM.compDeployPctInput.value = "50.0";
-            DOM.compTradingDaysInput.value = "200";
-            DOM.compYearsInput.value = "1.0";
-
-            renderCompounding();
-        } else if (activeTab === 'financial') {
-            financialState.cash = 200000000.0;
-            financialState.plant = 500000000.0;
-            financialState.inventory = 100000000.0;
-            financialState.receivables = 200000000.0;
-            financialState.liabilities = 400000000.0;
-            financialState.sharePrice = 25.0;
-            financialState.sharesOutstanding = 60000000.0;
-            financialState.bidPrice = 100.0;
-            financialState.askPrice = 100.10;
-
-            DOM.finCashInput.value = "200000000";
-            DOM.finPlantInput.value = "500000000";
-            DOM.finInventoryInput.value = "100000000";
-            DOM.finReceivablesInput.value = "200000000";
-            DOM.finLiabilitiesInput.value = "400000000";
-            DOM.finSharePriceInput.value = "25.00";
-            DOM.finSharesOutInput.value = "60000000";
-            DOM.finBidPriceInput.value = "100.00";
-            DOM.finAskPriceInput.value = "100.10";
-
-            renderFinancialVocabulary();
-        }
-    });
 
     // Initial Render & Deep-linking
     const urlParams = new URLSearchParams(window.location.search);
@@ -907,4 +633,3 @@ document.addEventListener('DOMContentLoaded', () => {
         renderOptions();
     }
 });
-

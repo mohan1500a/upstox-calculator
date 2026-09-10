@@ -1,24 +1,29 @@
 #!/usr/bin/env python3
 """
-Upstox Options Target Sell Price & Brokerage Calculator (2026 Engine)
-Includes Compounding Trade Growth & Velocity Calculator.
+Upstox Options Target Sell Price & Compounding Velocity Quantitative Suite (2026 Engine)
 
-Calculates exact Target Limit Sell Price, Statutory Taxes, Execution Slippage,
-and Compounding Trades Required to achieve financial growth targets.
+Calculates:
+1. Upstox Options Target Sell Price, Statutory Taxes, Slippage, and Re-entry Capital.
+2. Compounding Velocity, Required Trades/Day, Trades/Month, and Growth Multipliers.
 
 Author: Antigravity AI Pair Programmer
-Version: 6.0 (Options Engine + Compounding Velocity Feature)
+Version: 31.0
 """
 
 import sys
 import math
 from dataclasses import dataclass
+from typing import Dict, Any
 
 MAX_LOT_CAPS = {
     "NIFTY": {"lot_size": 65, "max_lots": 27, "max_qty": 1755},
     "BANKNIFTY": {"lot_size": 30, "max_lots": 20, "max_qty": 600},
-    "SENSEX": {"lot_size": 20, "max_lots": 50, "max_qty": 1000}
+    "FINNIFTY": {"lot_size": 65, "max_lots": 27, "max_qty": 1755},
+    "MIDCPNIFTY": {"lot_size": 120, "max_lots": 24, "max_qty": 2880},
+    "SENSEX": {"lot_size": 20, "max_lots": 50, "max_qty": 1000},
+    "BANKEX": {"lot_size": 30, "max_lots": 50, "max_qty": 1500}
 }
+
 
 @dataclass(frozen=True)
 class OptionTradeCalculation:
@@ -87,8 +92,8 @@ class CompoundingVelocityCalculation:
 
 
 def calculate_option_target(
-    quantity: int,
-    buy_price: float,
+    quantity: int = 65,
+    buy_price: float = 100.0,
     target_profit_pct: float = 0.0,
     slippage: float = 0.50,
     index_name: str = "NIFTY",
@@ -122,7 +127,7 @@ def calculate_option_target(
         target_net_pnl += dynamic_next_entry_fee
 
     # Upstox Linear Tax Coefficients (Options)
-    c_sell = 0.001 + (1.18 * 0.000496) # 0.00158528
+    c_sell = 0.001 + (1.18 * 0.000496)
     fixed_k_buy = (40.0 * 1.18) + (0.00003 * buy_turnover) + (1.18 * 0.000496 * buy_turnover)
 
     denominator = qty * (1.0 - c_sell)
@@ -132,12 +137,12 @@ def calculate_option_target(
     sell_turnover = r_sell * qty
     total_turnover = buy_turnover + sell_turnover
 
-    brokerage = 40.0 # ₹20 buy + ₹20 sell
-    stt = 0.001 * sell_turnover # 0.1% on sell premium
-    exchange_charges = 0.000495 * total_turnover # 0.0495%
-    sebi_charges = 0.000001 * total_turnover # 0.0001%
-    stamp_duty = 0.00003 * buy_turnover # 0.003% buy side
-    gst = 0.18 * (brokerage + exchange_charges + sebi_charges) # 18% GST
+    brokerage = 40.0
+    stt = 0.001 * sell_turnover
+    exchange_charges = 0.000495 * total_turnover
+    sebi_charges = 0.000001 * total_turnover
+    stamp_duty = 0.00003 * buy_turnover
+    gst = 0.18 * (brokerage + exchange_charges + sebi_charges)
 
     total_taxes = brokerage + stt + exchange_charges + sebi_charges + stamp_duty + gst
     total_slippage_pts = s_slip * 2
@@ -198,8 +203,8 @@ def calculate_option_target(
 
 
 def calculate_compounding_velocity(
-    initial_capital: float,
-    final_capital: float,
+    initial_capital: float = 10000.0,
+    final_capital: float = 100000.0,
     return_pct_per_trade: float = 1.0,
     deploy_pct_per_trade: float = 50.0,
     trading_days_per_year: int = 200,
@@ -213,11 +218,7 @@ def calculate_compounding_velocity(
     years = max(0.01, float(num_years))
 
     effective_rate = (d_pct / 100.0) * (r_pct / 100.0)
-    
-    if effective_rate > 0 and c_final > c_init:
-        exact_trades = math.log(c_final / c_init) / math.log(1.0 + effective_rate)
-    else:
-        exact_trades = 0.0
+    exact_trades = math.log(c_final / c_init) / math.log(1.0 + effective_rate) if (effective_rate > 0 and c_final > c_init) else 0.0
 
     total_trades = math.ceil(exact_trades)
     total_days = days_year * years
@@ -248,90 +249,36 @@ def calculate_compounding_velocity(
     )
 
 
-def print_trade_report(calc: OptionTradeCalculation):
-    GREEN = "\033[92m"
-    RED = "\033[91m"
-    YELLOW = "\033[93m"
-    CYAN = "\033[96m"
+def print_suite_report(opt: OptionTradeCalculation, comp: CompoundingVelocityCalculation):
     BOLD = "\033[1m"
+    GREEN = "\033[92m"
+    CYAN = "\033[96m"
+    YELLOW = "\033[93m"
     RESET = "\033[0m"
 
-    pnl_color = GREEN if calc.net_pnl_realized >= 0 else RED
-    pnl_sign = "+" if calc.net_pnl_realized > 0 else ""
+    print("\n" + "=" * 68)
+    print(f"{BOLD}{CYAN}  UPSTOX QUANTITATIVE ENGINE SUITE (2026 OFFICIAL RULES){RESET}")
+    print("=" * 68)
 
-    print("\n" + "=" * 65)
-    print(f"{BOLD}{CYAN}  UPSTOX OPTIONS TARGET CALCULATOR (2026 ENGINE){RESET}")
-    print("=" * 65)
+    print(f"\n{BOLD}1. OPTIONS TARGET SELL PRICE ENGINE{RESET}")
+    print(f"  • Index & Quantity   : {opt.index_name} ({opt.num_lots}/{opt.max_lots_allowed} Lots = {opt.quantity} Qty)")
+    print(f"  • Buy Price (Realized): ₹{opt.target_buy_price:.2f} (Realized +Slip: ₹{opt.realized_buy_price:.2f})")
+    print(f"  • Target Limit Sell  : {BOLD}{GREEN}₹{opt.required_target_sell_price:.2f}{RESET} (Realized Sell: ₹{opt.realized_sell_price:.2f})")
+    print(f"  • Real Move Needed   : {BOLD}{YELLOW}+{opt.points_move_needed:.2f} pts (+{opt.pct_move_needed:.2f}%){RESET}")
+    print(f"  • Net Realized Profit: ₹{opt.net_pnl_realized:,.2f} ({opt.actual_net_roi_pct:.2f}% Net ROI)")
+    print(f"  • Total Taxes & Slip : ₹{opt.total_taxes_and_charges:.2f} Tax | ₹{opt.total_slippage_cost:.2f} Slip")
+    print(f"  • Next Trade Capital : ₹{opt.next_trade_net_capital:,.2f} (Next Entry Cost: ₹{opt.next_trade_entry_cost:.2f})")
 
-    print(f"\n{BOLD}1. INPUT OVERVIEW{RESET}")
-    print(f"  • Index & Lot Size    : {calc.index_name} ({calc.num_lots}/{calc.max_lots_allowed} Lots = {calc.quantity:,} units)")
-    print(f"  • Target Buy Price    : ₹{calc.target_buy_price:.2f}  | Realized Buy (with +₹{calc.slippage:.2f} slip): ₹{calc.realized_buy_price:.2f}")
-    print(f"  • Target Net ROI Goal : {BOLD}{YELLOW}+{calc.target_profit_pct:.2f}%{RESET}")
-    print(f"  • Include Next Fee    : {BOLD}{calc.include_next_trade_fee}{RESET} (Dynamic Buy Fee: ₹{calc.dynamic_next_entry_fee:.2f})")
-
-    print(f"\n{BOLD}2. PRIMARY OUTPUT ENGINE{RESET}")
-    print(f"  • Required Sell Price : {BOLD}{CYAN}₹{calc.required_target_sell_price:.2f}{RESET} (Realized Sell: ₹{calc.realized_sell_price:.2f})")
-    print(f"  • Real Move Needed    : {BOLD}{GREEN}+{calc.points_move_needed:.2f} pts{RESET} (+{calc.pct_move_needed:.2f}% premium move)")
-    print(f"  • Actual Net Profit   : {BOLD}{pnl_color}{pnl_sign}₹{calc.net_pnl_realized:,.2f}{RESET} ({pnl_color}{calc.actual_net_roi_pct:.2f}% Net ROI{RESET})")
-    print(f"  • Breakeven Sell Price: ₹{calc.breakeven_sell_price:.2f} (+{calc.total_breakeven_pts:.2f} pts move needed)")
-
-    print(f"\n{BOLD}3. NEXT TRADE DYNAMIC CARRYOVER{RESET}")
-    print(f"  • Dynamic Next Entry Cost : ₹{calc.next_trade_entry_cost:.2f}")
-    print(f"  • Net Reusable Capital    : {GREEN}₹{calc.next_trade_net_capital:,.2f}{RESET}")
-    print("=" * 65 + "\n")
-
-
-def print_compounding_report(calc: CompoundingVelocityCalculation):
-    GREEN = "\033[92m"
-    YELLOW = "\033[93m"
-    CYAN = "\033[96m"
-    BOLD = "\033[1m"
-    RESET = "\033[0m"
-
-    print("\n" + "=" * 65)
-    print(f"{BOLD}{CYAN}  COMPOUNDING TRADE GROWTH & VELOCITY CALCULATOR{RESET}")
-    print("=" * 65)
-
-    print(f"\n{BOLD}1. CAPITAL & TIMELINE INPUTS{RESET}")
-    print(f"  • Initial Capital     : ₹{calc.initial_capital:,.2f}")
-    print(f"  • Target Final Capital: {BOLD}{GREEN}₹{calc.final_capital:,.2f}{RESET} ({calc.growth_multiplier:.1f}x Growth)")
-    print(f"  • Profit / Trade      : +{calc.return_pct_per_trade:.2f}% (Capital Deployed: {calc.deploy_pct_per_trade:.1f}%)")
-    print(f"  • Time Horizon        : {calc.num_years} Year(s) ({calc.trading_days_per_year} trading days/yr = {calc.total_trading_days:.0f} days)")
-
-    print(f"\n{BOLD}2. COMPOUNDING VELOCITY OUTPUTS{RESET}")
-    print(f"  • Total Trades Needed : {BOLD}{YELLOW}{calc.total_trades_needed} trades{RESET} (exact: {calc.exact_trades_needed:.2f})")
-    print(f"  • Trades Needed / Day : {BOLD}{CYAN}{calc.trades_per_day:.2f} trades/day{RESET}")
-    print(f"  • Trades Needed / Wk  : {calc.trades_per_week:.2f} trades/week")
-    print(f"  • Trades Needed / Mo  : {calc.trades_per_month:.2f} trades/month")
-    print(f"  • Total Net Gain      : {BOLD}{GREEN}+₹{calc.total_net_profit:,.2f}{RESET}")
-    print("=" * 65 + "\n")
+    print(f"\n{BOLD}2. COMPOUNDING VELOCITY 200-DAY GROWTH ENGINE{RESET}")
+    print(f"  • Capital Growth     : ₹{comp.initial_capital:,.2f} ➔ ₹{comp.final_capital:,.2f} ({comp.growth_multiplier:.2f}x Multiplier)")
+    print(f"  • Profit / Deploy %  : +{comp.return_pct_per_trade:.2f}% Return @ {comp.deploy_pct_per_trade:.1f}% Capital Deployed")
+    print(f"  • Effective Rate     : {comp.effective_rate_per_trade:.4f}% / trade")
+    print(f"  • Total Trades Needed: {BOLD}{GREEN}{comp.total_trades_needed} trades{RESET} (exact: {comp.exact_trades_needed:.2f})")
+    print(f"  • Required Velocity  : {BOLD}{CYAN}{comp.trades_per_day:.2f} trades/day{RESET} | {comp.trades_per_month:.2f} trades/month")
+    print("=" * 68 + "\n")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) >= 2 and sys.argv[1].lower() in ['compound', 'compounding']:
-        c_init = float(sys.argv[2]) if len(sys.argv) >= 3 else 10000.0
-        c_final = float(sys.argv[3]) if len(sys.argv) >= 4 else 100000.0
-        ret_pct = float(sys.argv[4]) if len(sys.argv) >= 5 else 1.0
-        dep_pct = float(sys.argv[5]) if len(sys.argv) >= 6 else 50.0
-        days = int(sys.argv[6]) if len(sys.argv) >= 7 else 200
-        yrs = float(sys.argv[7]) if len(sys.argv) >= 8 else 1.0
-
-        comp_res = calculate_compounding_velocity(c_init, c_final, ret_pct, dep_pct, days, yrs)
-        print_compounding_report(comp_res)
-    elif len(sys.argv) >= 4:
-        try:
-            qty = int(sys.argv[1])
-            buy = float(sys.argv[2])
-            target_pct = float(sys.argv[3])
-            slip = float(sys.argv[4]) if len(sys.argv) >= 5 else 0.50
-            inc_fee = sys.argv[5].lower() in ['true', '1', 'yes'] if len(sys.argv) >= 6 else True
-            res = calculate_option_target(qty, buy, target_pct, slip, include_next_trade_fee=inc_fee)
-            print_trade_report(res)
-        except Exception as e:
-            print(f"CLI Error: {e}")
-            sys.exit(1)
-    else:
-        demo = calculate_option_target(quantity=65, buy_price=100.0, target_profit_pct=0.0, slippage=0.50, include_next_trade_fee=True)
-        print_trade_report(demo)
-        comp_demo = calculate_compounding_velocity(10000.0, 100000.0, 1.0, 50.0, 200, 1.0)
-        print_compounding_report(comp_demo)
+    opt_res = calculate_option_target()
+    comp_res = calculate_compounding_velocity()
+    print_suite_report(opt_res, comp_res)
