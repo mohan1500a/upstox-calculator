@@ -898,6 +898,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Initial Render
-    renderOptions();
+    // Initial Render & Deep-linking
+    const urlParams = new URLSearchParams(window.location.search);
+    const initialTab = urlParams.get('tab');
+    if (initialTab === 'compounding') {
+        switchTab('compounding');
+    } else {
+        renderOptions();
+    }
 });
+
