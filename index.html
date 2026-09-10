@@ -3,69 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <meta name="description" content="Upstox Options Target Sell Price & Compounding Velocity Quantitative Trading Engine Suite (Official 2026 Statutory Rules)">
-    <title>Upstox Options & Compounding Velocity Suite (Official 2026 Rules)</title>
+    <title>Upstox Options & Compounding Calculator (Official 2026 Rules)</title>
     <!-- Google Fonts: Plus Jakarta Sans & Inter -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css?v=31.0">
+    <link rel="stylesheet" href="styles.css?v=29.0">
 </head>
 <body>
-    <!-- Hamburger Side Drawer Navigation Overlay -->
-    <div class="drawer-overlay" id="drawer-overlay"></div>
-    <aside class="side-drawer" id="side-drawer" aria-hidden="true">
-        <div class="drawer-header">
-            <div class="brand">
-                <div class="brand-icon"><i class="fa-solid fa-bolt-lightning"></i></div>
-                <div class="brand-text">
-                    <h2>Upstox Suite</h2>
-                    <span class="brand-sub">Navigation & Modules</span>
-                </div>
-            </div>
-            <button class="drawer-close" id="drawer-close-btn" aria-label="Close Menu">&times;</button>
-        </div>
-        <nav class="drawer-menu">
-            <div class="menu-section-title">QUANT ENGINE MODULES</div>
-            <button class="drawer-link active" id="drawer-link-options">
-                <i class="fa-solid fa-calculator text-orange"></i>
-                <div class="link-text">
-                    <span class="link-title">Options Target Engine</span>
-                    <span class="link-desc">Brokerage, Limit Sell & Next Fee</span>
-                </div>
-            </button>
-            <button class="drawer-link" id="drawer-link-compounding">
-                <i class="fa-solid fa-chart-line text-green"></i>
-                <div class="link-text">
-                    <span class="link-title">Compounding Velocity</span>
-                    <span class="link-desc">200-Day Target Growth Model</span>
-                </div>
-            </button>
-
-            <div class="menu-section-title">STATUTORY RULES</div>
-            <button class="drawer-link" id="drawer-link-tariff">
-                <i class="fa-solid fa-shield-halved text-amber"></i>
-                <div class="link-text">
-                    <span class="link-title">Upstox 2026 Tariff Rules</span>
-                    <span class="link-desc">Official Statutory Tax Breakdown</span>
-                </div>
-            </button>
-        </nav>
-        <div class="drawer-footer">
-            <div class="footer-badge"><span class="pulse-dot"></span> Engine v31.0 Active</div>
-            <span class="copyright">Upstox Quantitative Suite © 2026</span>
-        </div>
-    </aside>
-
     <div class="viewport-app">
         <!-- Lumos Top Navigation Bar -->
         <header class="app-header">
             <div class="brand">
-                <button id="hamburger-btn" class="icon-btn hamburger-trigger" aria-label="Open Navigation Menu" title="Open Navigation Menu">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
                 <div class="brand-icon"><i class="fa-solid fa-bolt-lightning"></i></div>
                 <div class="brand-text">
                     <h1>Upstox Suite</h1>
@@ -86,118 +37,90 @@
             </div>
         </header>
 
-        <!-- MODULE 1: OPTIONS ENGINE DASHBOARD -->
+        <!-- VIEW 1: OPTIONS ENGINE DASHBOARD -->
         <main id="view-options" class="dashboard-grid tab-view active">
             <!-- Left Panel: Trade Inputs -->
             <section class="card input-panel">
                 <div class="panel-header">
                     <h2>Trade Inputs</h2>
-                    <span class="sub-date">Real-time Options Engine</span>
+                    <span class="sub-date">Real-time Engine</span>
                 </div>
 
                 <!-- Index Select Chips (3-column Grid) -->
                 <div class="input-group">
                     <label class="input-label">Index & Lot Size</label>
-                    <div class="chip-grid grid-3">
-                        <button class="chip active" data-index="NIFTY" data-lot="65" data-maxlot="27">
-                            <span class="chip-title">NIFTY</span>
-                            <span class="chip-sub">65/lot</span>
-                        </button>
-                        <button class="chip" data-index="BANKNIFTY" data-lot="30" data-maxlot="20">
-                            <span class="chip-title">BANKNIFTY</span>
-                            <span class="chip-sub">30/lot</span>
-                        </button>
-                        <button class="chip" data-index="FINNIFTY" data-lot="65" data-maxlot="27">
-                            <span class="chip-title">FINNIFTY</span>
-                            <span class="chip-sub">65/lot</span>
-                        </button>
-                        <button class="chip" data-index="MIDCPNIFTY" data-lot="120" data-maxlot="24">
-                            <span class="chip-title">MIDCPNIFTY</span>
-                            <span class="chip-sub">120/lot</span>
-                        </button>
-                        <button class="chip" data-index="SENSEX" data-lot="20" data-maxlot="50">
-                            <span class="chip-title">SENSEX</span>
-                            <span class="chip-sub">20/lot</span>
-                        </button>
-                        <button class="chip" data-index="BANKEX" data-lot="30" data-maxlot="50">
-                            <span class="chip-title">BANKEX</span>
-                            <span class="chip-sub">30/lot</span>
-                        </button>
+                    <div class="index-chips">
+                        <button type="button" class="chip active" data-index="NIFTY" data-lot="65" data-maxlot="27">NIFTY (65)</button>
+                        <button type="button" class="chip" data-index="BANKNIFTY" data-lot="30" data-maxlot="20">BANKNIFTY (30)</button>
+                        <button type="button" class="chip" data-index="SENSEX" data-lot="20" data-maxlot="50">SENSEX (20)</button>
                     </div>
                 </div>
 
-                <!-- Lots & Quantity Input (Side-by-Side) -->
+                <!-- Lots & Quantity with Lumos Styling -->
                 <div class="input-group">
                     <div class="grid-2">
                         <div>
-                            <label for="num-lots" class="input-label">Lots (N) <span class="badge-tag float-right" id="lbl-lot-multiple">Max 27</span></label>
+                            <label for="num-lots" class="input-label">No. of Lots</label>
                             <div class="input-field">
                                 <input type="number" id="num-lots" value="1" min="1" max="27" step="1" inputmode="numeric">
                             </div>
                         </div>
                         <div>
-                            <label for="buy-qty" class="input-label">Total Qty</label>
+                            <label for="buy-qty" class="input-label">Total Quantity</label>
                             <div class="input-field">
-                                <input type="number" id="buy-qty" value="65" min="1" max="1755" step="65" inputmode="numeric">
+                                <input type="number" id="buy-qty" value="65" min="65" max="1755" step="65" inputmode="numeric">
                             </div>
                         </div>
                     </div>
+                    <div class="lot-status"><strong id="lbl-lot-multiple">1 Lot = 65 units (Max: 27 Lots / 1,755)</strong></div>
                 </div>
 
-                <!-- Target Buy Price & Execution Slippage -->
+                <!-- Buy Price -->
                 <div class="input-group">
-                    <div class="grid-2">
-                        <div>
-                            <label for="buy-price" class="input-label">Target Buy Price (₹)</label>
-                            <div class="input-field">
-                                <span class="symbol">₹</span>
-                                <input type="number" id="buy-price" value="100.00" min="0.05" step="0.5" inputmode="decimal">
-                            </div>
-                        </div>
-                        <div>
-                            <label for="slippage" class="input-label">Slippage (pts)</label>
-                            <div class="input-field">
-                                <input type="number" id="slippage" value="0.50" min="0.00" step="0.05" inputmode="decimal">
-                            </div>
-                        </div>
-                    </div>
-                    <span class="input-hint" id="lbl-realized-buy">Realized Buy Price: ₹100.50 (+0.50 slippage)</span>
-                </div>
-
-                <!-- Target Net ROI Preset Chips -->
-                <div class="input-group">
-                    <label class="input-label">Target Net ROI Goal (%)</label>
-                    <div class="chip-grid grid-4">
-                        <button class="pct-chip active" data-pct="0.0">0% (Flat)</button>
-                        <button class="pct-chip" data-pct="1.0">+1%</button>
-                        <button class="pct-chip" data-pct="2.0">+2%</button>
-                        <button class="pct-chip" data-pct="5.0">+5%</button>
-                        <button class="pct-chip" data-pct="10.0">+10%</button>
-                        <button class="pct-chip" data-pct="15.0">+15%</button>
-                        <button class="pct-chip" data-pct="20.0">+20%</button>
-                        <button class="pct-chip" data-pct="25.0">+25%</button>
-                    </div>
-                </div>
-
-                <!-- Target Net Profit % Input -->
-                <div class="input-group">
-                    <label for="target-profit-pct" class="input-label">Custom Target Net ROI (%)</label>
+                    <label for="buy-price" class="input-label">Buy Price (₹)</label>
                     <div class="input-field">
-                        <input type="number" id="target-profit-pct" value="0.0" min="0.0" step="0.5" inputmode="decimal">
-                        <span class="unit">%</span>
+                        <span class="symbol">₹</span>
+                        <input type="number" id="buy-price" value="100.00" min="0" step="0.05" inputmode="decimal">
                     </div>
                 </div>
 
-                <!-- Carryover Dynamic Next Trade Fee Toggle -->
-                <div class="input-group mb-0">
-                    <div class="toggle-card">
-                        <div class="toggle-info">
-                            <span class="toggle-title" id="lbl-toggle-title">Include Next Trade Entry Fee</span>
-                            <span class="toggle-desc">Adds next trade buy fee (~₹27.62) into target sell price</span>
+                <!-- Slippage -->
+                <div class="input-group">
+                    <label for="slippage" class="input-label">Execution Slippage (Pts / leg)</label>
+                    <div class="input-field">
+                        <span class="symbol">±₹</span>
+                        <input type="number" id="slippage" value="0.50" min="0" step="0.05" inputmode="decimal">
+                    </div>
+                    <div class="sub-info">Realized Buy Price: <strong id="lbl-realized-buy">₹100.50</strong></div>
+                </div>
+
+                <!-- Target Profit % (Default 0%) -->
+                <div class="input-group">
+                    <label for="target-profit-pct" class="input-label">Target Profit (%)</label>
+                    <div class="input-field">
+                        <input type="number" id="target-profit-pct" value="0.0" min="0" max="1000" step="0.5" inputmode="decimal">
+                        <span class="suffix">%</span>
+                    </div>
+                    <div class="profit-chips mt-chip">
+                        <button type="button" class="pct-chip active" data-pct="0">0%</button>
+                        <button type="button" class="pct-chip" data-pct="1">+1%</button>
+                        <button type="button" class="pct-chip" data-pct="2">+2%</button>
+                        <button type="button" class="pct-chip" data-pct="3">+3%</button>
+                        <button type="button" class="pct-chip" data-pct="4">+4%</button>
+                        <button type="button" class="pct-chip" data-pct="5">+5%</button>
+                    </div>
+                </div>
+
+                <!-- Next Trade Fee Include Toggle Switch (DEFAULT ON) -->
+                <div class="input-group toggle-group mb-0">
+                    <div class="toggle-container">
+                        <div class="toggle-text">
+                            <span class="toggle-title" id="lbl-toggle-title">Include Next Trade Fee (+₹24.03)</span>
+                            <span class="toggle-sub">Dynamic buy fee based on input params</span>
                         </div>
                         <label class="switch">
                             <input type="checkbox" id="include-next-fee-toggle" checked>
-                            <span class="slider"></span>
+                            <span class="slider round"></span>
                         </label>
                     </div>
                 </div>
@@ -205,210 +128,205 @@
 
             <!-- Right Panel: Results Dashboard -->
             <section class="results-panel">
-                <!-- Hero Target Sell Price Card -->
+                <!-- Hero Required Target Sell Price Banner -->
                 <div class="hero-target-card">
                     <div class="hero-header">
-                        <span class="hero-tag">REQUIRED LIMIT SELL PRICE</span>
-                        <i class="fa-solid fa-bullseye arrow-icon text-orange"></i>
+                        <span class="hero-tag">REQUIRED TARGET SELL PRICE</span>
+                        <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
                     </div>
-                    <div class="hero-price" id="req-sell-val">₹102.37</div>
-                    <div class="hero-badge" id="req-sell-sub"><i class="fa-solid fa-arrow-trend-up"></i> Realized Sell: ₹101.87</div>
+                    <div class="hero-price" id="req-sell-val">₹102.32</div>
+                    <div class="hero-badge" id="req-sell-sub"><i class="fa-solid fa-arrow-trend-up"></i> +2.32 pts move needed (+2.32% price move) (includes +₹24.03 next trade fee)</div>
                 </div>
 
                 <!-- 4 Lumos Metric Cards Grid -->
                 <div class="metrics-grid">
-                    <div class="lumos-metric-card highlight">
+                    <div class="lumos-metric-card">
                         <div class="card-head">
                             <span class="card-tag">Real Move Needed</span>
-                            <i class="fa-solid fa-arrow-up-right-dots text-orange icon-corner"></i>
+                            <i class="fa-solid fa-arrow-trend-up text-green icon-corner"></i>
                         </div>
-                        <div class="card-val text-orange" id="real-move-val">+2.37 pts</div>
-                        <span class="trend-pill positive" id="real-move-sub">▲ +2.37% premium move</span>
+                        <div class="card-val text-orange" id="real-move-val">+2.32 pts</div>
+                        <span class="trend-pill positive" id="real-move-sub">▲ +2.32% premium move</span>
                     </div>
 
                     <div class="lumos-metric-card" id="net-pnl-card">
                         <div class="card-head">
-                            <span class="card-tag">Target Net PnL (After Tax)</span>
-                            <i class="fa-solid fa-chart-line text-green icon-corner"></i>
+                            <span class="card-tag">Actual Net Profit</span>
+                            <i class="fa-solid fa-wallet text-green icon-corner"></i>
                         </div>
-                        <div class="card-val text-green" id="net-pnl-val">+₹27.62</div>
-                        <span class="trend-pill positive" id="net-roi-val">+0.42% Net ROI</span>
+                        <div class="card-val text-green" id="net-pnl-val">+₹24.03</div>
+                        <span class="trend-pill positive" id="net-roi-val">▲ +0.37% Net ROI</span>
                     </div>
 
                     <div class="lumos-metric-card">
                         <div class="card-head">
-                            <span class="card-tag">Total Breakeven Price</span>
-                            <i class="fa-solid fa-scale-balanced text-amber icon-corner"></i>
+                            <span class="card-tag">Breakeven Sell Price</span>
+                            <i class="fa-solid fa-shield-halved text-muted icon-corner"></i>
                         </div>
-                        <div class="card-val text-amber" id="breakeven-sell-val">₹101.95</div>
-                        <span class="trend-pill warning" id="breakeven-sub">▲ +1.95 pts move needed</span>
+                        <div class="card-val text-dark" id="breakeven-sell-val">₹101.95</div>
+                        <span class="trend-pill neutral" id="breakeven-sub">+1.95 pts breakeven</span>
                     </div>
 
                     <div class="lumos-metric-card">
                         <div class="card-head">
-                            <span class="card-tag">Upstox Taxes & Fees</span>
-                            <i class="fa-solid fa-receipt text-purple icon-corner"></i>
+                            <span class="card-tag">Taxes & Slippage</span>
+                            <i class="fa-solid fa-receipt text-amber icon-corner"></i>
                         </div>
-                        <div class="card-val text-purple" id="total-deductions-val">₹61.50</div>
-                        <span class="trend-pill neutral" id="deductions-sub">Tax: ₹61.50 | Slip: ₹65.00</span>
+                        <div class="card-val text-amber" id="total-deductions-val">₹126.57</div>
+                        <span class="trend-pill warning" id="deductions-sub">Taxes: ₹61.57 + Slip: ₹65.00</span>
                     </div>
                 </div>
 
-                <!-- Carryover Re-entry Capital Card -->
+                <!-- Lumos Clean Capital Carryover Banner -->
                 <div class="carryover-card">
                     <div class="c-header">
-                        <span class="c-title"><i class="fa-solid fa-arrows-rotate text-orange"></i> Re-entry Capital Carryover Engine</span>
-                        <span class="c-sub">Next Trade Capital Model</span>
+                        <span class="c-title"><i class="fa-solid fa-wallet text-orange"></i> Next Trade Re-entry Capital</span>
+                        <span class="c-sub" id="next-trade-cost-val">Next Entry Fee: ₹24.03</span>
                     </div>
-                    <div class="c-grid">
-                        <div class="c-box">
-                            <span class="c-lbl" id="lbl-next-entry-fee">Next Entry Fee (Deducted)</span>
-                            <span class="c-val text-orange" id="next-trade-cost-val">₹27.64</span>
+                    <div class="sensitivity-grid">
+                        <div class="sensitivity-card active">
+                            <span class="sens-tag">Net Capital Ready</span>
+                            <span class="sens-trades text-green" id="next-capital-val">₹6,493.78</span>
+                            <span class="sens-rate">100% Reusable</span>
                         </div>
-                        <div class="c-box">
-                            <span class="c-lbl" id="lbl-capital-preserved">Net Capital for Next Trade</span>
-                            <span class="c-val text-green" id="next-capital-val">₹6,532.48</span>
+                        <div class="sensitivity-card">
+                            <span class="sens-tag">Next Entry Fee</span>
+                            <span class="sens-trades text-dark" id="lbl-next-entry-fee">₹24.03</span>
+                            <span class="sens-rate text-amber">Statutory Charges</span>
+                        </div>
+                        <div class="sensitivity-card">
+                            <span class="sens-tag">Capital Yield</span>
+                            <span class="sens-trades text-orange" id="lbl-capital-preserved">99.6%</span>
+                            <span class="sens-rate text-green">▲ Post-Tax Capital</span>
                         </div>
                     </div>
                 </div>
             </section>
         </main>
 
-        <!-- MODULE 2: COMPOUNDING VELOCITY DASHBOARD -->
+        <!-- VIEW 2: COMPOUNDING VELOCITY DASHBOARD -->
         <main id="view-compounding" class="dashboard-grid tab-view hidden">
             <!-- Left Panel: Compounding Inputs -->
             <section class="card input-panel">
                 <div class="panel-header">
-                    <h2>Compounding Inputs</h2>
-                    <span class="sub-date">Velocity Model</span>
+                    <h2>Compounding Setup</h2>
+                    <span class="sub-date">Velocity Engine</span>
                 </div>
 
-                <!-- Initial & Target Final Capital -->
+                <!-- Initial Capital Input -->
                 <div class="input-group">
-                    <div class="grid-2">
-                        <div>
-                            <label for="comp-initial-cap" class="input-label">Initial Capital (₹)</label>
-                            <div class="input-field">
-                                <span class="symbol">₹</span>
-                                <input type="number" id="comp-initial-cap" value="10000" min="100" step="1000" inputmode="decimal">
-                            </div>
-                        </div>
-                        <div>
-                            <label for="comp-final-cap" class="input-label">Target Final Capital (₹)</label>
-                            <div class="input-field">
-                                <span class="symbol">₹</span>
-                                <input type="number" id="comp-final-cap" value="100000" min="100" step="5000" inputmode="decimal">
-                            </div>
-                        </div>
+                    <label for="comp-initial-cap" class="input-label">Initial Capital (₹)</label>
+                    <div class="input-field">
+                        <span class="symbol">₹</span>
+                        <input type="number" id="comp-initial-cap" value="10000" min="0" step="1000" inputmode="decimal">
                     </div>
                 </div>
 
-                <!-- Target Profit % / Trade & Deployed Capital % -->
+                <!-- Target Capital Input -->
                 <div class="input-group">
-                    <div class="grid-2">
-                        <div>
-                            <label for="comp-return-pct" class="input-label">Profit / Trade (%)</label>
-                            <div class="input-field">
-                                <input type="number" id="comp-return-pct" value="1.0" min="0.1" step="0.5" inputmode="decimal">
-                                <span class="unit">%</span>
-                            </div>
-                        </div>
-                        <div>
-                            <label for="comp-deploy-pct" class="input-label">Capital Deployed / Trade (%)</label>
-                            <div class="input-field">
-                                <input type="number" id="comp-deploy-pct" value="50.0" min="1.0" max="100.0" step="5.0" inputmode="decimal">
-                                <span class="unit">%</span>
-                            </div>
-                        </div>
-                    </div>
-                    <span class="input-hint" id="comp-effective-rate">Effective Compound Rate: 0.5000% / trade</span>
-                </div>
-
-                <!-- Capital Deployed Preset Chips -->
-                <div class="input-group">
-                    <label class="input-label">Capital Deployed Presets</label>
-                    <div class="chip-grid grid-4">
-                        <button class="pct-chip comp-deploy-chip" data-deploy="10.0">10%</button>
-                        <button class="pct-chip comp-deploy-chip" data-deploy="25.0">25%</button>
-                        <button class="pct-chip comp-deploy-chip active" data-deploy="50.0">50%</button>
-                        <button class="pct-chip comp-deploy-chip" data-deploy="75.0">75%</button>
-                        <button class="pct-chip comp-deploy-chip" data-deploy="100.0">100%</button>
+                    <label for="comp-final-cap" class="input-label">Target Capital (₹)</label>
+                    <div class="input-field">
+                        <span class="symbol">₹</span>
+                        <input type="number" id="comp-final-cap" value="100000" min="0" step="10000" inputmode="decimal">
                     </div>
                 </div>
 
-                <!-- Trading Days / Year & Time Horizon (Years) -->
+                <!-- Net Return % per Trade Input -->
+                <div class="input-group">
+                    <label for="comp-return-pct" class="input-label">Net Return / Trade (%)</label>
+                    <div class="input-field">
+                        <input type="number" id="comp-return-pct" value="1.0" min="0" step="0.1" inputmode="decimal">
+                        <span class="suffix">%</span>
+                    </div>
+                    <div class="sub-info">Effective compound rate per trade: <strong id="comp-effective-rate">1.000%</strong></div>
+                </div>
+
+                <!-- Capital Deployed % Input + Preset Chips -->
+                <div class="input-group">
+                    <label for="comp-deploy-pct" class="input-label">Capital Deployed %</label>
+                    <div class="input-field">
+                        <input type="number" id="comp-deploy-pct" value="50.0" min="0" max="100" step="5" inputmode="decimal">
+                        <span class="suffix">%</span>
+                    </div>
+                    <div class="deploy-chips mt-chip">
+                        <button type="button" class="chip comp-deploy-chip" data-deploy="10">10%</button>
+                        <button type="button" class="chip comp-deploy-chip" data-deploy="25">25%</button>
+                        <button type="button" class="chip comp-deploy-chip active" data-deploy="50">50%</button>
+                        <button type="button" class="chip comp-deploy-chip" data-deploy="75">75%</button>
+                        <button type="button" class="chip comp-deploy-chip" data-deploy="100">100%</button>
+                    </div>
+                </div>
+
+                <!-- Trading Days / Year Input -->
+                <div class="input-group">
+                    <label for="comp-trading-days" class="input-label">Trading Days / Year</label>
+                    <div class="input-field">
+                        <input type="number" id="comp-trading-days" value="200" min="0" max="240" step="5" inputmode="numeric">
+                    </div>
+                </div>
+
+                <!-- Time Horizon (Years) Input -->
                 <div class="input-group mb-0">
-                    <div class="grid-2">
-                        <div>
-                            <label for="comp-trading-days" class="input-label">Trading Days / Year</label>
-                            <div class="input-field">
-                                <input type="number" id="comp-trading-days" value="200" min="1" max="240" step="10" inputmode="numeric">
-                            </div>
-                        </div>
-                        <div>
-                            <label for="comp-years" class="input-label">Time Horizon (Years)</label>
-                            <div class="input-field">
-                                <input type="number" id="comp-years" value="1.0" min="0.1" max="50.0" step="0.5" inputmode="decimal">
-                                <span class="unit">Yrs</span>
-                            </div>
-                        </div>
+                    <label for="comp-years" class="input-label">Time Horizon (Years)</label>
+                    <div class="input-field">
+                        <input type="number" id="comp-years" value="1.0" min="0" max="50" step="0.1" inputmode="decimal">
                     </div>
-                    <span class="input-hint" id="comp-total-days">Total Trading Horizon: 200 trading days</span>
+                    <div class="sub-info">Total available trading days: <strong id="comp-total-days">200 days</strong></div>
                 </div>
             </section>
 
             <!-- Right Panel: Compounding Results Dashboard -->
             <section class="results-panel">
-                <!-- Hero Total Trades Card -->
+                <!-- Hero Compounding Trades Card -->
                 <div class="hero-target-card">
                     <div class="hero-header">
-                        <span class="hero-tag">TOTAL TRADES REQUIRED FOR TARGET</span>
-                        <i class="fa-solid fa-route arrow-icon text-orange"></i>
+                        <span class="hero-tag">TOTAL TRADES REQUIRED</span>
+                        <i class="fa-solid fa-chart-line arrow-icon text-orange"></i>
                     </div>
-                    <div class="hero-price" id="comp-hero-trades">462 Trades</div>
-                    <div class="hero-badge" id="comp-hero-sub"><i class="fa-solid fa-bolt"></i> 461.67 exact trades @ 0.5000% effective rate</div>
+                    <div class="hero-price" id="comp-hero-trades">232 Trades</div>
+                    <div class="hero-badge" id="comp-hero-sub"><i class="fa-solid fa-bolt"></i> Needs 1.16 trades / day across 200 trading days</div>
                 </div>
 
                 <!-- 4 Lumos Metric Cards Grid -->
                 <div class="metrics-grid">
-                    <div class="lumos-metric-card highlight">
+                    <div class="lumos-metric-card">
                         <div class="card-head">
-                            <span class="card-tag">Required Trades / Day</span>
-                            <i class="fa-solid fa-calendar-day text-orange icon-corner"></i>
+                            <span class="card-tag">Trades / Day</span>
+                            <i class="fa-solid fa-calendar-day text-green icon-corner"></i>
                         </div>
-                        <div class="card-val text-orange" id="comp-val-per-day">2.31 / day</div>
-                        <span class="trend-pill positive" id="comp-sub-per-day">Over 200 trading days</span>
+                        <div class="card-val text-orange" id="comp-val-per-day">1.85 / day</div>
+                        <span class="trend-pill positive" id="comp-sub-per-day">▲ 8.90 trades / week</span>
                     </div>
 
                     <div class="lumos-metric-card">
                         <div class="card-head">
-                            <span class="card-tag">Required Trades / Month</span>
-                            <i class="fa-solid fa-calendar-days text-green icon-corner"></i>
+                            <span class="card-tag">Trades / Month</span>
+                            <i class="fa-solid fa-calendar-days text-blue icon-corner"></i>
                         </div>
-                        <div class="card-val text-green" id="comp-val-per-month">38.47 / mo</div>
-                        <span class="trend-pill positive" id="comp-sub-per-month">~8.88 trades / week</span>
+                        <div class="card-val text-dark" id="comp-val-per-month">38.57 / mo</div>
+                        <span class="trend-pill neutral" id="comp-sub-per-month">Across 12 months</span>
                     </div>
 
                     <div class="lumos-metric-card">
                         <div class="card-head">
-                            <span class="card-tag">Target Capital Multiplier</span>
-                            <i class="fa-solid fa-crosshairs text-amber icon-corner"></i>
+                            <span class="card-tag">Capital Multiplier</span>
+                            <i class="fa-solid fa-arrow-trend-up text-green icon-corner"></i>
                         </div>
-                        <div class="card-val text-amber" id="comp-val-multiplier">10.00x</div>
-                        <span class="trend-pill warning" id="comp-sub-multiplier">₹10,000 ➔ ₹100,000</span>
+                        <div class="card-val text-green" id="comp-val-multiplier">100.0x</div>
+                        <span class="trend-pill positive" id="comp-sub-multiplier">▲ +9,900% Growth</span>
                     </div>
 
                     <div class="lumos-metric-card">
                         <div class="card-head">
-                            <span class="card-tag">Total Net Growth Profit</span>
-                            <i class="fa-solid fa-sack-dollar text-purple icon-corner"></i>
+                            <span class="card-tag">Total Net Profit</span>
+                            <i class="fa-solid fa-sack-dollar text-amber icon-corner"></i>
                         </div>
-                        <div class="card-val text-purple" id="comp-val-net-profit">+₹90,000.00</div>
-                        <span class="trend-pill neutral" id="comp-sub-net-profit">+900.00% Net Return</span>
+                        <div class="card-val text-amber" id="comp-val-net-profit">+₹99,000</div>
+                        <span class="trend-pill warning" id="comp-sub-net-profit">From ₹1,000 capital</span>
                     </div>
                 </div>
 
-                <!-- Sensitivity Allocation Breakdown Table Card -->
+                <!-- Capital Deployment Sensitivity Comparison Banner -->
                 <div class="carryover-card">
                     <div class="c-header">
                         <span class="c-title"><i class="fa-solid fa-sliders text-orange"></i> Trades Comparison by Capital Deployed %</span>
@@ -478,6 +396,6 @@
         </div>
     </div>
 
-    <script src="app.js?v=31.0"></script>
+    <script src="app.js?v=29.0"></script>
 </body>
 </html>
