@@ -490,49 +490,101 @@
     }
 
     /* --- MODAL DIALOG ON MOBILE --- */
+    .hide-mobile {
+        display: none !important;
+    }
+
     .modal-overlay {
-        padding: 0.75rem !important;
+        padding: 0.65rem !important;
     }
 
     .modal-card {
-        padding: 1.15rem 1.0rem !important;
+        padding: 1.1rem 0.85rem !important;
         border-radius: var(--radius-lg) !important;
         max-height: 90vh !important;
-        gap: 0.85rem !important;
+        gap: 0.75rem !important;
+        overflow-x: hidden !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .modal-body {
+        width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
     }
 
     .modal-header h3 {
-        font-size: 1.1rem !important;
+        font-size: 1.05rem !important;
     }
 
     .modal-close {
-        width: 34px !important;
-        height: 34px !important;
-        font-size: 1.2rem !important;
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 1.15rem !important;
     }
 
     .tariff-table {
         display: table !important;
         width: 100% !important;
-        overflow-x: visible !important;
-        font-size: 0.78rem !important;
+        max-width: 100% !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        border: 1px solid rgba(20, 23, 31, 0.08) !important;
+        border-radius: 12px !important;
+        overflow: hidden !important;
+        font-size: 0.76rem !important;
         table-layout: fixed !important;
+        box-sizing: border-box !important;
+        margin-top: 0.15rem !important;
     }
 
-    /* Hide the 3rd column (Calculation Logic) on mobile — too wide */
+    /* Hide the 3rd column (Calculation Logic) on mobile */
     .tariff-table th:nth-child(3),
     .tariff-table td:nth-child(3) {
         display: none !important;
     }
 
     .tariff-table th, .tariff-table td {
-        padding: 0.5rem 0.55rem !important;
+        padding: 0.52rem 0.6rem !important;
+        border-bottom: 1px solid rgba(20, 23, 31, 0.06) !important;
+        vertical-align: middle !important;
         word-wrap: break-word !important;
     }
 
+    .tariff-table tr:last-child td {
+        border-bottom: none !important;
+    }
+
+    .tariff-table th:first-child,
+    .tariff-table td:first-child {
+        width: 50% !important;
+        text-align: left !important;
+    }
+
+    .tariff-table th:nth-child(2),
+    .tariff-table td:nth-child(2) {
+        width: 50% !important;
+        text-align: right !important;
+    }
+
+    .tariff-table th {
+        white-space: normal !important;
+        font-size: 0.72rem !important;
+        letter-spacing: 0.03em !important;
+        line-height: 1.25 !important;
+    }
+
+    .tariff-table td:nth-child(2) .badge-tag {
+        font-size: 0.74rem !important;
+        padding: 0.24rem 0.5rem !important;
+        white-space: nowrap !important;
+        display: inline-block !important;
+    }
+
     .modal-disclaimer {
-        font-size: 0.76rem !important;
-        padding: 0.75rem 0.85rem !important;
+        font-size: 0.74rem !important;
+        padding: 0.7rem 0.8rem !important;
         line-height: 1.4 !important;
     }
 }
@@ -602,5 +654,15 @@
     .chip, .pct-chip {
         padding: 0.42rem 0.1rem !important;
         font-size: 0.72rem !important;
+    }
+
+    .tariff-table th, 
+    .tariff-table td {
+        padding: 0.45rem 0.42rem !important;
+    }
+
+    .tariff-table td:nth-child(2) .badge-tag {
+        font-size: 0.68rem !important;
+        padding: 0.2rem 0.38rem !important;
     }
 }
