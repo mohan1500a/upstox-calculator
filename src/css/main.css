@@ -9,12 +9,12 @@
 /* Base Elements, Resets & Global Canvas */
 @import './base.css';
 
-/* Architectural Layout Grid & Media Queries */
-@import './layout.css';
-
 /* Modular Component Styles */
 @import './components/header.css';
 @import './components/forms.css';
 @import './components/cards.css';
 @import './components/sensitivity.css';
 @import './components/modal.css';
+
+/* Architectural Layout Grid & Media Queries (Loaded last for cascade precedence) */
+@import './layout.css';
