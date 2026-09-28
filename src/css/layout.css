@@ -482,51 +482,11 @@
         gap: 0.5rem !important;
     }
 
-    /* 5th card (100% Deployed) spans 2 columns with unified horizontal symmetry */
+    /* 5th card (100% Deployed) has exact same size, vertical layout, and styling as all other cards */
     #comp-sensitivity-container .sensitivity-card:last-child {
         grid-column: 1 / -1 !important;
-        display: grid !important;
-        grid-template-columns: 1fr auto !important;
-        grid-template-rows: auto auto !important;
-        align-items: center !important;
-        padding: 0.75rem 0.95rem !important;
-        row-gap: 0.2rem !important;
-        column-gap: 0.75rem !important;
-    }
-
-    /* Row 1: Contextual Labels (Left: Allocation Tag, Right: Timeline) */
-    #comp-sensitivity-container .sensitivity-card:last-child .sens-tag {
-        grid-column: 1 / 2 !important;
-        grid-row: 1 / 2 !important;
-        margin: 0 !important;
-    }
-
-    #comp-sensitivity-container .sensitivity-card:last-child .sens-days {
-        grid-column: 2 / 3 !important;
-        grid-row: 1 / 2 !important;
-        text-align: right !important;
-        font-size: 0.74rem !important;
-        color: var(--text-muted) !important;
-        margin: 0 !important;
-    }
-
-    /* Row 2: Headline Values (Left: Total Trades, Right: Daily Velocity Pace) */
-    #comp-sensitivity-container .sensitivity-card:last-child .sens-trades {
-        grid-column: 1 / 2 !important;
-        grid-row: 2 / 3 !important;
-        font-size: 1.30rem !important;
-        line-height: 1.1 !important;
-        margin: 0 !important;
-    }
-
-    #comp-sensitivity-container .sensitivity-card:last-child .sens-rate {
-        grid-column: 2 / 3 !important;
-        grid-row: 2 / 3 !important;
-        text-align: right !important;
-        justify-content: flex-end !important;
-        font-size: 1.05rem !important;
-        font-weight: 700 !important;
-        margin: 0 !important;
+        width: calc((100% - 0.5rem) / 2) !important;
+        justify-self: center !important;
     }
 
     /* --- MODAL DIALOG ON MOBILE --- */
@@ -642,13 +602,5 @@
     .chip, .pct-chip {
         padding: 0.42rem 0.1rem !important;
         font-size: 0.72rem !important;
-    }
-
-    #comp-sensitivity-container .sensitivity-card:last-child .sens-trades {
-        font-size: 1.18rem !important;
-    }
-
-    #comp-sensitivity-container .sensitivity-card:last-child .sens-rate {
-        font-size: 0.95rem !important;
     }
 }
