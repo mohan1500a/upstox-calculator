@@ -1,0 +1,262 @@
+/* ==========================================================================
+   Cards, Metric Panels & 8K High-Precision Numeral Micro-Alignment Tokens
+   ========================================================================== */
+
+/* Standard Porcelain Card Surface with Inset Specular Bevel */
+.card {
+    background: linear-gradient(180deg, #ffffff 0%, #faf8f2 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: clamp(1.15rem, 1.6vh, 1.55rem) clamp(1.3rem, 1.5vw, 1.75rem);
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-card);
+    min-height: 0;
+    position: relative;
+}
+
+/* RESULTS PANEL */
+.results-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: clamp(0.75rem, 1.2vh, 1.1rem);
+    height: 100%;
+}
+
+/* Hero Required Target Sell Price Card (Centerpiece 8K Porcelain + Ambient Halo) */
+.hero-target-card {
+    background: radial-gradient(circle at 92% 20%, rgba(255, 85, 0, 0.06) 0%, transparent 60%), linear-gradient(180deg, #ffffff 0%, #faf8f2 100%);
+    border: 1px solid rgba(255, 85, 0, 0.22);
+    border-radius: var(--radius-xl);
+    padding: clamp(1.15rem, 1.6vh, 1.55rem) clamp(1.4rem, 1.8vw, 2.2rem);
+    box-shadow: var(--shadow-hero);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto 1fr;
+    row-gap: 0.5rem;
+    column-gap: 1.5rem;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-header {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.hero-tag {
+    font-size: clamp(0.85rem, 0.9vw, 0.96rem);
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+}
+
+.arrow-icon {
+    font-size: 1.15rem;
+    color: var(--accent-orange);
+}
+
+.hero-price {
+    grid-column: 1 / 2;
+    font-family: var(--font-heading);
+    font-size: clamp(3.0rem, 3.5vw, 4.2rem);
+    font-weight: 800;
+    color: var(--text-main);
+    line-height: 1.0;
+    margin: 0.05rem 0;
+    letter-spacing: -0.03em;
+    display: inline-flex;
+    align-items: baseline;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.hero-price .val-currency {
+    font-size: 0.82em;
+    margin-right: 0.08em;
+}
+
+.hero-price .val-unit {
+    font-size: 0.42em;
+    margin-left: 0.35ch;
+    opacity: 0.75;
+}
+
+.hero-badge {
+    grid-column: 2 / 3;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    border: 1px solid rgba(22, 163, 74, 0.28);
+    color: var(--color-green);
+    font-size: clamp(0.92rem, 1vw, 1.12rem);
+    font-weight: 700;
+    padding: 0.6rem 1.25rem;
+    border-radius: 20px;
+    width: fit-content;
+    box-shadow: 0 4px 14px rgba(22, 101, 52, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    font-variant-numeric: tabular-nums;
+}
+
+/* 4 Lumos Metric Cards Grid (Porcelain Elevating Cards) */
+.metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: clamp(0.75rem, 1.1vw, 1.25rem);
+    flex: 1;
+}
+
+.lumos-metric-card {
+    background: linear-gradient(180deg, #ffffff 0%, #faf8f2 100%);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-xl);
+    padding: clamp(1.15rem, 1.6vh, 1.55rem) clamp(1.35rem, 1.7vw, 2.0rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: var(--shadow-card);
+    min-height: 135px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+}
+
+.lumos-metric-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(17, 24, 39, 0.14);
+    box-shadow: var(--shadow-card-hover);
+}
+
+.card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-tag {
+    font-size: clamp(0.86rem, 0.92vw, 1.0rem);
+    font-weight: 800;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.icon-corner {
+    font-size: 1.15rem;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f7f5ed 0%, #ede8dc 100%);
+    border: 1px solid rgba(17, 24, 39, 0.06);
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.card-val {
+    font-family: var(--font-heading);
+    font-size: clamp(2.4rem, 2.75vw, 3.2rem);
+    font-weight: 800;
+    margin: 0.25rem 0;
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    display: inline-flex;
+    align-items: baseline;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+/* ==========================================================================
+   8K High-Precision Numeral Micro-Alignment Tokens
+   ========================================================================== */
+
+/* Mathematical Operator (+ / -) Dead-Center Numeral Alignment */
+.val-sign {
+    font-size: 0.88em;
+    font-weight: 800;
+    display: inline-block;
+    line-height: 1;
+    transform: translateY(-0.07em);
+    margin-right: 0.08em;
+    user-select: none;
+    color: inherit;
+}
+
+/* Indian Rupee Symbol (₹) Baseline & Cap-Height Proportional Scaling */
+.val-currency {
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 0.84em;
+    font-weight: 700;
+    display: inline-block;
+    line-height: 1;
+    transform: translateY(-0.02em);
+    margin-right: 0.06em;
+    user-select: none;
+    color: inherit;
+}
+
+/* High-Precision Tabular Numerals (Strict Height & Width Uniformity) */
+.val-num {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1, 'cv11' 1;
+    letter-spacing: -0.025em;
+    line-height: 1;
+    display: inline-block;
+    color: inherit;
+}
+
+/* Secondary Unit Suffix (pts, / day, / mo, x, Trades) with Optical Hierarchy */
+.val-unit {
+    font-size: 0.44em;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    margin-left: 0.32ch;
+    text-transform: none;
+    display: inline-block;
+    line-height: 1;
+    transform: translateY(-0.06em);
+    color: inherit;
+    opacity: 0.75;
+}
+
+/* Trend Indicator Badges */
+.trend-pill {
+    font-size: clamp(0.88rem, 0.94vw, 1.02rem);
+    font-weight: 700;
+    padding: 0.45rem 1.05rem;
+    border-radius: 16px;
+    display: inline-block;
+    width: fit-content;
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.trend-pill.positive {
+    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    color: var(--color-green);
+    border: 1px solid rgba(22, 163, 74, 0.25);
+}
+
+.trend-pill.negative {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: var(--color-red);
+    border: 1px solid rgba(220, 38, 38, 0.25);
+}
+
+.trend-pill.neutral {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: var(--color-blue);
+    border: 1px solid rgba(29, 78, 216, 0.22);
+}
+
+.trend-pill.warning {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: var(--color-amber);
+    border: 1px solid rgba(180, 83, 9, 0.25);
+}

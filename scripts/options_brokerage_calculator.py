@@ -10,10 +10,8 @@ Author: Antigravity AI Pair Programmer
 Version: 31.0
 """
 
-import sys
 import math
 from dataclasses import dataclass
-from typing import Dict, Any
 
 MAX_LOT_CAPS = {
     "NIFTY": {"lot_size": 65, "max_lots": 27, "max_qty": 1755},
@@ -84,15 +82,29 @@ class CompoundingVelocityCalculation:
     total_trades_needed: int
     exact_trades_needed: float
     total_trading_days: float
-    trades_per_day: float
-    trades_per_month: float
-    trades_per_week: float
+    daily_trades: int
+    days_needed: int
+    monthly_trades: int
+    months_needed: int
+    weekly_trades: int
     total_net_profit: float
     growth_multiplier: float
+    trades_per_day: float = 0.0
+    trades_per_month: float = 0.0
+    trades_per_week: float = 0.0
+
+
+def round_to_tick(val: float, tick: float = 0.05, mode: str = "ceil") -> float:
+    """Rounds price to Indian Exchange (NSE/BSE) tick size of ₹0.05."""
+    factor = round(1.0 / tick)
+    if mode == "ceil":
+        return math.ceil(val * factor - 1e-9) / factor
+    elif mode == "floor":
+        return math.floor(val * factor + 1e-9) / factor
+    return round(val * factor) / factor
 
 
 def calculate_option_target(
-    quantity: int = 65,
     buy_price: float = 100.0,
     target_profit_pct: float = 0.0,
     slippage: float = 0.50,
@@ -114,9 +126,9 @@ def calculate_option_target(
     r_buy = p_buy + s_slip
     buy_turnover = r_buy * qty
 
-    # Dynamic Next Trade Buy Entry Fee:
-    next_brok = 20.0
-    next_ex = 0.000495 * buy_turnover
+    # Dynamic Next Trade Buy Entry Fee (Official Upstox Verified Rates):
+    next_brok = 30.0
+    next_ex = 0.000355 * buy_turnover
     next_sebi = 0.000001 * buy_turnover
     next_stamp = 0.00003 * buy_turnover
     next_gst = 0.18 * (next_brok + next_ex + next_sebi)
@@ -126,20 +138,25 @@ def calculate_option_target(
     if include_next_trade_fee:
         target_net_pnl += dynamic_next_entry_fee
 
-    # Upstox Linear Tax Coefficients (Options)
-    c_sell = 0.001 + (1.18 * 0.000496)
-    fixed_k_buy = (40.0 * 1.18) + (0.00003 * buy_turnover) + (1.18 * 0.000496 * buy_turnover)
+    # Upstox Linear Tax Coefficients (Official Options Rules: STT=0.15%, Ex=0.0355%, SEBI=0.0001%)
+    fee_rate = 0.000355 + 0.000001
+    c_sell = 0.0015 + (1.18 * fee_rate)
+    fixed_k_buy = (60.0 * 1.18) + (0.00003 * buy_turnover) + (1.18 * fee_rate * buy_turnover)
 
     denominator = qty * (1.0 - c_sell)
-    r_sell = (target_net_pnl + buy_turnover + fixed_k_buy) / denominator if denominator > 0 else r_buy
-    p_sell = r_sell + s_slip
+    r_sell_raw = (target_net_pnl + buy_turnover + fixed_k_buy) / denominator if denominator > 0 else r_buy
+    p_sell_raw = r_sell_raw + s_slip
+
+    # Snap to Indian Exchange ₹0.05 Tick Size (Ceil ensures target profit is met or exceeded)
+    p_sell = round_to_tick(p_sell_raw, 0.05, "ceil")
+    r_sell = p_sell - s_slip
 
     sell_turnover = r_sell * qty
     total_turnover = buy_turnover + sell_turnover
 
-    brokerage = 40.0
-    stt = 0.001 * sell_turnover
-    exchange_charges = 0.000495 * total_turnover
+    brokerage = 60.0
+    stt = 0.0015 * sell_turnover
+    exchange_charges = 0.000355 * total_turnover
     sebi_charges = 0.000001 * total_turnover
     stamp_duty = 0.00003 * buy_turnover
     gst = 0.18 * (brokerage + exchange_charges + sebi_charges)
@@ -155,12 +172,13 @@ def calculate_option_target(
     points_move_needed = p_sell - p_buy
     pct_move_needed = (points_move_needed / p_buy) * 100.0 if p_buy > 0 else 0.0
     charges_breakeven_pts = total_taxes / qty
-    total_breakeven_pts = charges_breakeven_pts + total_slippage_pts
-    breakeven_sell_price = p_buy + total_breakeven_pts
+    continuous_breakeven = p_buy + charges_breakeven_pts + total_slippage_pts
+    breakeven_sell_price = round_to_tick(continuous_breakeven, 0.05, "ceil")
+    total_breakeven_pts = breakeven_sell_price - p_buy
 
     next_proceeds = max(0.0, sell_turnover - total_taxes)
     actual_next_stamp = 0.00003 * next_proceeds
-    actual_next_entry_cost = 20.0 + (0.18 * 20.0) + (1.18 * 0.000496 * next_proceeds) + actual_next_stamp
+    actual_next_entry_cost = 30.0 + (0.18 * 30.0) + (1.18 * fee_rate * next_proceeds) + actual_next_stamp
     next_trade_net_capital = max(0.0, next_proceeds - actual_next_entry_cost)
 
     return OptionTradeCalculation(
@@ -223,9 +241,20 @@ def calculate_compounding_velocity(
     total_trades = math.ceil(exact_trades)
     total_days = days_year * years
 
-    trades_per_day = exact_trades / total_days if total_days > 0 else 0.0
-    trades_per_month = exact_trades / (years * 12.0) if years > 0 else 0.0
-    trades_per_week = exact_trades / (years * 52.0) if years > 0 else 0.0
+    # Natural Number Discrete Velocity Architecture:
+    # Round up to whole trades/day to guarantee completion within total_days.
+    # Compute exact trading days needed: days_needed = ceil(total_trades / daily_trades).
+    daily_trades = max(1, math.ceil(total_trades / total_days)) if (total_days > 0 and total_trades > 0) else 0
+    days_needed = math.ceil(total_trades / daily_trades) if daily_trades > 0 else 0
+
+    monthly_trades = max(1, math.ceil(total_trades / (years * 12.0))) if (years > 0 and total_trades > 0) else 0
+    months_needed = math.ceil(total_trades / monthly_trades) if monthly_trades > 0 else 0
+
+    weekly_trades = max(1, math.ceil(total_trades / (years * 52.0))) if (years > 0 and total_trades > 0) else 0
+
+    trades_per_day = round(total_trades / total_days, 2) if total_days > 0 else 0.0
+    trades_per_month = round(total_trades / (years * 12.0), 2) if years > 0 else 0.0
+    trades_per_week = round(total_trades / (years * 52.0), 2) if years > 0 else 0.0
 
     total_net_profit = c_final - c_init
     growth_multiplier = c_final / c_init
@@ -241,11 +270,16 @@ def calculate_compounding_velocity(
         total_trades_needed=total_trades,
         exact_trades_needed=round(exact_trades, 2),
         total_trading_days=round(total_days, 1),
-        trades_per_day=round(trades_per_day, 2),
-        trades_per_month=round(trades_per_month, 2),
-        trades_per_week=round(trades_per_week, 2),
+        daily_trades=daily_trades,
+        days_needed=days_needed,
+        monthly_trades=monthly_trades,
+        months_needed=months_needed,
+        weekly_trades=weekly_trades,
         total_net_profit=round(total_net_profit, 2),
-        growth_multiplier=round(growth_multiplier, 2)
+        growth_multiplier=round(growth_multiplier, 2),
+        trades_per_day=trades_per_day,
+        trades_per_month=trades_per_month,
+        trades_per_week=trades_per_week
     )
 
 
@@ -260,11 +294,12 @@ def print_suite_report(opt: OptionTradeCalculation, comp: CompoundingVelocityCal
     print(f"{BOLD}{CYAN}  UPSTOX QUANTITATIVE ENGINE SUITE (2026 OFFICIAL RULES){RESET}")
     print("=" * 68)
 
-    print(f"\n{BOLD}1. OPTIONS TARGET SELL PRICE ENGINE{RESET}")
+    print(f"\n{BOLD}1. OPTIONS TARGET SELL PRICE ENGINE (NSE/BSE ₹0.05 TICK SIZE){RESET}")
     print(f"  • Index & Quantity   : {opt.index_name} ({opt.num_lots}/{opt.max_lots_allowed} Lots = {opt.quantity} Qty)")
     print(f"  • Buy Price (Realized): ₹{opt.target_buy_price:.2f} (Realized +Slip: ₹{opt.realized_buy_price:.2f})")
     print(f"  • Target Limit Sell  : {BOLD}{GREEN}₹{opt.required_target_sell_price:.2f}{RESET} (Realized Sell: ₹{opt.realized_sell_price:.2f})")
     print(f"  • Real Move Needed   : {BOLD}{YELLOW}+{opt.points_move_needed:.2f} pts (+{opt.pct_move_needed:.2f}%){RESET}")
+    print(f"  • Breakeven Price    : ₹{opt.breakeven_sell_price:.2f} (+{opt.total_breakeven_pts:.2f} pts)")
     print(f"  • Net Realized Profit: ₹{opt.net_pnl_realized:,.2f} ({opt.actual_net_roi_pct:.2f}% Net ROI)")
     print(f"  • Total Taxes & Slip : ₹{opt.total_taxes_and_charges:.2f} Tax | ₹{opt.total_slippage_cost:.2f} Slip")
     print(f"  • Next Trade Capital : ₹{opt.next_trade_net_capital:,.2f} (Next Entry Cost: ₹{opt.next_trade_entry_cost:.2f})")
@@ -274,7 +309,8 @@ def print_suite_report(opt: OptionTradeCalculation, comp: CompoundingVelocityCal
     print(f"  • Profit / Deploy %  : +{comp.return_pct_per_trade:.2f}% Return @ {comp.deploy_pct_per_trade:.1f}% Capital Deployed")
     print(f"  • Effective Rate     : {comp.effective_rate_per_trade:.4f}% / trade")
     print(f"  • Total Trades Needed: {BOLD}{GREEN}{comp.total_trades_needed} trades{RESET} (exact: {comp.exact_trades_needed:.2f})")
-    print(f"  • Required Velocity  : {BOLD}{CYAN}{comp.trades_per_day:.2f} trades/day{RESET} | {comp.trades_per_month:.2f} trades/month")
+    print(f"  • Required Velocity  : {BOLD}{CYAN}{comp.daily_trades} trades/day{RESET} (finishes in {comp.days_needed} days, beats {comp.total_trading_days:.0f}-day target)")
+    print(f"  • Monthly Velocity   : {comp.monthly_trades} trades/month (goal reached in {comp.months_needed} months)")
     print("=" * 68 + "\n")
 
 
@@ -282,3 +318,4 @@ if __name__ == "__main__":
     opt_res = calculate_option_target()
     comp_res = calculate_compounding_velocity()
     print_suite_report(opt_res, comp_res)
+

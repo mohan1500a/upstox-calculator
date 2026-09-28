@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css?v=29.0">
+    <link rel="stylesheet" href="src/css/main.css?v=40.0">
 </head>
 <body>
     <div class="viewport-app">
@@ -115,7 +115,7 @@
                 <div class="input-group toggle-group mb-0">
                     <div class="toggle-container">
                         <div class="toggle-text">
-                            <span class="toggle-title" id="lbl-toggle-title">Include Next Trade Fee (+₹24.03)</span>
+                            <span class="toggle-title" id="lbl-toggle-title">Include Next Trade Fee (+₹38.36)</span>
                             <span class="toggle-sub">Dynamic buy fee based on input params</span>
                         </div>
                         <label class="switch">
@@ -134,8 +134,8 @@
                         <span class="hero-tag">REQUIRED TARGET SELL PRICE</span>
                         <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
                     </div>
-                    <div class="hero-price" id="req-sell-val">₹102.32</div>
-                    <div class="hero-badge" id="req-sell-sub"><i class="fa-solid fa-arrow-trend-up"></i> +2.32 pts move needed (+2.32% price move) (includes +₹24.03 next trade fee)</div>
+                    <div class="hero-price" id="req-sell-val"><span class="val-currency">₹</span><span class="val-num">102.95</span></div>
+                    <div class="hero-badge" id="req-sell-sub"><i class="fa-solid fa-arrow-trend-up"></i> +2.95 pts move needed (+2.95% price move) (includes +₹38.34 next trade fee)</div>
                 </div>
 
                 <!-- 4 Lumos Metric Cards Grid -->
@@ -145,8 +145,8 @@
                             <span class="card-tag">Real Move Needed</span>
                             <i class="fa-solid fa-arrow-trend-up text-green icon-corner"></i>
                         </div>
-                        <div class="card-val text-orange" id="real-move-val">+2.32 pts</div>
-                        <span class="trend-pill positive" id="real-move-sub">▲ +2.32% premium move</span>
+                        <div class="card-val text-orange" id="real-move-val"><span class="val-sign">+</span><span class="val-num">2.95</span><span class="val-unit">pts</span></div>
+                        <span class="trend-pill positive" id="real-move-sub">▲ +2.95% premium move</span>
                     </div>
 
                     <div class="lumos-metric-card" id="net-pnl-card">
@@ -154,8 +154,8 @@
                             <span class="card-tag">Actual Net Profit</span>
                             <i class="fa-solid fa-wallet text-green icon-corner"></i>
                         </div>
-                        <div class="card-val text-green" id="net-pnl-val">+₹24.03</div>
-                        <span class="trend-pill positive" id="net-roi-val">▲ +0.37% Net ROI</span>
+                        <div class="card-val text-green" id="net-pnl-val"><span class="val-sign">+</span><span class="val-currency">₹</span><span class="val-num">40.22</span></div>
+                        <span class="trend-pill positive" id="net-roi-val">▲ +0.62% Net ROI</span>
                     </div>
 
                     <div class="lumos-metric-card">
@@ -163,8 +163,8 @@
                             <span class="card-tag">Breakeven Sell Price</span>
                             <i class="fa-solid fa-shield-halved text-muted icon-corner"></i>
                         </div>
-                        <div class="card-val text-dark" id="breakeven-sell-val">₹101.95</div>
-                        <span class="trend-pill neutral" id="breakeven-sub">+1.95 pts breakeven</span>
+                        <div class="card-val text-dark" id="breakeven-sell-val"><span class="val-currency">₹</span><span class="val-num">102.35</span></div>
+                        <span class="trend-pill neutral" id="breakeven-sub">+2.35 pts breakeven</span>
                     </div>
 
                     <div class="lumos-metric-card">
@@ -172,8 +172,8 @@
                             <span class="card-tag">Taxes & Slippage</span>
                             <i class="fa-solid fa-receipt text-amber icon-corner"></i>
                         </div>
-                        <div class="card-val text-amber" id="total-deductions-val">₹126.57</div>
-                        <span class="trend-pill warning" id="deductions-sub">Taxes: ₹61.57 + Slip: ₹65.00</span>
+                        <div class="card-val text-amber" id="total-deductions-val"><span class="val-currency">₹</span><span class="val-num">151.53</span></div>
+                        <span class="trend-pill warning" id="deductions-sub">Taxes: ₹86.53 + Slip: ₹65.00</span>
                     </div>
                 </div>
 
@@ -181,22 +181,22 @@
                 <div class="carryover-card">
                     <div class="c-header">
                         <span class="c-title"><i class="fa-solid fa-wallet text-orange"></i> Next Trade Re-entry Capital</span>
-                        <span class="c-sub" id="next-trade-cost-val">Next Entry Fee: ₹24.03</span>
+                        <span class="c-sub" id="next-trade-cost-val">Next Entry Fee: ₹38.36</span>
                     </div>
                     <div class="sensitivity-grid">
                         <div class="sensitivity-card active">
                             <span class="sens-tag">Net Capital Ready</span>
-                            <span class="sens-trades text-green" id="next-capital-val">₹6,493.78</span>
+                            <span class="sens-trades text-green" id="next-capital-val"><span class="val-currency">₹</span><span class="val-num">6,535.72</span></span>
                             <span class="sens-rate">100% Reusable</span>
                         </div>
                         <div class="sensitivity-card">
                             <span class="sens-tag">Next Entry Fee</span>
-                            <span class="sens-trades text-dark" id="lbl-next-entry-fee">₹24.03</span>
+                            <span class="sens-trades text-dark" id="lbl-next-entry-fee"><span class="val-currency">₹</span><span class="val-num">38.36</span></span>
                             <span class="sens-rate text-amber">Statutory Charges</span>
                         </div>
                         <div class="sensitivity-card">
                             <span class="sens-tag">Capital Yield</span>
-                            <span class="sens-trades text-orange" id="lbl-capital-preserved">99.6%</span>
+                            <span class="sens-trades text-orange" id="lbl-capital-preserved"><span class="val-num">99.7</span><span class="val-unit">%</span></span>
                             <span class="sens-rate text-green">▲ Post-Tax Capital</span>
                         </div>
                     </div>
@@ -283,8 +283,8 @@
                         <span class="hero-tag">TOTAL TRADES REQUIRED</span>
                         <i class="fa-solid fa-chart-line arrow-icon text-orange"></i>
                     </div>
-                    <div class="hero-price" id="comp-hero-trades">232 Trades</div>
-                    <div class="hero-badge" id="comp-hero-sub"><i class="fa-solid fa-bolt"></i> Needs 1.16 trades / day across 200 trading days</div>
+                    <div class="hero-price" id="comp-hero-trades"><span class="val-num">462</span><span class="val-unit">Trades</span></div>
+                    <div class="hero-badge" id="comp-hero-sub"><i class="fa-solid fa-bolt"></i> Take 3 trades / day to finish in 154 days (within 200-day goal)</div>
                 </div>
 
                 <!-- 4 Lumos Metric Cards Grid -->
@@ -294,8 +294,8 @@
                             <span class="card-tag">Trades / Day</span>
                             <i class="fa-solid fa-calendar-day text-green icon-corner"></i>
                         </div>
-                        <div class="card-val text-orange" id="comp-val-per-day">1.85 / day</div>
-                        <span class="trend-pill positive" id="comp-sub-per-day">▲ 8.90 trades / week</span>
+                        <div class="card-val text-orange" id="comp-val-per-day"><span class="val-num">3</span><span class="val-unit">/ day</span></div>
+                        <span class="trend-pill positive" id="comp-sub-per-day">Goal reached in 154 trading days</span>
                     </div>
 
                     <div class="lumos-metric-card">
@@ -303,8 +303,8 @@
                             <span class="card-tag">Trades / Month</span>
                             <i class="fa-solid fa-calendar-days text-blue icon-corner"></i>
                         </div>
-                        <div class="card-val text-dark" id="comp-val-per-month">38.57 / mo</div>
-                        <span class="trend-pill neutral" id="comp-sub-per-month">Across 12 months</span>
+                        <div class="card-val text-dark" id="comp-val-per-month"><span class="val-num">39</span><span class="val-unit">/ mo</span></div>
+                        <span class="trend-pill neutral" id="comp-sub-per-month">Goal reached in 12 months</span>
                     </div>
 
                     <div class="lumos-metric-card">
@@ -312,7 +312,7 @@
                             <span class="card-tag">Capital Multiplier</span>
                             <i class="fa-solid fa-arrow-trend-up text-green icon-corner"></i>
                         </div>
-                        <div class="card-val text-green" id="comp-val-multiplier">100.0x</div>
+                        <div class="card-val text-green" id="comp-val-multiplier"><span class="val-num">100.0</span><span class="val-unit">x</span></div>
                         <span class="trend-pill positive" id="comp-sub-multiplier">▲ +9,900% Growth</span>
                     </div>
 
@@ -321,7 +321,7 @@
                             <span class="card-tag">Total Net Profit</span>
                             <i class="fa-solid fa-sack-dollar text-amber icon-corner"></i>
                         </div>
-                        <div class="card-val text-amber" id="comp-val-net-profit">+₹99,000</div>
+                        <div class="card-val text-amber" id="comp-val-net-profit"><span class="val-sign">+</span><span class="val-currency">₹</span><span class="val-num">99,000</span></div>
                         <span class="trend-pill warning" id="comp-sub-net-profit">From ₹1,000 capital</span>
                     </div>
                 </div>
@@ -359,18 +359,18 @@
                     <tbody>
                         <tr>
                             <td><strong>Brokerage</strong></td>
-                            <td><span class="badge-tag">₹20 / order</span></td>
-                            <td>₹20 on Buy + ₹20 on Sell (₹40 roundtrip flat)</td>
+                            <td><span class="badge-tag">₹30 / order</span></td>
+                            <td>₹30 on Buy + ₹30 on Sell (₹60 roundtrip flat)</td>
                         </tr>
                         <tr>
                             <td><strong>STT / CTT</strong></td>
-                            <td><span class="badge-tag">0.1% on Sell</span></td>
-                            <td>0.1% on sell-side premium value</td>
+                            <td><span class="badge-tag">0.15% on Sell</span></td>
+                            <td>0.15% on sell-side premium value (Buy STT is ₹0.00)</td>
                         </tr>
                         <tr>
                             <td><strong>Exchange Txn Charge</strong></td>
-                            <td><span class="badge-tag">0.0495% (NSE)</span></td>
-                            <td>0.0495% on total buy + sell turnover</td>
+                            <td><span class="badge-tag">0.0355% (NSE)</span></td>
+                            <td>0.0355% on total buy + sell turnover (revised NSE rate)</td>
                         </tr>
                         <tr>
                             <td><strong>SEBI Turnover Fee</strong></td>
@@ -387,15 +387,20 @@
                             <td><span class="badge-tag">18%</span></td>
                             <td>18% on (Brokerage + Exchange + SEBI fees)</td>
                         </tr>
+                        <tr>
+                            <td><strong>Exchange Tick Size</strong></td>
+                            <td><span class="badge-tag">₹0.05 (NSE / BSE)</span></td>
+                            <td>All options & equities trade in ₹0.05 increments. Limit sell prices and breakevens automatically round up (ceiling) to ensure order acceptance by RMS and guarantee target net ROI.</td>
+                        </tr>
                     </tbody>
                 </table>
                 <p class="modal-disclaimer">
-                    <strong>Disclaimer:</strong> This calculator is designed for indicative options trading analysis based on official Upstox statutory rates. Upstox charges ₹20 per executed order. Brokerage and statutory fees directly affect break-even prices and net profitability.
+                    <strong>Disclaimer:</strong> This calculator is designed for indicative options trading analysis based on official Upstox statutory rates verified directly against Upstox live API. Upstox charges ₹30 per executed order on Options. Brokerage and statutory fees directly affect break-even prices and net profitability.
                 </p>
             </div>
         </div>
     </div>
 
-    <script src="app.js?v=29.0"></script>
+    <script type="module" src="src/js/main.js?v=40.0"></script>
 </body>
 </html>

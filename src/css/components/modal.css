@@ -1,0 +1,143 @@
+/* ==========================================================================
+   Modal Dialog, Official Tariff Breakdown Table & Color Helpers
+   ========================================================================== */
+
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    padding: 1.25rem;
+}
+
+.modal-card {
+    background: linear-gradient(180deg, #ffffff 0%, #faf8f2 100%);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: var(--radius-xl);
+    width: 100%;
+    max-width: clamp(660px, 52vw, 780px);
+    padding: clamp(1.4rem, 2vh, 1.85rem) clamp(1.6rem, 2.2vw, 2.2rem);
+    box-shadow: 0 24px 64px -12px rgba(15, 23, 42, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+@keyframes modalPop {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.45rem;
+    border-bottom: 1px solid rgba(17, 24, 39, 0.06);
+}
+
+.modal-header h3 {
+    font-family: var(--font-heading);
+    font-size: clamp(1.25rem, 1.4vw, 1.45rem);
+    font-weight: 800;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    letter-spacing: -0.01em;
+}
+
+.modal-close {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #f6f3eb 0%, #ede8dc 100%);
+    border: 1px solid rgba(17, 24, 39, 0.08);
+    font-size: 1.35rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-close:hover {
+    background: var(--text-main);
+    color: #ffffff;
+    border-color: var(--text-main);
+    transform: rotate(90deg);
+}
+
+.tariff-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: clamp(0.85rem, 0.92vw, 0.94rem);
+    margin-top: 0.2rem;
+    border: 1px solid rgba(17, 24, 39, 0.06);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+}
+
+.tariff-table th, .tariff-table td {
+    padding: clamp(0.7rem, 1vh, 0.85rem) clamp(0.75rem, 1vw, 1.0rem);
+    border-bottom: 1px solid rgba(17, 24, 39, 0.06);
+    text-align: left;
+    vertical-align: middle;
+}
+
+.tariff-table th {
+    background: linear-gradient(180deg, #f6f3eb 0%, #ede8dc 100%);
+    font-weight: 800;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: clamp(0.76rem, 0.82vw, 0.84rem);
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+}
+
+.tariff-table tr:hover td {
+    background: rgba(255, 85, 0, 0.02);
+}
+
+.badge-tag {
+    background: linear-gradient(180deg, #f6f3eb 0%, #ede8dc 100%);
+    color: var(--accent-orange);
+    border: 1px solid rgba(255, 85, 0, 0.2);
+    padding: 0.3rem 0.65rem;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: clamp(0.8rem, 0.86vw, 0.88rem);
+    white-space: nowrap;
+    display: inline-block;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+.modal-disclaimer {
+    font-size: clamp(0.78rem, 0.84vw, 0.86rem);
+    color: var(--text-muted);
+    line-height: 1.5;
+    background: linear-gradient(180deg, #f6f3eb 0%, #ede8dc 100%);
+    padding: 0.95rem 1.15rem;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(17, 24, 39, 0.06);
+    border-left: 3.5px solid var(--accent-orange);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Financial Accent Color Helpers */
+.text-orange { color: var(--accent-orange); }
+.text-dark { color: var(--text-main); }
+.text-amber { color: var(--color-amber); }
+.text-green { color: var(--color-green); }
+.text-red { color: var(--color-red); }
+.text-blue { color: var(--color-blue); }

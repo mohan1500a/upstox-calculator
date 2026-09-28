@@ -8,13 +8,17 @@ A high-performance, real-time quantitative trading suite for calculating:
 
 ## ⚡ Core Features
 
-- **Upstox 2026 Statutory Rates**:
-  - **Brokerage**: ₹20 / executed order (₹40 roundtrip flat).
-  - **STT**: 0.1% on sell-side premium value.
-  - **Exchange Transaction Fee**: 0.0495% (NSE Options) on total buy + sell turnover.
+- **Upstox Official Statutory Rates (Verified via Upstox Live API)**:
+  - **Brokerage**: ₹30 / executed order (₹60 roundtrip flat).
+  - **STT**: 0.15% on sell-side premium value (Buy STT = ₹0.00).
+  - **Exchange Transaction Fee**: 0.0355% (NSE Options revised) on total buy + sell turnover.
   - **SEBI Turnover Fee**: 0.0001% (₹10 / crore) on total turnover.
   - **Stamp Duty**: 0.003% on buy-side premium value only.
   - **GST**: 18% on (Brokerage + Exchange fees + SEBI fees).
+
+- **Indian Exchange Precision Rules**:
+  - **₹0.05 Exchange Tick Size (NSE / BSE)**: All equity and index option contracts trade strictly in multiples of ₹0.05. Target limit sell prices and breakevens are rounded up (`ceil` mode) to the next valid ₹0.05 tick. This ensures orders are accepted by exchange Risk Management Systems (RMS) and guarantees that realized profits meet or exceed the trader's target Net ROI.
+  - **Discrete Natural Number Velocity Model**: Trades are discrete physical events (cannot be executed as fractions like 1.16 or ambiguous ranges like 1–2). To complete $N$ target trades within a $D$-day limit, the engine computes the required whole daily execution rate: $\text{Daily Trades} = \max(1, \lceil N / D \rceil)$. The exact completion time is then: $\text{Days Needed} = \lceil N / \text{Daily Trades} \rceil \le D$, ensuring strict arithmetic truth without fractional anomalies (e.g. taking $2\text{ trades/day}$ completes $232\text{ trades}$ in exactly $116\text{ trading days}$, well within the $200$-day target).
 
 - **Dynamic Index & Lot Size Caps**:
   - `NIFTY` (65 / lot, max 27 lots = 1,755 qty)
@@ -56,7 +60,17 @@ Then navigate to:
 To run the Python engine CLI:
 
 ```bash
-python3 options_brokerage_calculator.py
+python3 scripts/options_brokerage_calculator.py
+```
+
+### 3. Live Upstox API Charges Auditor
+To audit real-time brokerage and statutory taxes directly against Upstox's live production API:
+
+1. Copy `.env.example` to `.env` and configure your Upstox API credentials.
+2. Run the live auditor:
+
+```bash
+python3 scripts/upstox_live_charges_verifier.py
 ```
 
 ---
