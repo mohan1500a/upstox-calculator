@@ -1,13 +1,13 @@
 /* ==========================================================================
-   Modal Dialog, Official Tariff Breakdown Table & Color Helpers
+   Lumos Modal Dialog & Official Tariff Breakdown
    ========================================================================== */
 
 .modal-overlay {
     position: fixed;
     top: 0; left: 0; width: 100vw; height: 100vh;
-    background: rgba(15, 23, 42, 0.5);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(20, 23, 31, 0.45);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -16,13 +16,13 @@
 }
 
 .modal-card {
-    background: linear-gradient(180deg, #ffffff 0%, #faf8f2 100%);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    border-radius: var(--radius-xl);
+    background: #ffffff;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-2xl);
     width: 100%;
     max-width: clamp(660px, 52vw, 780px);
     padding: clamp(1.4rem, 2vh, 1.85rem) clamp(1.6rem, 2.2vw, 2.2rem);
-    box-shadow: 0 24px 64px -12px rgba(15, 23, 42, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    box-shadow: 0 24px 64px -12px rgba(20, 23, 31, 0.25);
     display: flex;
     flex-direction: column;
     gap: 1.1rem;
@@ -41,12 +41,12 @@
     justify-content: space-between;
     align-items: center;
     padding-bottom: 0.45rem;
-    border-bottom: 1px solid rgba(17, 24, 39, 0.06);
+    border-bottom: 1px solid rgba(20, 23, 31, 0.06);
 }
 
 .modal-header h3 {
     font-family: var(--font-heading);
-    font-size: clamp(1.25rem, 1.4vw, 1.45rem);
+    font-size: clamp(1.2rem, 1.35vw, 1.45rem);
     font-weight: 800;
     color: var(--text-main);
     display: flex;
@@ -58,16 +58,16 @@
 .modal-close {
     width: 38px;
     height: 38px;
-    border-radius: 50%;
-    background: linear-gradient(180deg, #f6f3eb 0%, #ede8dc 100%);
-    border: 1px solid rgba(17, 24, 39, 0.08);
+    border-radius: 12px;
+    background: var(--bg-input);
+    border: 1px solid rgba(20, 23, 31, 0.06);
     font-size: 1.35rem;
     color: var(--text-muted);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    box-shadow: 0 1px 3px rgba(20, 23, 31, 0.04);
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -83,20 +83,20 @@
     border-collapse: collapse;
     font-size: clamp(0.85rem, 0.92vw, 0.94rem);
     margin-top: 0.2rem;
-    border: 1px solid rgba(17, 24, 39, 0.06);
-    border-radius: var(--radius-sm);
+    border: 1px solid rgba(20, 23, 31, 0.06);
+    border-radius: var(--radius-md);
     overflow: hidden;
 }
 
 .tariff-table th, .tariff-table td {
     padding: clamp(0.7rem, 1vh, 0.85rem) clamp(0.75rem, 1vw, 1.0rem);
-    border-bottom: 1px solid rgba(17, 24, 39, 0.06);
+    border-bottom: 1px solid rgba(20, 23, 31, 0.06);
     text-align: left;
     vertical-align: middle;
 }
 
 .tariff-table th {
-    background: linear-gradient(180deg, #f6f3eb 0%, #ede8dc 100%);
+    background: var(--bg-input);
     font-weight: 800;
     color: var(--text-muted);
     text-transform: uppercase;
@@ -106,32 +106,31 @@
 }
 
 .tariff-table tr:hover td {
-    background: rgba(255, 85, 0, 0.02);
+    background: rgba(255, 98, 0, 0.02);
 }
 
 .badge-tag {
-    background: linear-gradient(180deg, #f6f3eb 0%, #ede8dc 100%);
+    background: var(--bg-input);
     color: var(--accent-orange);
-    border: 1px solid rgba(255, 85, 0, 0.2);
+    border: 1px solid rgba(255, 98, 0, 0.2);
     padding: 0.3rem 0.65rem;
-    border-radius: 12px;
+    border-radius: var(--radius-pill);
     font-weight: 800;
     font-size: clamp(0.8rem, 0.86vw, 0.88rem);
     white-space: nowrap;
     display: inline-block;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+    box-shadow: 0 1px 2px rgba(20, 23, 31, 0.02);
 }
 
 .modal-disclaimer {
     font-size: clamp(0.78rem, 0.84vw, 0.86rem);
     color: var(--text-muted);
     line-height: 1.5;
-    background: linear-gradient(180deg, #f6f3eb 0%, #ede8dc 100%);
+    background: var(--bg-input);
     padding: 0.95rem 1.15rem;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(17, 24, 39, 0.06);
+    border: 1px solid rgba(20, 23, 31, 0.06);
     border-left: 3.5px solid var(--accent-orange);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
 }
 
 /* Financial Accent Color Helpers */

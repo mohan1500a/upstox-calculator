@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="src/css/main.css?v=41.0">
+    <link rel="stylesheet" href="src/css/main.css?v=42.0">
 </head>
 <body>
     <div class="viewport-app">
@@ -132,7 +132,7 @@
                 <div class="hero-target-card">
                     <div class="hero-header">
                         <span class="hero-tag">REQUIRED TARGET SELL PRICE</span>
-                        <i class="fa-solid fa-arrow-up-right-from-square arrow-icon"></i>
+                        <span class="card-arrow">↗</span>
                     </div>
                     <div class="hero-price" id="req-sell-val"><span class="val-currency">₹</span><span class="val-num">102.95</span></div>
                     <div class="hero-badge" id="req-sell-sub"><i class="fa-solid fa-arrow-trend-up"></i> +2.95 pts move needed (+2.95% price move) (includes +₹38.34 next trade fee)</div>
@@ -143,7 +143,7 @@
                     <div class="lumos-metric-card">
                         <div class="card-head">
                             <span class="card-tag">Real Move Needed</span>
-                            <i class="fa-solid fa-arrow-trend-up text-green icon-corner"></i>
+                            <span class="card-arrow">↗</span>
                         </div>
                         <div class="card-val text-orange" id="real-move-val"><span class="val-sign">+</span><span class="val-num">2.95</span><span class="val-unit">pts</span></div>
                         <span class="trend-pill positive" id="real-move-sub">▲ +2.95% premium move</span>
@@ -152,7 +152,7 @@
                     <div class="lumos-metric-card" id="net-pnl-card">
                         <div class="card-head">
                             <span class="card-tag">Actual Net Profit</span>
-                            <i class="fa-solid fa-wallet text-green icon-corner"></i>
+                            <span class="card-arrow">↗</span>
                         </div>
                         <div class="card-val text-green" id="net-pnl-val"><span class="val-sign">+</span><span class="val-currency">₹</span><span class="val-num">40.22</span></div>
                         <span class="trend-pill positive" id="net-roi-val">▲ +0.62% Net ROI</span>
@@ -161,7 +161,7 @@
                     <div class="lumos-metric-card">
                         <div class="card-head">
                             <span class="card-tag">Breakeven Sell Price</span>
-                            <i class="fa-solid fa-shield-halved text-muted icon-corner"></i>
+                            <span class="card-arrow">↗</span>
                         </div>
                         <div class="card-val text-dark" id="breakeven-sell-val"><span class="val-currency">₹</span><span class="val-num">102.35</span></div>
                         <span class="trend-pill neutral" id="breakeven-sub">+2.35 pts breakeven</span>
@@ -170,7 +170,7 @@
                     <div class="lumos-metric-card">
                         <div class="card-head">
                             <span class="card-tag">Taxes & Slippage</span>
-                            <i class="fa-solid fa-receipt text-amber icon-corner"></i>
+                            <span class="card-arrow">↗</span>
                         </div>
                         <div class="card-val text-amber" id="total-deductions-val"><span class="val-currency">₹</span><span class="val-num">151.53</span></div>
                         <span class="trend-pill warning" id="deductions-sub">Taxes: ₹86.53 + Slip: ₹65.00</span>
@@ -281,7 +281,7 @@
                 <div class="hero-target-card">
                     <div class="hero-header">
                         <span class="hero-tag">TOTAL TRADES REQUIRED</span>
-                        <i class="fa-solid fa-chart-line arrow-icon text-orange"></i>
+                        <span class="card-arrow">↗</span>
                     </div>
                     <div class="hero-price" id="comp-hero-trades"><span class="val-num">462</span><span class="val-unit">Trades</span></div>
                     <div class="hero-badge" id="comp-hero-sub"><i class="fa-solid fa-bolt"></i> Take 3 trades / day to finish in 154 days (within 200-day goal)</div>
@@ -292,7 +292,7 @@
                     <div class="lumos-metric-card">
                         <div class="card-head">
                             <span class="card-tag">Trades / Day</span>
-                            <i class="fa-solid fa-calendar-day text-green icon-corner"></i>
+                            <span class="card-arrow">↗</span>
                         </div>
                         <div class="card-val text-orange" id="comp-val-per-day"><span class="val-num">3</span><span class="val-unit">/ day</span></div>
                         <span class="trend-pill positive" id="comp-sub-per-day">Goal reached in 154 trading days</span>
@@ -301,7 +301,7 @@
                     <div class="lumos-metric-card">
                         <div class="card-head">
                             <span class="card-tag">Trades / Month</span>
-                            <i class="fa-solid fa-calendar-days text-blue icon-corner"></i>
+                            <span class="card-arrow">↗</span>
                         </div>
                         <div class="card-val text-dark" id="comp-val-per-month"><span class="val-num">39</span><span class="val-unit">/ mo</span></div>
                         <span class="trend-pill neutral" id="comp-sub-per-month">Goal reached in 12 months</span>
@@ -310,7 +310,7 @@
                     <div class="lumos-metric-card">
                         <div class="card-head">
                             <span class="card-tag">Capital Multiplier</span>
-                            <i class="fa-solid fa-arrow-trend-up text-green icon-corner"></i>
+                            <span class="card-arrow">↗</span>
                         </div>
                         <div class="card-val text-green" id="comp-val-multiplier"><span class="val-num">100.0</span><span class="val-unit">x</span></div>
                         <span class="trend-pill positive" id="comp-sub-multiplier">▲ +9,900% Growth</span>
@@ -319,7 +319,7 @@
                     <div class="lumos-metric-card">
                         <div class="card-head">
                             <span class="card-tag">Total Net Profit</span>
-                            <i class="fa-solid fa-sack-dollar text-amber icon-corner"></i>
+                            <span class="card-arrow">↗</span>
                         </div>
                         <div class="card-val text-amber" id="comp-val-net-profit"><span class="val-sign">+</span><span class="val-currency">₹</span><span class="val-num">99,000</span></div>
                         <span class="trend-pill warning" id="comp-sub-net-profit">From ₹1,000 capital</span>

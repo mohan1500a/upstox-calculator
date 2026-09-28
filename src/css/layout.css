@@ -367,6 +367,10 @@
         line-height: 1.2 !important;
     }
 
+    .card-arrow {
+        font-size: 1.05rem !important;
+    }
+
     .icon-corner {
         width: 32px !important;
         height: 32px !important;
@@ -588,6 +592,10 @@
 
     .card-tag {
         font-size: 0.68rem !important;
+    }
+
+    .card-arrow {
+        font-size: 0.95rem !important;
     }
 
     .icon-corner {

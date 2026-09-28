@@ -1,18 +1,20 @@
 /* ==========================================================================
-   Cards, Metric Panels & 8K High-Precision Numeral Micro-Alignment Tokens
+   Lumos Cards: Centerpiece Hero, 4 Metric Cards & Numeral Typography
+   Pure White Surfaces, Ambient Depth, Lumos Diagonal Arrows (↗), and Crisp Metrics
    ========================================================================== */
 
-/* Standard Porcelain Card Surface with Inset Specular Bevel */
+/* Standard Lumos White Surface */
 .card {
-    background: linear-gradient(180deg, #ffffff 0%, #faf8f2 100%);
+    background: #ffffff;
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-2xl);
     padding: clamp(1.15rem, 1.6vh, 1.55rem) clamp(1.3rem, 1.5vw, 1.75rem);
     display: flex;
     flex-direction: column;
     box-shadow: var(--shadow-card);
     min-height: 0;
     position: relative;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* RESULTS PANEL */
@@ -24,11 +26,11 @@
     min-height: 0;
 }
 
-/* Hero Required Target Sell Price Card (Centerpiece 8K Porcelain + Ambient Halo) */
+/* Hero Target Price Card (Lumos Centerpiece) */
 .hero-target-card {
-    background: radial-gradient(circle at 92% 20%, rgba(255, 85, 0, 0.06) 0%, transparent 60%), linear-gradient(180deg, #ffffff 0%, #faf8f2 100%);
-    border: 1px solid rgba(255, 85, 0, 0.22);
-    border-radius: var(--radius-xl);
+    background: radial-gradient(circle at 95% 15%, rgba(255, 98, 0, 0.05) 0%, transparent 60%), #ffffff;
+    border: 1px solid rgba(255, 98, 0, 0.20);
+    border-radius: var(--radius-2xl);
     padding: clamp(1.15rem, 1.6vh, 1.55rem) clamp(1.4rem, 1.8vw, 2.2rem);
     box-shadow: var(--shadow-hero);
     display: grid;
@@ -39,6 +41,11 @@
     align-items: center;
     position: relative;
     overflow: hidden;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+}
+
+.hero-target-card:hover {
+    box-shadow: 0 18px 46px -4px rgba(255, 98, 0, 0.12), 0 4px 16px rgba(20, 23, 31, 0.04);
 }
 
 .hero-header {
@@ -49,27 +56,33 @@
 }
 
 .hero-tag {
-    font-size: clamp(0.85rem, 0.9vw, 0.96rem);
+    font-size: clamp(0.82rem, 0.88vw, 0.94rem);
     font-weight: 800;
     text-transform: uppercase;
     color: var(--text-muted);
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
 }
 
 .arrow-icon {
     font-size: 1.15rem;
+    color: var(--text-arrow);
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+}
+
+.hero-target-card:hover .arrow-icon {
     color: var(--accent-orange);
+    transform: translate(2px, -2px);
 }
 
 .hero-price {
     grid-column: 1 / 2;
     font-family: var(--font-heading);
-    font-size: clamp(3.0rem, 3.5vw, 4.2rem);
+    font-size: clamp(2.8rem, 3.4vw, 4.0rem);
     font-weight: 800;
     color: var(--text-main);
     line-height: 1.0;
     margin: 0.05rem 0;
-    letter-spacing: -0.03em;
+    letter-spacing: -0.035em;
     display: inline-flex;
     align-items: baseline;
     font-variant-numeric: tabular-nums;
@@ -92,19 +105,19 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
-    border: 1px solid rgba(22, 163, 74, 0.28);
+    background: var(--color-green-badge);
+    border: 1px solid var(--color-green-border);
     color: var(--color-green);
-    font-size: clamp(0.92rem, 1vw, 1.12rem);
+    font-size: clamp(0.88rem, 0.95vw, 1.05rem);
     font-weight: 700;
     padding: 0.6rem 1.25rem;
-    border-radius: 20px;
+    border-radius: var(--radius-pill);
     width: fit-content;
-    box-shadow: 0 4px 14px rgba(22, 101, 52, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    box-shadow: 0 2px 8px rgba(22, 101, 52, 0.08);
     font-variant-numeric: tabular-nums;
 }
 
-/* 4 Lumos Metric Cards Grid (Porcelain Elevating Cards) */
+/* 4 Lumos Metric Cards Grid */
 .metrics-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -113,9 +126,9 @@
 }
 
 .lumos-metric-card {
-    background: linear-gradient(180deg, #ffffff 0%, #faf8f2 100%);
+    background: #ffffff;
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-2xl);
     padding: clamp(1.15rem, 1.6vh, 1.55rem) clamp(1.35rem, 1.7vw, 2.0rem);
     display: flex;
     flex-direction: column;
@@ -128,7 +141,7 @@
 
 .lumos-metric-card:hover {
     transform: translateY(-2px);
-    border-color: rgba(17, 24, 39, 0.14);
+    border-color: rgba(20, 23, 31, 0.12);
     box-shadow: var(--shadow-card-hover);
 }
 
@@ -139,29 +152,51 @@
 }
 
 .card-tag {
-    font-size: clamp(0.86rem, 0.92vw, 1.0rem);
+    font-size: clamp(0.84rem, 0.90vw, 0.96rem);
     font-weight: 800;
-    color: #475569;
+    color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
+}
+
+.card-arrow {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-arrow);
+    line-height: 1;
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+    user-select: none;
+}
+
+.lumos-metric-card:hover .card-arrow {
+    color: var(--accent-orange);
+    transform: translate(2px, -2px);
 }
 
 .icon-corner {
-    font-size: 1.15rem;
-    width: 42px;
-    height: 42px;
+    font-size: 1.05rem;
+    width: 38px;
+    height: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #f7f5ed 0%, #ede8dc 100%);
-    border: 1px solid rgba(17, 24, 39, 0.06);
-    border-radius: 12px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    background: var(--bg-input);
+    border: 1px solid rgba(20, 23, 31, 0.05);
+    border-radius: var(--radius-md);
+    box-shadow: 0 1px 3px rgba(20, 23, 31, 0.02);
+    color: var(--text-muted);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lumos-metric-card:hover .icon-corner {
+    background: #ffffff;
+    border-color: rgba(20, 23, 31, 0.10);
+    box-shadow: 0 2px 6px rgba(20, 23, 31, 0.06);
 }
 
 .card-val {
     font-family: var(--font-heading);
-    font-size: clamp(2.4rem, 2.75vw, 3.2rem);
+    font-size: clamp(2.3rem, 2.7vw, 3.1rem);
     font-weight: 800;
     margin: 0.25rem 0;
     line-height: 1.05;
@@ -173,10 +208,9 @@
 }
 
 /* ==========================================================================
-   8K High-Precision Numeral Micro-Alignment Tokens
+   Lumos Numeral Micro-Alignment
    ========================================================================== */
 
-/* Mathematical Operator (+ / -) Dead-Center Numeral Alignment */
 .val-sign {
     font-size: 0.88em;
     font-weight: 800;
@@ -188,7 +222,6 @@
     color: inherit;
 }
 
-/* Indian Rupee Symbol (₹) Baseline & Cap-Height Proportional Scaling */
 .val-currency {
     font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     font-size: 0.84em;
@@ -201,7 +234,6 @@
     color: inherit;
 }
 
-/* High-Precision Tabular Numerals (Strict Height & Width Uniformity) */
 .val-num {
     font-variant-numeric: tabular-nums;
     font-feature-settings: 'tnum' 1, 'cv11' 1;
@@ -211,7 +243,6 @@
     color: inherit;
 }
 
-/* Secondary Unit Suffix (pts, / day, / mo, x, Trades) with Optical Hierarchy */
 .val-unit {
     font-size: 0.44em;
     font-weight: 700;
@@ -225,38 +256,38 @@
     opacity: 0.75;
 }
 
-/* Trend Indicator Badges */
+/* Lumos Trend Indicator Pills */
 .trend-pill {
-    font-size: clamp(0.88rem, 0.94vw, 1.02rem);
+    font-size: clamp(0.85rem, 0.90vw, 0.98rem);
     font-weight: 700;
-    padding: 0.45rem 1.05rem;
-    border-radius: 16px;
+    padding: 0.42rem 1.0rem;
+    border-radius: var(--radius-pill);
     display: inline-block;
     width: fit-content;
     font-variant-numeric: tabular-nums;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    box-shadow: 0 1px 3px rgba(20, 23, 31, 0.02);
 }
 
 .trend-pill.positive {
-    background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+    background: var(--color-green-badge);
     color: var(--color-green);
-    border: 1px solid rgba(22, 163, 74, 0.25);
+    border: 1px solid var(--color-green-border);
 }
 
 .trend-pill.negative {
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    background: var(--color-red-badge);
     color: var(--color-red);
-    border: 1px solid rgba(220, 38, 38, 0.25);
+    border: 1px solid var(--color-red-border);
 }
 
 .trend-pill.neutral {
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    background: var(--color-blue-badge);
     color: var(--color-blue);
-    border: 1px solid rgba(29, 78, 216, 0.22);
+    border: 1px solid var(--color-blue-border);
 }
 
 .trend-pill.warning {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    background: var(--color-amber-badge);
     color: var(--color-amber);
-    border: 1px solid rgba(180, 83, 9, 0.25);
+    border: 1px solid var(--color-amber-border);
 }

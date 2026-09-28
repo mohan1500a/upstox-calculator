@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Header Navbar, Brand Logo & Segmented Navigation Pills
+   Lumos Header: Brand Bar, Centered Nav Pills & Action Controls
    ========================================================================== */
 
 .app-header {
@@ -7,10 +7,11 @@
     justify-content: space-between;
     align-items: center;
     background: transparent;
-    padding: 0.1rem 0;
+    padding: 0.15rem 0;
     flex-shrink: 0;
 }
 
+/* Brand Identity */
 .brand {
     display: flex;
     align-items: center;
@@ -20,21 +21,22 @@
 .brand-icon {
     width: 44px;
     height: 44px;
-    background: linear-gradient(135deg, #1e2433 0%, #0f131c 100%);
-    border-radius: 50%;
+    background: #14171f;
+    background: linear-gradient(135deg, #1c202a 0%, #10131a 100%);
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.25rem;
-    color: #fff;
+    color: var(--accent-orange);
     flex-shrink: 0;
-    box-shadow: 0 4px 14px rgba(15, 19, 28, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 14px rgba(20, 23, 31, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.08);
     transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .brand-icon:hover {
-    transform: rotate(12deg) scale(1.04);
+    transform: scale(1.05) rotate(6deg);
 }
 
 .brand-text h1 {
@@ -52,22 +54,22 @@
     font-weight: 600;
 }
 
-/* Nav Pills (Tab Switcher) */
+/* Lumos Nav Pills (Segmented Control) */
 .nav-pills {
     display: flex;
-    background: #e2decb;
+    background: var(--nav-track);
     padding: 5px;
-    border-radius: 32px;
-    gap: 5px;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04), 0 1px 0 rgba(255, 255, 255, 0.8);
+    border-radius: var(--radius-pill);
+    gap: 4px;
+    box-shadow: inset 0 2px 4px rgba(20, 23, 31, 0.04), 0 1px 0 rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(20, 23, 31, 0.03);
 }
 
 .nav-pill {
     background: transparent;
     border: none;
-    padding: 0.52rem 1.45rem;
-    border-radius: 26px;
+    padding: 0.55rem 1.45rem;
+    border-radius: var(--radius-pill);
     font-size: clamp(0.88rem, 0.95vw, 1.0rem);
     font-weight: 700;
     color: var(--text-muted);
@@ -80,16 +82,16 @@
 }
 
 .nav-pill.active {
-    background: linear-gradient(180deg, #ffffff 0%, #faf8f2 100%);
+    background: #ffffff;
     color: var(--text-main);
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.07), inset 0 1px 0 rgba(255, 255, 255, 0.95);
-    border: 1px solid rgba(0, 0, 0, 0.04);
+    box-shadow: var(--shadow-nav);
 }
 
 .nav-pill:hover:not(.active) {
     color: var(--text-main);
 }
 
+/* Header Right Actions */
 .header-right {
     display: flex;
     align-items: center;
@@ -100,11 +102,11 @@
     display: flex;
     align-items: center;
     gap: 0.55rem;
-    background: linear-gradient(180deg, #ffffff 0%, #faf8f2 100%);
+    background: #ffffff;
     border: 1px solid var(--border-color);
     color: var(--text-main);
-    padding: 0.5rem 1.2rem;
-    border-radius: 24px;
+    padding: 0.52rem 1.25rem;
+    border-radius: var(--radius-pill);
     font-size: clamp(0.84rem, 0.9vw, 0.95rem);
     font-weight: 700;
     box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.95);
@@ -116,7 +118,7 @@
 .header-badge:hover {
     border-color: var(--accent-orange);
     transform: translateY(-1px);
-    box-shadow: 0 4px 14px rgba(255, 85, 0, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 14px var(--accent-orange-glow);
 }
 
 .pulse-dot {
@@ -135,11 +137,11 @@
 }
 
 .icon-btn {
-    width: 40px;
-    height: 40px;
-    background: linear-gradient(180deg, #ffffff 0%, #faf8f2 100%);
+    width: 42px;
+    height: 42px;
+    background: #ffffff;
     border: 1px solid var(--border-color);
-    border-radius: 50%;
+    border-radius: 14px;
     color: var(--text-muted);
     cursor: pointer;
     display: flex;
@@ -152,9 +154,9 @@
 }
 
 .icon-btn:hover {
-    background: var(--text-main);
-    color: #fff;
-    border-color: var(--text-main);
+    background: #14171f;
+    color: #ffffff;
+    border-color: #14171f;
     transform: rotate(-45deg);
-    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2);
+    box-shadow: 0 4px 14px rgba(20, 23, 31, 0.2);
 }
