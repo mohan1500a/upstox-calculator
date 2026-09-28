@@ -1,4 +1,10 @@
 {
   "include": ["scripts", "tests"],
-  "extraPaths": ["scripts"]
+  "extraPaths": ["./scripts"],
+  "executionEnvironments": [
+    {
+      "root": "tests",
+      "extraPaths": ["../scripts"]
+    }
+  ]
 }

@@ -534,15 +534,22 @@
     }
 
     .tariff-table {
-        display: block !important;
+        display: table !important;
         width: 100% !important;
-        overflow-x: auto !important;
-        -webkit-overflow-scrolling: touch !important;
+        overflow-x: visible !important;
         font-size: 0.78rem !important;
+        table-layout: fixed !important;
+    }
+
+    /* Hide the 3rd column (Calculation Logic) on mobile — too wide */
+    .tariff-table th:nth-child(3),
+    .tariff-table td:nth-child(3) {
+        display: none !important;
     }
 
     .tariff-table th, .tariff-table td {
         padding: 0.5rem 0.55rem !important;
+        word-wrap: break-word !important;
     }
 
     .modal-disclaimer {

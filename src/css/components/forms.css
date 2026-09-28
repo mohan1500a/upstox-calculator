@@ -11,6 +11,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 0.35rem;
     margin-bottom: 0.35rem;
     padding-bottom: 0.45rem;
     border-bottom: 1px solid rgba(20, 23, 31, 0.06);
