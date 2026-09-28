@@ -89,9 +89,6 @@ class CompoundingVelocityCalculation:
     weekly_trades: int
     total_net_profit: float
     growth_multiplier: float
-    trades_per_day: float = 0.0
-    trades_per_month: float = 0.0
-    trades_per_week: float = 0.0
 
 
 def round_to_tick(val: float, tick: float = 0.05, mode: str = "ceil") -> float:
@@ -252,9 +249,6 @@ def calculate_compounding_velocity(
 
     weekly_trades = max(1, math.ceil(total_trades / (years * 52.0))) if (years > 0 and total_trades > 0) else 0
 
-    trades_per_day = round(total_trades / total_days, 2) if total_days > 0 else 0.0
-    trades_per_month = round(total_trades / (years * 12.0), 2) if years > 0 else 0.0
-    trades_per_week = round(total_trades / (years * 52.0), 2) if years > 0 else 0.0
 
     total_net_profit = c_final - c_init
     growth_multiplier = c_final / c_init
@@ -276,10 +270,7 @@ def calculate_compounding_velocity(
         months_needed=months_needed,
         weekly_trades=weekly_trades,
         total_net_profit=round(total_net_profit, 2),
-        growth_multiplier=round(growth_multiplier, 2),
-        trades_per_day=trades_per_day,
-        trades_per_month=trades_per_month,
-        trades_per_week=trades_per_week
+        growth_multiplier=round(growth_multiplier, 2)
     )
 
 

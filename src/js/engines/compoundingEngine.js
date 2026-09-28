@@ -49,12 +49,6 @@ export function computeCompoundingVelocity(params) {
         : 0;
     const monthsNeeded = (monthlyTrades > 0) ? Math.ceil(totalTrades / monthlyTrades) : 0;
 
-    const totalWeeks = yrs * 52.0;
-    const weeklyTrades = (isGoalValid && totalWeeks > 0 && totalTrades > 0)
-        ? Math.max(1, Math.ceil(totalTrades / totalWeeks))
-        : 0;
-    const weeksNeeded = (weeklyTrades > 0) ? Math.ceil(totalTrades / weeklyTrades) : 0;
-
     const netProfit = Math.max(0.0, cFinal - cInit);
     const multiplier = cInit > 0 ? cFinal / cInit : 1.0;
 
@@ -85,18 +79,13 @@ export function computeCompoundingVelocity(params) {
     return {
         cInit,
         cFinal,
-        rPct,
-        dPct,
         daysYear,
         yrs,
         effectiveRate,
-        exactTrades,
         totalTrades,
         totalDays,
         dailyTrades,
         daysNeeded,
-        weeklyTrades,
-        weeksNeeded,
         monthlyTrades,
         monthsNeeded,
         netProfit,

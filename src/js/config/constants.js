@@ -9,12 +9,10 @@ export const UPSTOX_TARIFF_2026 = {
 
     // Securities Transaction Tax (STT): 0.15% on Sell-side Premium Turnover
     // (Verified via Upstox Live API — statutory 0.1% + Upstox applied rate 0.15%)
-    STT_RATE_BUY: 0.0,
     STT_RATE_SELL: 0.0015,
 
-    // Exchange Transaction Charges (NSE: 0.0355%, BSE: 0.0325%)
+    // Exchange Transaction Charges (NSE: 0.0355%)
     EXCHANGE_TURNOVER_NSE: 0.000355,
-    EXCHANGE_TURNOVER_BSE: 0.000325,
 
     // SEBI Regulatory Turnover Fee: ₹10 per Crore (0.0001%)
     SEBI_TURNOVER_RATE: 0.000001,

@@ -312,9 +312,6 @@
         letter-spacing: 0.05em !important;
     }
 
-    .arrow-icon {
-        font-size: 1.0rem !important;
-    }
 
     .hero-price {
         font-size: 2.15rem !important;
@@ -371,13 +368,6 @@
         font-size: 1.05rem !important;
     }
 
-    .icon-corner {
-        width: 32px !important;
-        height: 32px !important;
-        font-size: 0.88rem !important;
-        border-radius: 8px !important;
-        flex-shrink: 0 !important;
-    }
 
     .card-val {
         font-size: clamp(1.45rem, 5.5vw, 1.85rem) !important;
@@ -635,11 +625,6 @@
         font-size: 0.95rem !important;
     }
 
-    .icon-corner {
-        width: 28px !important;
-        height: 28px !important;
-        font-size: 0.78rem !important;
-    }
 
     .trend-pill {
         font-size: 0.68rem !important;
