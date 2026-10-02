@@ -42,16 +42,16 @@ modelled. Options carry no DP charges.
 
 | Index | Exchange | Lot size | Order limit (units) | Max lots per order |
 | --- | --- | --- | --- | --- |
-| Nifty 50 | NSE | 65 | 1800 | 27 |
-| Bank Nifty | NSE | 30 | 600 | 20 |
+| Nifty 50 | NSE | 65 | 3510 | 54 |
+| Bank Nifty | NSE | 30 | 1440 | 48 |
 | Sensex | BSE | 20 | 1000 | 50 |
 
 What was checked against what:
 
 - **Nifty 50 (65) and Bank Nifty (30) lot sizes:** NSE circular NSE/FAOP/70616 of 3 October 2025, read directly. It applies
   from the January 2026 expiries.
-- **Sensex lot size (20) and all three freeze quantities:** broker and exchange-derived sources only. The BSE circular and
-  NSE's freeze-quantity circulars were not read.
+- **Sensex lot size (20) and all freeze quantities (3510, 1440, 1000):** verified directly against Upstox's live instruments
+  master file (<https://assets.upstox.com/market-quote/instruments/exchange/complete.json.gz>) on 2026-10-02.
 
 Freeze quantities are revised more often than lot sizes. The check that costs nothing is Upstox's instruments file, where each
 contract carries `lot_size` and `freeze_quantity`: <https://upstox.com/developer/api-documentation/instruments/>.

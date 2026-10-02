@@ -22,7 +22,7 @@ const define = (label, exchange, lotSize, freezeQty) =>
   });
 
 export const INSTRUMENTS = Object.freeze({
-  NIFTY: define('Nifty 50', 'NSE', 65, 1800),
-  BANKNIFTY: define('Bank Nifty', 'NSE', 30, 600),
+  NIFTY: define('Nifty 50', 'NSE', 65, 3510),
+  BANKNIFTY: define('Bank Nifty', 'NSE', 30, 1440),
   SENSEX: define('Sensex', 'BSE', 20, 1000),
 });
