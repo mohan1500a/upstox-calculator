@@ -1,25 +1,33 @@
-name: Continuous Integration
+name: CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main]
   pull_request:
-    branches: [ main, master ]
+
+# The workflow only reads the repository.
+permissions:
+  contents: read
+
+# A newer push to the same branch replaces a run that is still going.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
-    name: Run Automated Statutory Tests
     runs-on: ubuntu-latest
-
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22', '24']
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
         with:
-          python-version: '3.11'
-
-      - name: Run Unit & Regression Tests
-        run: |
-          python -m unittest discover -s tests -p "test_*.py" -v
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      # No install step: the project has no dependencies.
+      - run: npm test

@@ -1,0 +1,64 @@
+/* Page structure: shell, columns, cards, footer. */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  width: 100%;
+  max-width: 72rem;
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin-inline: auto;
+  padding:
+    max(var(--space-4), env(safe-area-inset-top))
+    max(var(--space-4), env(safe-area-inset-right))
+    max(var(--space-5), env(safe-area-inset-bottom))
+    max(var(--space-4), env(safe-area-inset-left));
+}
+
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.view {
+  display: grid;
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.results {
+  display: grid;
+  gap: var(--space-4);
+  min-width: 0;
+}
+
+.card {
+  min-width: 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+}
+
+.stack {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+}
+
+.app-footer {
+  max-width: 46rem;
+  margin-top: auto;
+  padding-top: var(--space-4);
+  color: var(--text-muted);
+  font-size: var(--fs-sm);
+}
+
+/* Keep the page still behind the open rates dialog. */
+body:has(.dialog[open]) {
+  overflow: hidden;
+}

@@ -1,82 +1,95 @@
-# System Architecture & Technical Specifications
+# Architecture
 
-## 1. Overview
-The **Upstox Options & Compounding Suite** is a quantitative financial calculator engineered to solve two critical problems for options traders on Indian exchanges (NSE & BSE):
-1. **Analytical Target Sell Price Solver:** Accurately calculating the exact exit price required to guarantee a target net ROI after accounting for all statutory taxes (STT, GST, Stamp Duty, SEBI, Exchange fees), Upstox ₹30/order brokerage, bid-ask slippage, next-trade re-entry funding, and exchange ₹0.05 tick size constraints.
-2. **Discrete Compounding Velocity Engine:** Determining the exact natural number of trades and daily pacing required to compound capital from initial to target goals.
+## Shape
 
----
+A static site. `public/` is the product: HTML, CSS and ES modules served as they are. There is no bundler, no transpiler and no
+runtime dependency. Node is used only for the dev server, the live check and the tests.
 
-## 2. Directory Hierarchy (Industrial Clean Architecture)
+## Modules
 
 ```
-upstox-calculator/
-├── .github/
-│   └── workflows/
-│       └── ci.yml                     # Continuous integration workflow
-├── docs/
-│   ├── ARCHITECTURE.md               # Technical architecture & design
-│   └── TARIFF_REGULATORY_2026.md     # Upstox & SEBI statutory breakdown
-├── scripts/
-│   ├── options_brokerage_calculator.py  # Python standalone CLI calculator
-│   └── upstox_live_charges_verifier.py  # Live Upstox API charge verifier
-├── src/
-│   ├── css/
-│   │   ├── tokens.css                # 8K Design tokens, solar porcelain palette
-│   │   ├── base.css                  # Canvas resets, body background, typography
-│   │   ├── layout.css                # 2-column grid, responsive media queries
-│   │   ├── components/
-│   │   │   ├── header.css            # Logo, tab pills, radar pulse dot
-│   │   │   ├── forms.css             # Inputs, chips, iOS tactile switch
-│   │   │   ├── cards.css             # Metric cards, hero card, 8K numeral alignment
-│   │   │   ├── sensitivity.css       # Capital carryover & matrix cards
-│   │   │   └── modal.css             # 2026 Tariff rules dialog
-│   │   └── main.css                  # Master CSS bundle
-│   └── js/
-│       ├── config/
-│       │   └── constants.js          # Upstox tariff rates, indices, defaults
-│       ├── engines/
-│       │   ├── optionsEngine.js      # Pure analytical solver for options target
-│       │   └── compoundingEngine.js  # Pure discrete solver for compounding velocity
-│       ├── formatters/
-│       │   └── metricFormatters.js   # 8K Numeral micro-alignment & currency
-│       ├── ui/
-│       │   ├── domElements.js        # Cached DOM element selectors
-│       │   └── renderers.js          # Dashboard renderers & modal handlers
-│       └── main.js                   # Application coordinator & event bindings
-├── tests/
-│   ├── test_options_calculator.py    # Unit tests for tax/brokerage accuracy
-│   └── test_compounding_velocity.py  # Unit tests for natural trade ceiling
-├── .editorconfig                     # Consistent cross-editor formatting
-├── .gitignore                        # Git ignore patterns
-├── index.html                        # Semantic HTML5 entry point
-├── package.json                      # NPM scripts and project metadata
-└── README.md                         # Comprehensive documentation
+config/   Numbers that change: tariff.js, instruments.js, defaults.js. No logic beyond deriving max lots.
+engine/   Pure functions. No DOM, no globals. All pricing rules live here.
+ui/       DOM only. Formats engine results and renders them. dom.js lists every element id the scripts use.
+main.js   Holds the state and wires events.
 ```
 
----
+Imports only point one way: `config` ← `engine` ← `ui` ← `main`. A test enforces it, and another checks that every module on
+disk is reachable from `main.js`, so dead files cannot hide.
 
-## 3. Data Flow & Execution Pipeline
+## Data flow
 
-```mermaid
-graph TD
-    A[User Input: Buy Price, Lots, Target %, Slippage] --> B(src/js/main.js: syncOptionsFromDOM)
-    B --> C(src/js/engines/optionsEngine.js: computeOptionsTrade)
-    C --> D[Pure Calculation Result Object]
-    D --> E(src/js/formatters/metricFormatters.js: formatMetricHTML)
-    E --> F(src/js/ui/renderers.js: renderOptions)
-    F --> G[DOM Output: 8K High-Precision Numeral Alignment]
+```
+input, click or keystroke  →  state (two plain objects)  →  computeTrade / computeCompounding  →  render
 ```
 
----
+The engine normalises whatever it is given: lots are a whole number within one order's freeze limit, prices snap to the tick,
+ranges are clamped, and unknown instruments or plans fall back to the defaults. The UI therefore cannot feed it a bad value, and
+the engine has no hidden defaults of its own.
 
-## 4. Key Mathematical Invariants
+## The maths
 
-1. **Exchange Tick Size Quantization:**
-   NSE and BSE equity derivative contracts strictly trade in ₹0.05 increments. All calculated limit sell prices and breakevens ceiling up to the nearest valid multiple of 0.05:
-   $$\text{Price}_{\text{NSE}} = \frac{\lceil P_{\text{exact}} \times 20 \rceil}{20}$$
+**Charges on one order** are brokerage, STT (sell only), exchange fee, SEBI fee, stamp duty (buy only) and GST on
+brokerage plus the exchange fee. For a fixed side and venue they are affine in turnover: `total = fixed + rate × turnover`.
+`chargeCoefficients` derives `fixed` and `rate` from `legCharges` itself, so the forward calculation and the inverse below share
+one formula.
 
-2. **Natural Number Discrete Pacing:**
-   Traders can only execute natural whole trades (e.g. 1 trade, 2 trades). Fraction-of-a-trade averages (such as 1.16 trades/day) or ambiguous ranges (1–2 trades/day) are eliminated by computing:
-   $$\text{Daily Trades} = \max\left(1, \left\lceil \frac{\text{Total Trades}}{\text{Available Days}} \right\rceil\right)$$
-   $$\text{Days Needed} = \left\lceil \frac{\text{Total Trades}}{\text{Daily Trades}} \right\rceil \le \text{Available Days}$$
+**The target sell price.** You buy at `buyPrice + slippage` and sell at `sellPrice − slippage`:
+
+```
+net = sellTurnover − buyTurnover − buyCharges − (fixed + rate × sellTurnover)
+sellTurnover = (net + buyTurnover + buyCharges + fixed) / (1 − rate)
+sellPrice    = ceilToTick(sellTurnover / quantity + slippage)
+```
+
+Rounding up to the tick means the order you place never falls short. The required net is
+`buyTurnover × target% + nextEntryFee` when the fee toggle is on.
+
+**Breakeven** is the same solve with a required net of zero. It depends only on the trade, so it does not move when the target
+or the fee toggle changes.
+
+**Next entry fee** has one definition, the buy-leg charges at the same size. Capital ready to redeploy is
+`buyTurnover + netProfit − nextEntryFee`.
+
+**Compounding.** Each trade grows capital by `returnPct × deployPct`. Trades needed is
+`ceil(ln(target / initial) / ln(1 + growth))`, with a small epsilon so a whole-number answer such as 1000 to 1331 at 10% is not
+rounded up by floating point noise. Per day is the trades divided by the trading days available, rounded up; the days needed
+follow from that pace. A target at or below the starting capital, or a return of zero, gives a status instead of a number.
+
+## Input fields
+
+Typing updates the results as soon as the value is valid and in range. An invalid value is flagged, ignored, and the last good
+result stays on screen. The box is never rewritten while the cursor is in it. Leaving the field (or pressing Enter) clamps and
+snaps the value, then writes it back so the box shows what the maths used.
+
+## Security and headers
+
+- The Content-Security-Policy in `index.html` allows only same-origin scripts and styles plus Google Fonts. There is no inline
+  script, inline style or inline event handler, and nothing sets `innerHTML`.
+- `_headers` adds what a `<meta>` tag cannot (`frame-ancestors`) and the usual hardening headers.
+- The deploy root is `public/`, so files at the repository root, `.env` included, are never served.
+
+## Tests
+
+| Suite | Guards against |
+| --- | --- |
+| `charges`, `options` | A wrong rate or formula. Reference values come from a separate Decimal implementation. |
+| `compounding` | Off-by-one trade counts and the wrong message for a bad input. |
+| `format` | Wrong grouping, `-0`, `NaN` on screen. |
+| `verify-live` | Misreading Upstox's response, and leaking the token. |
+| `dev-server` | Serving files outside `public/`, wrong content types. |
+| `contract` | Markup, CSS, config and docs drifting apart. |
+
+## Common changes
+
+**Add an instrument.** Add one entry to `INSTRUMENTS` in `config/instruments.js`. The chips and the rates dialog pick it up.
+Add its row to `docs/TARIFF.md`, bump `DATA_REVIEWED_ON`, run `npm test`.
+
+**Change a rate.** Edit `config/tariff.js`, update the table in `docs/TARIFF.md`, bump `DATA_REVIEWED_ON`, run `npm test`, then
+run the live check.
+
+**Add an input.** Add the element to `index.html`, its id to `IDS` in `ui/dom.js`, and a `bindNumericField` call in `main.js`.
+Put its limits in `LIMITS`. The contract test will tell you if any of the three is missing.
+
+**Serve faster on a very slow link.** Bundle the modules with a tool such as esbuild into one file and point the script tag at it.
+With HTTP/2 the 14 small modules are fine, so this is not done by default.

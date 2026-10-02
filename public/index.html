@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#ebe8df">
+  <meta name="description" content="Find the sell price that hits your net profit target on Nifty, Bank Nifty and Sensex options, and plan how many trades it takes to compound your capital.">
+  <title>Options Suite: target price and compounding planner</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <svg class="sprite" aria-hidden="true" focusable="false" width="0" height="0">
+    <symbol id="i-bolt" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></symbol>
+    <symbol id="i-trend" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></symbol>
+    <symbol id="i-reset" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></symbol>
+  </svg>
+
+  <a class="skip-link" href="#main">Skip to the calculators</a>
+
+  <div class="app">
+    <header class="app-header">
+      <div class="brand">
+        <svg class="icon brand__mark" aria-hidden="true"><use href="#i-bolt"/></svg>
+        <div>
+          <h1 class="brand__name">Options Suite</h1>
+          <p class="brand__tagline">Target prices and compounding plans for index options</p>
+        </div>
+      </div>
+      <button class="btn" type="button" id="open-tariff" aria-haspopup="dialog">
+        <svg class="icon" aria-hidden="true"><use href="#i-info"/></svg>
+        <span>Rates used</span>
+      </button>
+    </header>
+
+    <noscript>
+      <p class="notice">This calculator needs JavaScript. Turn it on and reload to see prices.</p>
+    </noscript>
+
+    <div class="tabs" role="tablist" aria-label="Calculator">
+      <button class="tab" type="button" role="tab" id="tab-options" aria-selected="true" aria-controls="view-options">
+        <svg class="icon" aria-hidden="true"><use href="#i-target"/></svg>
+        <span>Target price</span>
+      </button>
+      <button class="tab" type="button" role="tab" id="tab-compounding" aria-selected="false" aria-controls="view-compounding" tabindex="-1">
+        <svg class="icon" aria-hidden="true"><use href="#i-trend"/></svg>
+        <span>Compounding</span>
+      </button>
+    </div>
+
+    <main id="main">
+      <!-- Target price -->
+      <div class="view" id="view-options" role="tabpanel" aria-labelledby="tab-options">
+        <section class="card stack" aria-labelledby="setup-title">
+          <h2 class="card__title" id="setup-title">Trade setup</h2>
+
+          <div class="field" role="group" aria-labelledby="instrument-label">
+            <span class="field__label" id="instrument-label">Instrument</span>
+            <div class="chips" id="instrument-chips"></div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label class="field__label" for="lots">Lots</label>
+              <input class="input" id="lots" type="number" inputmode="numeric" min="1" step="1" autocomplete="off" aria-describedby="lots-hint">
+              <p class="hint" id="lots-hint">Whole lots in a single order.</p>
+            </div>
+            <div class="field">
+              <span class="field__label" id="quantity-label">Quantity</span>
+              <output class="readout" id="quantity" aria-labelledby="quantity-label">&mdash;</output>
+              <p class="hint" id="quantity-note"></p>
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label class="field__label" for="buy-price">Buy price (&#8377;)</label>
+              <input class="input" id="buy-price" type="number" inputmode="decimal" min="0" step="0.05" autocomplete="off" aria-describedby="buy-price-hint">
+              <p class="hint" id="buy-price-hint">The premium you expect to pay.</p>
+            </div>
+            <div class="field">
+              <label class="field__label" for="slippage">Slippage (&#8377;)</label>
+              <input class="input" id="slippage" type="number" inputmode="decimal" min="0" step="0.05" autocomplete="off" aria-describedby="slippage-hint">
+              <p class="hint" id="slippage-hint">Added to your buy and taken off your sell.</p>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="target-pct">Target profit (% of capital)</label>
+            <input class="input" id="target-pct" type="number" inputmode="decimal" min="0" step="0.5" autocomplete="off" aria-describedby="target-pct-hint">
+            <p class="hint" id="target-pct-hint">Net profit after every charge, as a share of the money you put in.</p>
+            <div class="chips" id="target-chips" role="group" aria-label="Target profit presets"></div>
+          </div>
+
+          <label class="switch">
+            <input class="switch__input" type="checkbox" role="switch" id="include-fee">
+            <span class="switch__track" aria-hidden="true"></span>
+            <span>Include the next entry fee in the target</span>
+          </label>
+
+          <div class="field" role="group" aria-labelledby="plan-label">
+            <span class="field__label" id="plan-label">Brokerage plan</span>
+            <div class="chips" id="plan-chips"></div>
+          </div>
+
+          <button class="btn" type="button" id="reset-options">
+            <svg class="icon" aria-hidden="true"><use href="#i-reset"/></svg>
+            <span>Reset inputs</span>
+          </button>
+        </section>
+
+        <div class="results">
+          <section class="hero" aria-labelledby="hero-title">
+            <h2 class="hero__label" id="hero-title">Sell at or above</h2>
+            <p class="hero__value metric" id="target-price">&mdash;</p>
+            <p class="hero__note" id="target-move"></p>
+            <dl class="stats">
+              <div class="stat"><dt>Breakeven price</dt><dd class="metric" id="breakeven">&mdash;</dd></div>
+              <div class="stat"><dt>Net profit</dt><dd class="metric" id="net-profit">&mdash;</dd></div>
+              <div class="stat"><dt>Total charges</dt><dd class="metric" id="total-charges">&mdash;</dd></div>
+              <div class="stat"><dt>Slippage cost</dt><dd class="metric" id="slippage-cost">&mdash;</dd></div>
+            </dl>
+          </section>
+
+          <section class="card" aria-labelledby="next-title">
+            <h2 class="card__title" id="next-title">Capital for the next trade</h2>
+            <dl class="stats">
+              <div class="stat"><dt>Capital after this trade</dt><dd class="metric" id="capital-after">&mdash;</dd></div>
+              <div class="stat"><dt>Next entry fee</dt><dd class="metric" id="next-fee">&mdash;</dd></div>
+              <div class="stat"><dt>Ready to redeploy</dt><dd class="metric" id="capital-ready">&mdash;</dd></div>
+            </dl>
+            <p class="note" id="capital-ready-note"></p>
+          </section>
+
+          <details class="card details">
+            <summary>Charges breakdown</summary>
+            <div class="table-wrap">
+              <table class="table">
+                <caption class="sr-only">Charges on the buy and sell orders, in rupees</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Charge</th>
+                    <th scope="col" class="num">Buy</th>
+                    <th scope="col" class="num">Sell</th>
+                    <th scope="col" class="num">Total</th>
+                  </tr>
+                </thead>
+                <tbody id="breakdown"></tbody>
+              </table>
+            </div>
+          </details>
+
+          <section class="card" aria-labelledby="ladder-title">
+            <h2 class="card__title" id="ladder-title">Other targets</h2>
+            <div class="table-wrap">
+              <table class="table">
+                <caption class="sr-only">Sell price needed for each profit target, with the same trade setup</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Target</th>
+                    <th scope="col" class="num">Sell at or above</th>
+                    <th scope="col" class="num">Net profit</th>
+                  </tr>
+                </thead>
+                <tbody id="ladder"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- Compounding plan -->
+      <div class="view" id="view-compounding" role="tabpanel" aria-labelledby="tab-compounding" hidden>
+        <section class="card stack" aria-labelledby="plan-title">
+          <h2 class="card__title" id="plan-title">Your plan</h2>
+
+          <div class="field-row">
+            <div class="field">
+              <label class="field__label" for="initial">Starting capital (&#8377;)</label>
+              <input class="input" id="initial" type="number" inputmode="decimal" min="0" step="1000" autocomplete="off" aria-describedby="initial-hint">
+              <p class="hint" id="initial-hint">What you begin with.</p>
+            </div>
+            <div class="field">
+              <label class="field__label" for="target-capital">Target capital (&#8377;)</label>
+              <input class="input" id="target-capital" type="number" inputmode="decimal" min="0" step="1000" autocomplete="off" aria-describedby="target-capital-hint">
+              <p class="hint" id="target-capital-hint">What you want to reach.</p>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="field__label" for="return-pct">Return per trade (%)</label>
+            <input class="input" id="return-pct" type="number" inputmode="decimal" min="0" step="0.1" autocomplete="off" aria-describedby="return-pct-hint">
+            <p class="hint" id="return-pct-hint">Net gain on the capital you deploy in each trade.</p>
+          </div>
+
+          <div class="field" role="group" aria-labelledby="deploy-label">
+            <span class="field__label" id="deploy-label">Share of capital deployed per trade</span>
+            <div class="chips" id="deploy-chips"></div>
+          </div>
+
+          <div class="field-row">
+            <div class="field">
+              <label class="field__label" for="days-per-year">Days per year</label>
+              <input class="input" id="days-per-year" type="number" inputmode="numeric" min="1" step="1" autocomplete="off" aria-describedby="days-per-year-hint">
+              <p class="hint" id="days-per-year-hint">Trading days you expect in a year.</p>
+            </div>
+            <div class="field">
+              <label class="field__label" for="years">Years to goal</label>
+              <input class="input" id="years" type="number" inputmode="decimal" min="0" step="0.5" autocomplete="off" aria-describedby="years-hint">
+              <p class="hint" id="years-hint">Sets how many trading days you have.</p>
+            </div>
+          </div>
+
+          <button class="btn" type="button" id="reset-compounding">
+            <svg class="icon" aria-hidden="true"><use href="#i-reset"/></svg>
+            <span>Reset inputs</span>
+          </button>
+        </section>
+
+        <div class="results">
+          <p class="notice" id="comp-message" role="status" hidden></p>
+
+          <section class="hero" aria-labelledby="trades-title">
+            <h2 class="hero__label" id="trades-title">Trades needed</h2>
+            <p class="hero__value metric" id="trades">&mdash;</p>
+            <p class="hero__note" id="trades-note"></p>
+          </section>
+
+          <div class="pace">
+            <section class="card" aria-labelledby="per-day-title">
+              <h2 class="card__title" id="per-day-title">Daily pace</h2>
+              <p class="pace__value metric" id="per-day">&mdash;</p>
+              <p class="note" id="per-day-note"></p>
+            </section>
+            <section class="card" aria-labelledby="per-month-title">
+              <h2 class="card__title" id="per-month-title">Monthly pace</h2>
+              <p class="pace__value metric" id="per-month">&mdash;</p>
+              <p class="note" id="per-month-note"></p>
+            </section>
+          </div>
+
+          <section class="card" id="whatif-card" aria-labelledby="whatif-title">
+            <h2 class="card__title" id="whatif-title">Deploying a different share</h2>
+            <div class="table-wrap">
+              <table class="table">
+                <caption class="sr-only">Trades needed for each share of capital deployed, with the trading days that takes</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Share</th>
+                    <th scope="col" class="num">Trades</th>
+                    <th scope="col" class="num">Per day</th>
+                    <th scope="col" class="num">Trading days</th>
+                  </tr>
+                </thead>
+                <tbody id="whatif"></tbody>
+              </table>
+            </div>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <footer class="app-footer">
+      <p>Estimates only, not investment advice. Charges follow Upstox's published schedule, but this tool is not affiliated with or endorsed by Upstox, NSE or BSE. Check the numbers against your contract note.</p>
+    </footer>
+  </div>
+
+  <p class="sr-only" id="live-status" role="status" aria-live="polite"></p>
+
+  <dialog class="dialog" id="tariff-dialog" aria-labelledby="tariff-title">
+    <div class="dialog__body">
+      <div class="dialog__head">
+        <h2 class="dialog__title" id="tariff-title">Rates used</h2>
+        <button class="btn btn--icon" type="button" id="close-tariff" aria-label="Close">
+          <svg class="icon" aria-hidden="true"><use href="#i-x"/></svg>
+        </button>
+      </div>
+      <p class="note">Rates and contract sizes last checked on <span id="tariff-reviewed"></span>. They change; confirm on the <a class="link" href="https://upstox.com/brokerage-charges/" target="_blank" rel="noopener noreferrer">Upstox charges page</a> before relying on them.</p>
+
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="sr-only">Charge rates</caption>
+          <thead>
+            <tr><th scope="col">Charge</th><th scope="col">Rate</th><th scope="col">Applies to</th></tr>
+          </thead>
+          <tbody id="tariff-rates"></tbody>
+        </table>
+      </div>
+
+      <h3 class="dialog__subtitle">Contracts</h3>
+      <div class="table-wrap">
+        <table class="table">
+          <caption class="sr-only">Lot size and single-order limit for each index</caption>
+          <thead>
+            <tr>
+              <th scope="col">Index</th>
+              <th scope="col" class="num">Lot size</th>
+              <th scope="col" class="num">Order limit (units)</th>
+              <th scope="col" class="num">Max lots</th>
+            </tr>
+          </thead>
+          <tbody id="tariff-contracts"></tbody>
+        </table>
+      </div>
+    </div>
+  </dialog>
+</body>
+</html>

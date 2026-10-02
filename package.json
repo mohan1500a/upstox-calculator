@@ -1,26 +1,17 @@
 {
-  "name": "upstox-calculator-suite",
+  "name": "options-suite",
   "version": "1.0.0",
-  "description": "High-Precision Options Target Sell Price & Compounding Velocity Engine (Upstox 2026 Statutory Rules)",
-  "main": "src/js/main.js",
+  "description": "Target sell price and compounding planner for Nifty, Bank Nifty and Sensex options.",
+  "private": true,
   "type": "module",
-  "scripts": {
-    "start": "python3 -m http.server 8000",
-    "test": "python3 -m unittest discover -s tests -p \"test_*.py\" -v",
-    "verify:live": "python3 scripts/upstox_live_charges_verifier.py",
-    "cli:calculate": "python3 scripts/options_brokerage_calculator.py"
-  },
-  "keywords": [
-    "upstox",
-    "options-calculator",
-    "brokerage-calculator",
-    "compounding-calculator",
-    "nse",
-    "bse",
-    "nifty",
-    "banknifty",
-    "fintech"
-  ],
+  "license": "MIT",
   "author": "Naga Mohan",
-  "license": "MIT"
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node scripts/dev-server.js",
+    "test": "node --test",
+    "verify:live": "node scripts/verify-live.js"
+  }
 }

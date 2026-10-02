@@ -1,79 +1,98 @@
-# Upstox Options Target Sell Price & Compounding Velocity Suite (Official 2026 Rules)
+# Options Suite
 
-A high-performance, real-time quantitative trading suite for calculating:
-1. **Options Target Sell Price & Re-entry Engine** — Computes exact limit sell prices required to achieve target Net ROI goals after accounting for Upstox 2026 statutory taxes (STT, Exchange txn fees, SEBI, Stamp duty, GST), execution slippage, and dynamic next trade entry fees.
-2. **Compounding Velocity 200-Day Target Growth Engine** — Computes exact compound trade velocity, daily/monthly trade frequency, and sensitivity allocation breakdowns (10% to 100% capital deployed) to compound initial capital into target wealth goals.
+Two calculators for index options traders in India. They run entirely in the browser.
 
----
+- **Target price.** From your buy price, lots and profit target, it finds the sell price that delivers that net profit after
+  brokerage, STT, exchange fee, SEBI fee, stamp duty and GST. It also shows the breakeven price, the capital you will have
+  for the next trade, and the price needed for other targets.
+- **Compounding plan.** How many trades it takes to grow capital from one figure to another, and what that means per day
+  and per month.
 
-## ⚡ Core Features
+Covers Nifty 50, Bank Nifty and Sensex options. Charges follow Upstox's published schedule.
+This project is not affiliated with or endorsed by Upstox, NSE or BSE. Its output is an estimate, not investment advice.
 
-- **Upstox Official Statutory Rates (Verified via Upstox Live API)**:
-  - **Brokerage**: ₹30 / executed order (₹60 roundtrip flat).
-  - **STT**: 0.15% on sell-side premium value (Buy STT = ₹0.00).
-  - **Exchange Transaction Fee**: 0.0355% (NSE Options revised) on total buy + sell turnover.
-  - **SEBI Turnover Fee**: 0.0001% (₹10 / crore) on total turnover.
-  - **Stamp Duty**: 0.003% on buy-side premium value only.
-  - **GST**: 18% on (Brokerage + Exchange fees + SEBI fees).
+## Run it
 
-- **Indian Exchange Precision Rules**:
-  - **₹0.05 Exchange Tick Size (NSE / BSE)**: All equity and index option contracts trade strictly in multiples of ₹0.05. Target limit sell prices and breakevens are rounded up (`ceil` mode) to the next valid ₹0.05 tick. This ensures orders are accepted by exchange Risk Management Systems (RMS) and guarantees that realized profits meet or exceed the trader's target Net ROI.
-  - **Discrete Natural Number Velocity Model**: Trades are discrete physical events (cannot be executed as fractions like 1.16 or ambiguous ranges like 1–2). To complete $N$ target trades within a $D$-day limit, the engine computes the required whole daily execution rate: $\text{Daily Trades} = \max(1, \lceil N / D \rceil)$. The exact completion time is then: $\text{Days Needed} = \lceil N / \text{Daily Trades} \rceil \le D$, ensuring strict arithmetic truth without fractional anomalies (e.g. taking $2\text{ trades/day}$ completes $232\text{ trades}$ in exactly $116\text{ trading days}$, well within the $200$-day target).
+Node 22 or newer is needed for the dev server and the tests. The app itself is plain static files with no build step and no
+dependencies to install.
 
-- **Dynamic Index & Lot Size Caps**:
-  - `NIFTY` (65 / lot, max 27 lots = 1,755 qty)
-  - `BANKNIFTY` (30 / lot, max 20 lots = 600 qty)
-  - `FINNIFTY` (65 / lot, max 27 lots = 1,755 qty)
-  - `MIDCPNIFTY` (120 / lot, max 24 lots = 2,880 qty)
-  - `SENSEX` (20 / lot, max 50 lots = 1,000 qty)
-  - `BANKEX` (30 / lot, max 50 lots = 1,500 qty)
-
-- **Compounding Growth Model**:
-  - Compound Rate Formula: $R_{eff} = (\text{Deploy \%} / 100) \times (\text{Return \%} / 100)$
-  - Exact Trades Formula: $N_{trades} = \frac{\ln(\text{Final Capital} / \text{Initial Capital})}{\ln(1 + R_{eff})}$
-  - Caps trading days per year to 200–240 active market days.
-
----
-
-## 💻 Tech Stack & Architecture
-
-- **Frontend**: HTML5, Vanilla CSS (Lumos Dark Theme Design System), Modular ES6+ JavaScript.
-- **Python Quantitative Core**: Python 3.9+ with `@dataclass(frozen=True)` and type annotations.
-- **Zero Dependencies**: Pure standard library execution with zero external NPM or PyPI dependencies.
-
----
-
-## 🚀 Running Locally
-
-### 1. Web Application
-To run the local web server:
-
-```bash
-python3 -m http.server 8000
+```sh
+npm start      # http://127.0.0.1:8080
+npm test
 ```
 
-Then navigate to:
-- **Options Target Engine**: [http://localhost:8000/index.html](http://localhost:8000/index.html)
-- **Compounding Velocity Engine**: [http://localhost:8000/index.html?tab=compounding](http://localhost:8000/index.html?tab=compounding)
+## Layout
 
-### 2. Python Quantitative CLI
-To run the Python engine CLI:
-
-```bash
-python3 scripts/options_brokerage_calculator.py
+```
+public/                 The whole site. Deploy this folder and nothing else.
+  index.html
+  css/                  tokens, base, layout, components, responsive
+  js/
+    config/             Rates, contract sizes, defaults. Numbers only.
+    engine/             Pure maths. No DOM.
+    ui/                 Formatting and rendering.
+    main.js             State and wiring.
+  _headers              Security and caching headers for Netlify and Cloudflare Pages.
+scripts/
+  dev-server.js         Static server for local work, bound to 127.0.0.1.
+  verify-live.js        Checks the calculator against Upstox's own charges API.
+tests/                  node:test suites.
+docs/
+  ARCHITECTURE.md       How it fits together and how to change it.
+  TARIFF.md             Every rate, where it came from, and how sure we are.
 ```
 
-### 3. Live Upstox API Charges Auditor
-To audit real-time brokerage and statutory taxes directly against Upstox's live production API:
+## Deploy
 
-1. Copy `.env.example` to `.env` and configure your Upstox API credentials.
-2. Run the live auditor:
+Publish the `public/` folder. There is no build command.
 
-```bash
-python3 scripts/upstox_live_charges_verifier.py
+- **Netlify and Cloudflare Pages:** set the publish directory to `public`. The `_headers` file is applied automatically.
+- **GitHub Pages:** publish the contents of `public/`. Pages cannot set response headers, so the `<meta>` Content-Security-Policy
+  still applies but `frame-ancestors` and the other headers in `_headers` do not.
+- **Any other host:** serve `public/` and copy the headers from `public/_headers` into the host's own configuration.
+
+Do not point a host at the repository root. Keep `.env` out of anything that is published; that is why the site lives in `public/`.
+
+Every response is sent with `Cache-Control: no-cache`, so browsers revalidate on each visit and a deploy is picked up
+straight away. There are no version strings to bump.
+
+The page loads the Plus Jakarta Sans font from Google Fonts and falls back to system fonts if that is blocked. To self-host it,
+put the font files in `public/fonts/`, add the `@font-face` rules to `css/base.css`, and remove the two Google hosts from the
+`Content-Security-Policy` meta tag in `index.html`.
+
+## Keeping the rates right
+
+Rates and contract sizes live in `public/js/config/`. [docs/TARIFF.md](docs/TARIFF.md) lists each figure with its source and
+the date it was last checked. The tests fail if that page and the code disagree.
+
+To compare the calculator with Upstox's own numbers for a real contract:
+
+```sh
+cp .env.example .env         # then paste today's access token into .env
+npm run verify:live -- --instrument-key "NSE_FO|12345" --quantity 65
 ```
 
----
+It asks Upstox's charges API about a buy and a sell, lines every charge up against this calculator, and exits 1 if any differ.
+Access tokens expire daily at about 3:30 AM IST. The token is never printed. `npm run verify:live -- --help` explains the options
+and where to find a current instrument key.
 
-## 📄 License & Attribution
-Designed & developed for indicative options trading analysis based on official Upstox 2026 statutory rates.
+## Tests
+
+`npm test` runs without installing anything. The suites cover:
+
+- **Charges and options.** Reference values computed independently, plus a grid of over 2,000 trades checking that the sell price is
+  the lowest tick that delivers the target.
+- **Compounding.** Reference plans, edge cases, and a grid checking the trade count is the smallest that reaches the goal.
+- **Formatting.** Indian digit grouping, signs, compact amounts.
+- **The live check.** The Upstox response handling, with mocked replies, including that the token never reaches the output.
+- **The dev server.** Content types, headers and path traversal.
+- **The project itself.** Every element the scripts use exists in the HTML, no unused CSS or variables, no inline scripts or
+  styles, contrast ratios, the docs matching the config, and a scan for committed secrets.
+
+## Browser support
+
+Current Chrome, Edge, Firefox and Safari. The page uses ES modules, the `<dialog>` element and CSS `:has()`.
+
+## Licence
+
+MIT. See [LICENSE](LICENSE). Icons are adapted from [Feather](https://feathericons.com), also MIT.

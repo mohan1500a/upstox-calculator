@@ -1,27 +1,23 @@
-# Environment variables
+# Secrets. Only the empty template is tracked.
 .env
-.env.local
-*.env
+.env.*
+!.env.example
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-venv/
-.venv/
-
-# Node
+# Dependencies and build output
 node_modules/
-
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
+coverage/
+dist/
 
 # Logs
 *.log
+npm-debug.log*
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Audit, review and scratch
+review.jsonl
+update_cal/

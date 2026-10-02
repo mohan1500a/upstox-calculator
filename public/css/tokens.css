@@ -1,0 +1,48 @@
+/* Design tokens. Every variable defined here is used somewhere; the contract test enforces it. */
+
+:root {
+  color-scheme: light;
+
+  /* surfaces */
+  --canvas: #ebe8df;
+  --surface: #ffffff;
+  --surface-muted: #f5f2ea;
+  --line: #ddd8cb;
+  --line-strong: #8a8578;
+
+  /* text */
+  --text: #22201c;
+  --text-muted: #5c5950;
+
+  /* accent: --accent is for fills, --accent-strong for small text and icons on light surfaces */
+  --accent: #ff6200;
+  --accent-strong: #b83c00;
+  --accent-soft: #fff0e5;
+  --on-accent-panel: rgb(255 255 255 / 32%);
+
+  /* state */
+  --focus: #0b57d0;
+  --danger: #b3261e;
+
+  /* type */
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --fs-sm: 0.8125rem;
+  --fs-md: 0.9375rem;
+  --fs-lg: 1.125rem;
+  --fs-xl: 1.5rem;
+  --fs-hero: clamp(2.75rem, 10vw, 4.75rem);
+
+  /* spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+
+  /* shape */
+  --radius-lg: 24px;
+  --radius-md: 14px;
+  --radius-pill: 999px;
+  --shadow-card: 0 1px 2px rgb(34 32 28 / 6%), 0 10px 30px rgb(34 32 28 / 6%);
+}
