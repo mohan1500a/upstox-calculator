@@ -139,8 +139,8 @@ test('Sensex is charged at the BSE rate, Nifty at the NSE rate', () => {
 
 test('quantity is always lots times lot size, even for oversized input', () => {
   assert.equal(computeTrade({ lots: 2 }).quantity, 130);
-  assert.equal(computeTrade({ lots: 100 }).quantity, 65 * 54);
-  assert.equal(computeTrade({ instrument: 'BANKNIFTY', lots: 100 }).quantity, 30 * 48);
+  assert.equal(computeTrade({ lots: 100 }).quantity, 65 * 27);
+  assert.equal(computeTrade({ instrument: 'BANKNIFTY', lots: 100 }).quantity, 30 * 20);
   assert.equal(computeTrade({ instrument: 'SENSEX', lots: 100 }).quantity, 20 * 50);
   assert.equal(computeTrade({ lots: 0 }).quantity, 65);
 });
@@ -191,7 +191,7 @@ test('the target ladder reuses the same maths and marks the active target', () =
 test('contract specs: lot caps follow the exchange freeze quantities', () => {
   assert.deepEqual(
     Object.fromEntries(Object.entries(INSTRUMENTS).map(([key, spec]) => [key, [spec.lotSize, spec.freezeQty, spec.maxLots, spec.exchange]])),
-    { NIFTY: [65, 3510, 54, 'NSE'], BANKNIFTY: [30, 1440, 48, 'NSE'], SENSEX: [20, 1000, 50, 'BSE'] },
+    { NIFTY: [65, 1800, 27, 'NSE'], BANKNIFTY: [30, 600, 20, 'NSE'], SENSEX: [20, 1000, 50, 'BSE'] },
   );
   for (const spec of Object.values(INSTRUMENTS)) {
     assert.ok(spec.maxLots * spec.lotSize <= spec.freezeQty, 'max lots fit inside the freeze quantity');
