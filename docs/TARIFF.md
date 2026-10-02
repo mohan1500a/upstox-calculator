@@ -4,7 +4,7 @@ The calculator's numbers come from one file, `public/js/config/tariff.js`, with 
 `public/js/config/instruments.js`. This page explains where each figure comes from and how sure we are of it.
 `npm test` fails if the tables below and the code disagree, so update both together.
 
-Last reviewed: **2026-09-30**
+Last reviewed: **2026-10-02**
 
 ## Charges on index options
 
@@ -15,7 +15,7 @@ Rates apply to premium turnover (price × quantity) of each order.
 | Brokerage | ₹20 Standard, ₹30 Plus, flat per executed order | Both | Confirmed. Options are listed as a flat ₹20 per executed order; Upstox Plus is listed as "up to ₹30/order", which is what the Plus setting uses |
 | STT | 0.15% | Sell | Confirmed, effective 1 April 2026 |
 | Exchange fee, NSE | 0.03553% | Both | Confirmed, effective 1 March 2026. It was 0.03503% before; Upstox says IPFT is now combined into it, and the rise equals the old ₹0.50-per-lakh IPFT |
-| Exchange fee, BSE | 0.0325% | Both | Confirmed |
+| Exchange fee, BSE | 0.005% | Both | Confirmed via Upstox live charges API on 2026-10-02 (BSE options rate of ₹500/crore) |
 | SEBI fee | ₹10 per crore (0.0001%) | Both | Confirmed |
 | Stamp duty | 0.003% | Buy | Confirmed |
 | GST | 18% of brokerage plus the exchange fee | Both | Confirmed. Upstox lists brokerage, transaction charges and IPFT as the base |

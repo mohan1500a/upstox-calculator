@@ -10,7 +10,7 @@
  */
 
 /** When the rates here and the contract sizes in instruments.js were last checked. */
-export const DATA_REVIEWED_ON = '2026-09-30';
+export const DATA_REVIEWED_ON = '2026-10-02';
 
 /** Flat brokerage per executed order. Depends on the account plan. */
 export const BROKERAGE_PLANS = Object.freeze({
@@ -25,9 +25,9 @@ export const TARIFF = Object.freeze({
   /**
    * Exchange transaction charge, charged on both legs.
    * NSE: 0.03553% (Upstox's figure from 1 March 2026; it already includes IPFT).
-   * BSE: 0.0325%.
+   * BSE: 0.005% (verified against Upstox live charges API).
    */
-  exchangeRate: Object.freeze({ NSE: 0.0003553, BSE: 0.000325 }),
+  exchangeRate: Object.freeze({ NSE: 0.0003553, BSE: 0.00005 }),
   /** SEBI turnover fee: Rs 10 per crore, both legs. */
   sebiRate: 0.000001,
   /** Stamp duty, buy side only: 0.003%. */

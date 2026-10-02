@@ -46,8 +46,8 @@ test('Standard plan charges 20 per order', () => {
 });
 
 test('BSE uses its own exchange rate', () => {
-  assertLeg(legCharges('BUY', 62140, 'BSE', 'plus'), { exchange: 20.1955, gst: 9.03519, total: 61.15703 }, 'bse buy');
-  assertLeg(legCharges('SELL', 63350, 'BSE', 'plus'), { stt: 95.025, exchange: 20.58875, total: 154.783075 }, 'bse sell');
+  assertLeg(legCharges('BUY', 62140, 'BSE', 'plus'), { exchange: 3.107, gst: 5.95926, total: 40.9926 }, 'bse buy');
+  assertLeg(legCharges('SELL', 63350, 'BSE', 'plus'), { stt: 95.025, exchange: 3.1675, gst: 5.97015, total: 134.226 }, 'bse sell');
   const nse = legCharges('BUY', 100000, 'NSE', 'plus').exchange;
   const bse = legCharges('BUY', 100000, 'BSE', 'plus').exchange;
   assert.ok(nse > bse, 'NSE charges more than BSE on the same turnover');

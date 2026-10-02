@@ -49,8 +49,8 @@ const GOLDEN = [
     name: 'Sensex on BSE rates',
     input: { plan: 'plus', instrument: 'SENSEX', lots: 10, buyPrice: 310.2, slippage: 0.5, targetPct: 1.5 },
     expect: {
-      quantity: 200, buyTurnover: 62140, sellTurnover: 63350, reEntryFee: 61.15703, targetNet: 993.25703,
-      targetSellPrice: 317.25, breakevenSellPrice: 312.3, totalCharges: 215.940105, netProfit: 994.059895,
+      quantity: 200, buyTurnover: 62140, sellTurnover: 63290, reEntryFee: 40.9926, targetNet: 973.0926,
+      targetSellPrice: 316.95, breakevenSellPrice: 312.1, totalCharges: 175.125, netProfit: 974.875,
     },
   },
 ];
@@ -133,7 +133,7 @@ test('covering the next entry fee restores the starting capital', () => {
 test('Sensex is charged at the BSE rate, Nifty at the NSE rate', () => {
   const sensex = computeTrade({ instrument: 'SENSEX' });
   const nifty = computeTrade({ instrument: 'NIFTY' });
-  close(sensex.buyCharges.exchange / sensex.buyTurnover, 0.000325, 'BSE rate', 1e-12);
+  close(sensex.buyCharges.exchange / sensex.buyTurnover, 0.00005, 'BSE rate', 1e-12);
   close(nifty.buyCharges.exchange / nifty.buyTurnover, 0.0003553, 'NSE rate', 1e-12);
 });
 
